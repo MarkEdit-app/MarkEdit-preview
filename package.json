@@ -1,0 +1,43 @@
+{
+  "name": "markedit-preview",
+  "version": "1.0.0",
+  "description": "Markdown preview for MarkEdit.",
+  "scripts": {
+    "lint": "eslint . --config eslint.config.mjs",
+    "build": "yarn lint && vite build",
+    "build:lite": "cross-env LITE_BUILD=true vite build",
+    "reload": "osascript -e 'quit app \"MarkEdit\"' -e 'delay 1' -e 'launch app \"MarkEdit\"'",
+    "uninstall": "rm ~/Library/Containers/app.cyan.markedit/Data/Documents/scripts/$(node -p \"require('./package.json').name\").js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@codemirror/language": "^6.0.0",
+    "@codemirror/state": "^6.0.0",
+    "@codemirror/view": "^6.0.0",
+    "@lezer/markdown": "^1.0.0",
+    "@types/markdown-it": "^14.1.2",
+    "@types/markdown-it-footnote": "^3.0.4",
+    "@types/markdown-it-link-attributes": "^3.0.5",
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.27.0",
+    "markedit-api": "https://github.com/MarkEdit-app/MarkEdit-api#v0.9.0",
+    "markedit-vite": "https://github.com/MarkEdit-app/MarkEdit-vite#v0.1.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0",
+    "vite-plugin-singlefile": "^2.2.0"
+  },
+  "dependencies": {
+    "@vscode/markdown-it-katex": "^1.1.1",
+    "katex": "^0.16.22",
+    "markdown-it": "^14.1.0",
+    "markdown-it-footnote": "^4.0.0",
+    "markdown-it-highlightjs": "^4.2.0",
+    "markdown-it-link-attributes": "^4.0.1",
+    "markdown-it-task-lists": "^2.1.1",
+    "mermaid": "^11.6.0",
+    "split-grid": "^1.0.11"
+  }
+}
