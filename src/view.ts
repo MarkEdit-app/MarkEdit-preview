@@ -58,6 +58,12 @@ export function setUp() {
       selectFullRange(previewPane);
     }
   });
+
+  const mutationObserver = new MutationObserver(updateGutterStyle);
+  mutationObserver.observe(previewPane, { attributes: true, attributeFilter: ['style', 'class'] });
+
+  const darkModeObserver = matchMedia('(prefers-color-scheme: dark)');
+  darkModeObserver.addEventListener('change', updateGutterStyle);
 }
 
 export function setViewMode(mode: ViewMode, needsDisplay = true) {
@@ -182,6 +188,11 @@ export function getPreviewPane() {
 function getRenderedHtml(lineInfo = true) {
   const markdown = MarkEdit.editorAPI.getText();
   return renderMarkdown(markdown, lineInfo);
+}
+
+function updateGutterStyle() {
+  const backgroundColor = getComputedStyle(previewPane).backgroundColor;
+  gutterView.style.background = `linear-gradient(to right, transparent 50%, ${backgroundColor} 50%)`;
 }
 
 async function saveGeneratedHtml(styled: boolean) {
