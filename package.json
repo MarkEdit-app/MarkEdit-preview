@@ -26,7 +26,7 @@
     "markedit-api": "https://github.com/MarkEdit-app/MarkEdit-api#v0.10.0",
     "markedit-vite": "https://github.com/MarkEdit-app/MarkEdit-vite#v0.2.0",
     "typescript": "^5.0.0",
-    "vite": "^6.0.0",
+    "vite": "^7.0.0",
     "vite-plugin-singlefile": "^2.2.0"
   },
   "dependencies": {

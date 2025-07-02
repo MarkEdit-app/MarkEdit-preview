@@ -1522,7 +1522,7 @@ fastq@^1.6.0:
   dependencies:
     reusify "^1.0.4"
 
-fdir@^6.4.4:
+fdir@^6.4.4, fdir@^6.4.6:
   version "6.4.6"
   resolved "https://registry.yarnpkg.com/fdir/-/fdir-6.4.6.tgz#2b268c0232697063111bbf3f64810a2a741ba281"
   integrity sha512-hiFoqpyZcfNm1yc4u8oWCf9A2c4D3QjCrks3zmoVKVxpQRzmPNar1hUJcBG2RQHvEVGDN+Jm81ZheVLAQMK6+w==
@@ -2015,7 +2015,7 @@ points-on-path@^0.2.1:
     path-data-parser "0.1.0"
     points-on-curve "0.2.0"
 
-postcss@^8.5.3:
+postcss@^8.5.6:
   version "8.5.6"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.5.6.tgz#2825006615a619b4f62a9e7426cc120b349a8f3c"
   integrity sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==
@@ -2064,7 +2064,7 @@ robust-predicates@^3.0.2:
   resolved "https://registry.yarnpkg.com/robust-predicates/-/robust-predicates-3.0.2.tgz#d5b28528c4824d20fc48df1928d41d9efa1ad771"
   integrity sha512-IXgzBWvWQwE6PrDI05OvmXUIruQTcoMDzRsOd5CDvHCVLcLHMTSYvOK5Cm46kWqlV3yAbuSpBZdJ5oP5OUoStg==
 
-rollup@^4.34.9:
+rollup@^4.40.0:
   version "4.44.1"
   resolved "https://registry.yarnpkg.com/rollup/-/rollup-4.44.1.tgz#641723932894e7acbe6052aea34b8e72ef8b7c8f"
   integrity sha512-x8H8aPvD+xbl0Do8oez5f5o8eMS3trfCghc4HhLAnCkj7Vl0d1JWGs0UF/D886zLW2rOj2QymV/JcSSsw+XDNg==
@@ -2174,7 +2174,7 @@ tinyexec@^1.0.1:
   resolved "https://registry.yarnpkg.com/tinyexec/-/tinyexec-1.0.1.tgz#70c31ab7abbb4aea0a24f55d120e5990bfa1e0b1"
   integrity sha512-5uC6DDlmeqiOwCPmK9jMSdOuZTh8bU39Ys6yidB+UTt5hfZUPGAypSgFRiEp+jbi9qH40BLDvy85jIU88wKSqw==
 
-tinyglobby@^0.2.13:
+tinyglobby@^0.2.14:
   version "0.2.14"
   resolved "https://registry.yarnpkg.com/tinyglobby/-/tinyglobby-0.2.14.tgz#5280b0cf3f972b050e74ae88406c0a6a58f4079d"
   integrity sha512-tX5e7OM1HnYr2+a2C/4V0htOcSQcoSTH9KgJnVvNm5zm/cyEWKJ7j7YutsH9CxMdtOkkLFy2AHrMci9IM8IPZQ==
@@ -2245,17 +2245,17 @@ vite-plugin-singlefile@^2.2.0:
   dependencies:
     micromatch "^4.0.8"
 
-vite@^6.0.0:
-  version "6.3.5"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-6.3.5.tgz#fec73879013c9c0128c8d284504c6d19410d12a3"
-  integrity sha512-cZn6NDFE7wdTpINgs++ZJ4N49W2vRp8LCKrn3Ob1kYNtOo21vfDoaV5GzBfLU4MovSAB8uNRm4jgzVQZ+mBzPQ==
+vite@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-7.0.0.tgz#5675bb4c956dd9da932583628e7758ab09fe761f"
+  integrity sha512-ixXJB1YRgDIw2OszKQS9WxGHKwLdCsbQNkpJN171udl6szi/rIySHL6/Os3s2+oE4P/FLD4dxg4mD7Wust+u5g==
   dependencies:
     esbuild "^0.25.0"
-    fdir "^6.4.4"
+    fdir "^6.4.6"
     picomatch "^4.0.2"
-    postcss "^8.5.3"
-    rollup "^4.34.9"
-    tinyglobby "^0.2.13"
+    postcss "^8.5.6"
+    rollup "^4.40.0"
+    tinyglobby "^0.2.14"
   optionalDependencies:
     fsevents "~2.3.3"
 
