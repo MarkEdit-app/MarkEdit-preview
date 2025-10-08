@@ -1,4 +1,5 @@
 import markdownit from 'markdown-it';
+import anchor from 'markdown-it-anchor';
 import mila from 'markdown-it-link-attributes';
 import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
@@ -56,7 +57,9 @@ const mdit = markdownit(markdownItPreset, {
 });
 
 // Link attributes
+mdit.use(anchor);
 mdit.use(mila, {
+  matcher: (href: string) => !href.startsWith('#'),
   attrs: {
     target: '_blank',
     rel: 'noopener',

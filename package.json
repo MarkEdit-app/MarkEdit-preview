@@ -1,6 +1,6 @@
 {
   "name": "markedit-preview",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Markdown preview for MarkEdit.",
   "scripts": {
     "lint": "eslint . --config eslint.config.mjs",
@@ -33,6 +33,7 @@
     "@vscode/markdown-it-katex": "^1.1.1",
     "katex": "^0.16.22",
     "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.2.0",
     "markdown-it-footnote": "^4.0.0",
     "markdown-it-highlightjs": "^4.2.0",
     "markdown-it-link-attributes": "^4.0.1",
