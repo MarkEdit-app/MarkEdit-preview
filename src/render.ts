@@ -3,7 +3,11 @@ import anchor from 'markdown-it-anchor';
 import mila from 'markdown-it-link-attributes';
 import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
+import githubAlerts from 'markdown-it-github-alerts';
 import githubCss from '../styles/github.css?raw';
+import alertsBaseCss from 'markdown-it-github-alerts/styles/github-base.css?raw';
+import alertsLightCss from 'markdown-it-github-alerts/styles/github-colors-light.css?raw';
+import alertsDarkCss from 'markdown-it-github-alerts/styles/github-colors-dark-media.css?raw';
 
 import { markdownItPreset, markdownItOptions } from './settings';
 
@@ -32,6 +36,9 @@ export async function applyStyles(html: string) {
   const components = [
     `<div class="markdown-body">\n${html}\n</div>`,
     stylify(githubCss),
+    stylify(alertsLightCss),
+    stylify(alertsDarkCss),
+    stylify(alertsBaseCss),
   ];
 
   if (__FULL_BUILD__) {
@@ -69,6 +76,7 @@ mdit.use(mila, {
 // Extended syntaxes
 mdit.use(footnote);
 mdit.use(tasklist);
+mdit.use(githubAlerts);
 
 const blockTypes = new Set([
   'paragraph_open',
