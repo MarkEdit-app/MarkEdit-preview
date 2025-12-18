@@ -5,9 +5,9 @@ import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
 import githubCss from '../styles/github.css?raw';
-import alertsBaseCss from 'markdown-it-github-alerts/styles/github-base.css?raw';
 import alertsLightCss from 'markdown-it-github-alerts/styles/github-colors-light.css?raw';
 import alertsDarkCss from 'markdown-it-github-alerts/styles/github-colors-dark-media.css?raw';
+import alertsBaseCss from 'markdown-it-github-alerts/styles/github-base.css?raw';
 
 import { markdownItPreset, markdownItOptions } from './settings';
 
