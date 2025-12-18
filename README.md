@@ -6,7 +6,7 @@ Markdown preview for MarkEdit that leverages [markedit-api](https://github.com/M
 
 Copy [dist/markedit-preview.js](dist/markedit-preview.js?raw=true) to `~/Library/Containers/app.cyan.markedit/Data/Documents/scripts/`. Details [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#entries).
 
-Use [dist/lite/markedit-preview.js](dist/lite/markedit-preview.js?raw=true) if you don't need [mermaid](https://mermaid.js.org/), [katex](https://katex.org/) and [highlight.js](https://highlightjs.org/), it's much smaller (4 MB vs 160 KB).
+Use [dist/lite/markedit-preview.js](dist/lite/markedit-preview.js?raw=true) if you don't need [mermaid](https://mermaid.js.org/), [katex](https://katex.org/) and [highlight.js](https://highlightjs.org/), it's much smaller (4 MB vs 170 KB).
 
 > Once installed, restart MarkEdit to apply the changes.
 >
