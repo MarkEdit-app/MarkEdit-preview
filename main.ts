@@ -22,12 +22,14 @@ import { startObserving } from './src/scroll';
 import { checkForUpdates } from './src/updater';
 import { keyboardShortcut } from './src/settings';
 import { localized } from './src/strings';
+import { macOSTahoe } from './src/utils';
 
 setUp();
 setTimeout(checkForUpdates, 4000);
 
 MarkEdit.addMainMenuItem({
   title: localized('viewMode'),
+  icon: macOSTahoe() ? 'eye' : undefined,
   children: [
     {
       title: localized('changeMode'),
