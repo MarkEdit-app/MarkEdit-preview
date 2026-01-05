@@ -101,7 +101,7 @@ for (const type of blockTypes) {
   const renderBlock = mdit.renderer.rules[type];
   mdit.renderer.rules[type] = (tokens, idx, options, env, self) => {
     const token = tokens[idx];
-    if (env.lineInfo && token.map && token.map.length === 2) {
+    if (env.lineInfo && token.map?.length === 2) {
       token.attrSet('data-line-from', String(token.map[0]));
       token.attrSet('data-line-to', String(token.map[1] - 1));
     }
