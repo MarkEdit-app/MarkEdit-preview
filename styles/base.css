@@ -1,0 +1,13 @@
+body {
+  background: #ffffff;
+}
+
+.markdown-body {
+  padding: 25px;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #0d1117;
+  }
+}

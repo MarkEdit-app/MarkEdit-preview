@@ -4,6 +4,8 @@ import mila from 'markdown-it-link-attributes';
 import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
+
+import baseCss from '../styles/base.css?raw';
 import githubCss from '../styles/github.css?raw';
 import alertsLightCss from 'markdown-it-github-alerts/styles/github-colors-light.css?raw';
 import alertsDarkCss from 'markdown-it-github-alerts/styles/github-colors-dark-media.css?raw';
@@ -34,11 +36,14 @@ export function handlePostRender(process: () => void) {
 export async function applyStyles(html: string) {
   const stylify = (css: string) => `<style>\n${css}\n</style>`;
   const components = [
+    '<!doctype html><html lang="en"><head><meta charset="UTF-8" /></head><body>',
     `<div class="markdown-body">\n${html}\n</div>`,
+    stylify(baseCss),
     stylify(githubCss),
     stylify(alertsLightCss),
     stylify(alertsDarkCss),
     stylify(alertsBaseCss),
+    '</body></html>',
   ];
 
   if (__FULL_BUILD__) {
