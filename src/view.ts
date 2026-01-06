@@ -2,7 +2,7 @@ import { MarkEdit } from 'markedit-api';
 import { appendStyle, getFileName, selectFullRange } from './utils';
 import { renderMarkdown, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './image';
-import { previewModes } from './settings';
+import { hidePreviewButtons, previewModes } from './settings';
 import { localized } from './strings';
 import { syncScrollProgress } from './scroll';
 
@@ -37,9 +37,11 @@ export function setUp() {
     import('../styles/code.css?raw').then(mod => appendStyle(mod.default));
 
     // Hide the built-in preview button since we have a better preview with all features
-    appendStyle(`.cm-md-previewWrapper {
-      display: none !important;
-    }`);
+    if (hidePreviewButtons) {
+      appendStyle(`.cm-md-previewWrapper {
+        display: none !important;
+      }`);
+    }
   }
 
   const dividerView = document.createElement('div');

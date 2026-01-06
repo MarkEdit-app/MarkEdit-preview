@@ -16,6 +16,7 @@ const markdownIt = toObject(rootValue.markdownIt);
 
 export const autoUpdate = toBoolean(rootValue.autoUpdate);
 export const syncScroll = toBoolean(rootValue.syncScroll);
+export const hidePreviewButtons = toBoolean(rootValue.hidePreviewButtons);
 export const previewModes = (changeMode.modes ?? Constants.defaultModes) as string[];
 export const keyboardShortcut = toObject(changeMode.hotKey);
 export const markdownItPreset = (markdownIt.preset ?? Constants.defaultPreset) as PresetName;

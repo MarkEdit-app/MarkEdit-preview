@@ -41,6 +41,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
   "extension.markeditPreview": {
     "autoUpdate": true,
     "syncScroll": true,
+    "hidePreviewButtons": true,
     "changeMode": {
       "modes": ["side-by-side", "preview"],
       "hotKey": {
@@ -58,6 +59,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 
 - `autoUpdate`: Whether to enable automatic update checks.
 - `syncScroll`: Whether to enable scroll synchronization.
+- `hidePreviewButtons`: Whether to hide the built-in preview buttons (doesn't apply for lite build).
 - `changeMode.modes`: Define available preview modes for the "Change Mode" feature.
 - `changeMode.hotKey`: Assign keyboard shortcuts for mode switching. See the specification [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#generalmainwindowhotkey).
 - `markdownIt.preset`: Override the default [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) preset.
