@@ -5,13 +5,8 @@ import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
 
-import baseCss from '../styles/base.css?raw';
-import githubCss from '../styles/github.css?raw';
-import alertsLightCss from 'markdown-it-github-alerts/styles/github-colors-light.css?raw';
-import alertsDarkCss from 'markdown-it-github-alerts/styles/github-colors-dark-media.css?raw';
-import alertsBaseCss from 'markdown-it-github-alerts/styles/github-base.css?raw';
-
-import { markdownItPreset, markdownItOptions } from './settings';
+import { coreCss, githubCss, alertsCss, hljsCss } from './styling';
+import { styledHtmlTheme, markdownItPreset, markdownItOptions } from './settings';
 
 /**
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
@@ -43,17 +38,14 @@ export async function applyStyles(html: string) {
   const components = [
     '<!doctype html><html lang="en"><head><meta charset="UTF-8" /></head><body>',
     `<div class="markdown-body">\n${html}\n</div>`,
-    stylify(baseCss),
-    stylify(githubCss),
-    stylify(alertsLightCss),
-    stylify(alertsDarkCss),
-    stylify(alertsBaseCss),
+    stylify(coreCss(styledHtmlTheme)),
+    stylify(githubCss(styledHtmlTheme)),
+    stylify(alertsCss(styledHtmlTheme)),
     '</body></html>',
   ];
 
   if (__FULL_BUILD__) {
-    const { default: codeCss } = await import('../styles/code.css?raw');
-    components.push(stylify(codeCss));
+    components.push(stylify(hljsCss(styledHtmlTheme)));
 
     const { default: katexCss } = await import('../styles/katex.css?raw');
     components.push(stylify(katexCss));
@@ -61,13 +53,18 @@ export async function applyStyles(html: string) {
     const mermaid = `
     <script type="module">
       import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      const darkMode = matchMedia("(prefers-color-scheme: dark)");
-      mermaid.initialize({ theme: darkMode.matches ? "dark" : undefined });
-      darkMode.addEventListener("change", () => {
-        if (document.querySelector(".mermaid") !== null) {
-          location.reload();
-        }
-      });
+      if (${styledHtmlTheme === 'auto' ? 'true' : 'false'}) {
+        const darkMode = matchMedia("(prefers-color-scheme: dark)");
+        mermaid.initialize({ theme: darkMode.matches ? "dark" : undefined });
+        darkMode.addEventListener("change", () => {
+          if (document.querySelector(".mermaid") !== null) {
+            location.reload();
+          }
+        });
+      } else {
+        const isDark = ${styledHtmlTheme === 'dark' ? 'true' : 'false'};
+        mermaid.initialize({ theme: isDark ? "dark" : undefined });
+      }
     </script>`;
     components.push(mermaid);
   }
