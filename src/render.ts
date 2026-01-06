@@ -23,6 +23,11 @@ export function renderMarkdown(markdown: string, lineInfo = true) {
 export function handlePostRender(process: () => void) {
   if (__FULL_BUILD__) {
     import('mermaid').then(({ default: mermaid }) => {
+      const isDarkMode = matchMedia('(prefers-color-scheme: dark)').matches;
+      mermaid.initialize({
+        theme: isDarkMode ? 'dark' : undefined,
+      });
+
       mermaid.run({
         querySelector: '.mermaid',
         postRenderCallback: process,
@@ -53,7 +58,17 @@ export async function applyStyles(html: string) {
     const { default: katexCss } = await import('../styles/katex.css?raw');
     components.push(stylify(katexCss));
 
-    const mermaid = '<script type="module">\nimport mermaid from \'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs\';\n</script>';
+    const mermaid = `
+    <script type="module">
+      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+      const darkMode = matchMedia("(prefers-color-scheme: dark)");
+      mermaid.initialize({ theme: darkMode.matches ? "dark" : undefined });
+      darkMode.addEventListener("change", () => {
+        if (document.querySelector(".mermaid") !== null) {
+          location.reload();
+        }
+      });
+    </script>`;
     components.push(mermaid);
   }
 

@@ -65,7 +65,14 @@ export function setUp() {
   mutationObserver.observe(previewPane, { attributes: true, attributeFilter: ['style', 'class'] });
 
   const darkModeObserver = matchMedia('(prefers-color-scheme: dark)');
-  darkModeObserver.addEventListener('change', updateGutterStyle);
+  darkModeObserver.addEventListener('change', () => {
+    updateGutterStyle();
+
+    // Re-render mermaid diagrams to apply the new theme
+    if (document.querySelector('.mermaid') !== null) {
+      renderHtmlPreview();
+    }
+  });
 }
 
 export function setViewMode(mode: ViewMode, needsDisplay = true) {
