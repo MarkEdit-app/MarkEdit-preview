@@ -10,7 +10,7 @@ import Split from 'split-grid';
 import type { SplitInstance as Splitter } from 'split-grid';
 
 import mainCss from '../styles/main.css?raw';
-import githubCss from '../styles/github.css?raw';
+import { githubCss, hljsCss } from './styling';
 
 const containerView = document.body;
 const gutterView = document.createElement('div');
@@ -30,11 +30,11 @@ export enum ViewMode {
 
 export function setUp() {
   appendStyle(mainCss);
-  appendStyle(githubCss);
+  appendStyle(githubCss());
 
   if (__FULL_BUILD__) {
     import('../styles/katex.css?raw').then(mod => appendStyle(mod.default));
-    import('../styles/code.css?raw').then(mod => appendStyle(mod.default));
+    appendStyle(hljsCss());
 
     // Hide the built-in preview button since we have a better preview with all features
     if (hidePreviewButtons) {
