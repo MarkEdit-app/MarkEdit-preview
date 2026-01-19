@@ -23,7 +23,7 @@
     "@typescript-eslint/parser": "^8.32.1",
     "cross-env": "^7.0.3",
     "eslint": "^9.27.0",
-    "markedit-api": "https://github.com/MarkEdit-app/MarkEdit-api#v0.18.0",
+    "markedit-api": "https://github.com/MarkEdit-app/MarkEdit-api#v0.21.0",
     "markedit-vite": "https://github.com/MarkEdit-app/MarkEdit-vite#v0.4.0",
     "typescript": "^5.0.0",
     "vite": "^7.0.0",
