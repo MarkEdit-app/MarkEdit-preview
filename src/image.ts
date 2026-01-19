@@ -80,7 +80,7 @@ export function enableHoverPreview(scrollDOM: HTMLElement) {
   scrollDOM.addEventListener('scroll', scrollHandler);
 
   // Store references for cleanup
-  states.eventListeners = {
+  states.cleanup = {
     mouseMoveHandler,
     visibilityChangeHandler,
     scrollHandler,
@@ -94,11 +94,11 @@ export function enableHoverPreview(scrollDOM: HTMLElement) {
  * Disable hover preview and cleanup event listeners.
  */
 export function disableHoverPreview() {
-  if (!states.isInitialized || !states.eventListeners) {
+  if (!states.isInitialized || !states.cleanup) {
     return;
   }
 
-  const { mouseMoveHandler, visibilityChangeHandler, scrollHandler, scrollDOM } = states.eventListeners;
+  const { mouseMoveHandler, visibilityChangeHandler, scrollHandler, scrollDOM } = states.cleanup;
 
   document.removeEventListener('mousemove', mouseMoveHandler);
   document.removeEventListener('visibilitychange', visibilityChangeHandler);
@@ -106,7 +106,7 @@ export function disableHoverPreview() {
 
   removePreviewPanel(false);
 
-  states.eventListeners = undefined;
+  states.cleanup = undefined;
   states.isInitialized = false;
 }
 
@@ -195,7 +195,7 @@ const states: {
   panelPresenter: ReturnType<typeof setTimeout> | undefined;
   focusedElement: HTMLElement | undefined;
   isInitialized: boolean;
-  eventListeners?: {
+  cleanup?: {
     mouseMoveHandler: (event: MouseEvent) => void;
     visibilityChangeHandler: () => void;
     scrollHandler: () => void;
