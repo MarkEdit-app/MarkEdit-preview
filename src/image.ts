@@ -92,13 +92,17 @@ export function enableHoverPreview(scrollDOM: HTMLElement) {
 
 /**
  * Disable hover preview and cleanup event listeners.
+ *
+ * This function removes all event listeners that were added by enableHoverPreview,
+ * clears the preview panel, and resets the initialization state. It's safe to call
+ * this function even if the preview was never enabled.
  */
 export function disableHoverPreview() {
-  if (!states.isInitialized || !states.cleanup) {
+  if (!states.isInitialized) {
     return;
   }
 
-  const { mouseMoveHandler, visibilityChangeHandler, scrollHandler, scrollDOM } = states.cleanup;
+  const { mouseMoveHandler, visibilityChangeHandler, scrollHandler, scrollDOM } = states.cleanup!;
 
   document.removeEventListener('mousemove', mouseMoveHandler);
   document.removeEventListener('visibilitychange', visibilityChangeHandler);
@@ -195,6 +199,7 @@ const states: {
   panelPresenter: ReturnType<typeof setTimeout> | undefined;
   focusedElement: HTMLElement | undefined;
   isInitialized: boolean;
+  /** Stores event handlers and DOM references for cleanup when disabling hover preview */
   cleanup?: {
     mouseMoveHandler: (event: MouseEvent) => void;
     visibilityChangeHandler: () => void;
