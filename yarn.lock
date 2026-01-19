@@ -1749,9 +1749,9 @@ marked@^16.2.1:
   resolved "https://registry.yarnpkg.com/marked/-/marked-16.4.2.tgz#4959a64be6c486f0db7467ead7ce288de54290a3"
   integrity sha512-TI3V8YYWvkVf3KJe1dRkpnjs68JUPyEa5vjKrp1XEEJUAOaQc+Qj+L1qWbPd0SJuAdQkFU0h73sXXqwDYxsiDA==
 
-"markedit-api@https://github.com/MarkEdit-app/MarkEdit-api#v0.18.0":
-  version "0.18.0"
-  resolved "https://github.com/MarkEdit-app/MarkEdit-api#4fe9abf812a35be6851801cb91b95b5a5cf48f41"
+"markedit-api@https://github.com/MarkEdit-app/MarkEdit-api#v0.21.0":
+  version "0.21.0"
+  resolved "https://github.com/MarkEdit-app/MarkEdit-api#080e8fbad8cd6de91b958c74e793c0dc34ef6fb2"
 
 "markedit-vite@https://github.com/MarkEdit-app/MarkEdit-vite#v0.4.0":
   version "0.4.0"

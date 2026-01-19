@@ -51,3 +51,19 @@ export function selectFullRange(element: HTMLElement) {
   selection?.removeAllRanges();
   selection?.addRange(range);
 }
+
+export function isLocalImagePath(path: string) {
+  if (/^(https?:)?\/\//.test(path)) {
+    return false;
+  }
+
+  return /\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i.test(path);
+}
+
+export function joinPaths(path1: string, path2: string) {
+  if (path1.endsWith('/')) {
+    return path1 + path2;
+  }
+
+  return path1 + '/' + path2;
+}

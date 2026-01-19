@@ -18,9 +18,10 @@ import {
   getPreviewPane,
 } from './src/view';
 
+import { enableHoverPreview } from './src/image';
 import { startObserving } from './src/scroll';
 import { checkForUpdates } from './src/updater';
-import { keyboardShortcut } from './src/settings';
+import { imageHoverPreview, keyboardShortcut } from './src/settings';
 import { localized } from './src/strings';
 import { macOSTahoe } from './src/utils';
 
@@ -65,6 +66,10 @@ MarkEdit.addExtension(EditorView.updateListener.of(update => {
 }));
 
 MarkEdit.onEditorReady(() => {
+  if (imageHoverPreview) {
+    enableHoverPreview(MarkEdit.editorView.scrollDOM);
+  }
+
   if (states.isInitiating) {
     states.isInitiating = false;
     restoreViewMode();
