@@ -39,11 +39,16 @@ export function replaceImageURLs(html: string) {
  * Enable hover preview for local images in the editor.
  */
 export function enableHoverPreview(scrollDOM: HTMLElement) {
+  // Prevent multiple initializations
+  if (states.isInitialized) {
+    return;
+  }
+
   if (typeof MarkEdit.getFileInfo !== 'function') {
     return;
   }
 
-  document.addEventListener('mousemove', event => {
+  const mouseMoveHandler = (event: MouseEvent) => {
     if (states.panelPresenter !== undefined) {
       clearTimeout(states.panelPresenter);
       states.panelPresenter = undefined;
@@ -60,15 +65,49 @@ export function enableHoverPreview(scrollDOM: HTMLElement) {
         removePreviewPanel();
       }
     }, 600);
-  });
+  };
 
-  document.addEventListener('visibilitychange', () => {
+  const visibilityChangeHandler = () => {
     if (document.visibilityState === 'hidden') {
       removePreviewPanel(false);
     }
-  });
+  };
 
-  scrollDOM.addEventListener('scroll', () => removePreviewPanel());
+  const scrollHandler = () => removePreviewPanel();
+
+  document.addEventListener('mousemove', mouseMoveHandler);
+  document.addEventListener('visibilitychange', visibilityChangeHandler);
+  scrollDOM.addEventListener('scroll', scrollHandler);
+
+  // Store references for cleanup
+  states.eventListeners = {
+    mouseMoveHandler,
+    visibilityChangeHandler,
+    scrollHandler,
+    scrollDOM,
+  };
+
+  states.isInitialized = true;
+}
+
+/**
+ * Disable hover preview and cleanup event listeners.
+ */
+export function disableHoverPreview() {
+  if (!states.isInitialized || !states.eventListeners) {
+    return;
+  }
+
+  const { mouseMoveHandler, visibilityChangeHandler, scrollHandler, scrollDOM } = states.eventListeners;
+
+  document.removeEventListener('mousemove', mouseMoveHandler);
+  document.removeEventListener('visibilitychange', visibilityChangeHandler);
+  scrollDOM.removeEventListener('scroll', scrollHandler);
+
+  removePreviewPanel(false);
+
+  states.eventListeners = undefined;
+  states.isInitialized = false;
 }
 
 // MARK: - Internal functions
@@ -155,7 +194,15 @@ function removePreviewPanel(animated = true) {
 const states: {
   panelPresenter: ReturnType<typeof setTimeout> | undefined;
   focusedElement: HTMLElement | undefined;
+  isInitialized: boolean;
+  eventListeners?: {
+    mouseMoveHandler: (event: MouseEvent) => void;
+    visibilityChangeHandler: () => void;
+    scrollHandler: () => void;
+    scrollDOM: HTMLElement;
+  };
 } = {
   panelPresenter: undefined,
   focusedElement: undefined,
+  isInitialized: false,
 };
