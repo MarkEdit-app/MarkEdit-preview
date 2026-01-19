@@ -1,6 +1,6 @@
 {
   "name": "markedit-preview",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Markdown preview for MarkEdit.",
   "scripts": {
     "lint": "eslint . --config eslint.config.mjs",
