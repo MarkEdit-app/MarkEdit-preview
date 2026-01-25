@@ -9,6 +9,10 @@ import alertsDark from '../styles/alerts/dark.css?raw';
 import hljsBase from '../styles/hljs/base.css?raw';
 import hljsDark from '../styles/hljs/dark.css?raw';
 
+import codeCopyBase from '../styles/code-copy/base.css?raw';
+import codeCopyLight from '../styles/code-copy/light.css?raw';
+import codeCopyDark from '../styles/code-copy/dark.css?raw';
+
 export type ColorTheme = 'light' | 'dark' | 'auto';
 
 export function coreCss(theme: ColorTheme = 'auto') {
@@ -40,6 +44,15 @@ export function alertsCss(theme: ColorTheme = 'auto') {
 
 export function hljsCss(theme: ColorTheme = 'auto') {
   return createCss(theme, hljsBase, hljsDark).join('\n');
+}
+
+export function codeCopyCss(theme: ColorTheme = 'auto') {
+  const styles = [
+    codeCopyBase,
+    ...createCss(theme, codeCopyLight, codeCopyDark),
+  ];
+
+  return styles.join('\n');
 }
 
 function createCss(theme: ColorTheme, lightCss: string, darkCss: string): string[] {
