@@ -1,0 +1,15 @@
+.code-copy-wrapper {
+  position: relative;
+}
+
+.code-copy-button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 7px;
+  background: none;
+}

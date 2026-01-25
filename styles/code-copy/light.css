@@ -1,0 +1,11 @@
+.code-copy-button {
+  color: #5b636d;
+}
+
+.code-copy-button:hover {
+  background: #eeeeee;
+}
+
+.code-copy-button:active {
+  background: #dddddd;
+}
