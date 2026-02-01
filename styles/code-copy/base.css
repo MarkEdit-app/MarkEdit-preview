@@ -12,4 +12,7 @@
   border-radius: 8px;
   padding: 6px 7px;
   background: none;
+
+  /* Prevent elements from moving during opacity changes in Safari */
+  will-change: opacity, background;
 }
