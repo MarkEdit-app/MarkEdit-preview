@@ -10,6 +10,7 @@ import {
   restoreViewMode,
   currentViewMode,
   renderHtmlPreview,
+  handlePageZoom,
   saveCleanHtml,
   saveStyledHtml,
   copyHtml,
@@ -77,6 +78,13 @@ MarkEdit.onEditorReady(() => {
 
   renderHtmlPreview();
   startObserving(getEditPane(), getPreviewPane());
+
+  if (states.keyDownListener !== undefined) {
+    document.removeEventListener('keydown', states.keyDownListener);
+  }
+
+  states.keyDownListener = event => handlePageZoom(event);
+  document.addEventListener('keydown', states.keyDownListener);
 });
 
 function createModeItem(title: string, mode: ViewMode): MenuItem {
@@ -121,7 +129,9 @@ function createHtmlItems(): MenuItem[] {
 const states: {
   isInitiating: boolean;
   renderUpdater: ReturnType<typeof setTimeout> | undefined;
+  keyDownListener: ((event: KeyboardEvent) => void) | undefined;
 } = {
   isInitiating: true,
   renderUpdater: undefined,
+  keyDownListener: undefined,
 };
