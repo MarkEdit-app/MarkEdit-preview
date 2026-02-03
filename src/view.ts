@@ -158,11 +158,42 @@ export function renderHtmlPreview() {
   const html = replaceImageURLs(getRenderedHtml());
   previewPane.innerHTML = html;
 
-  handlePostRender(() => syncScrollProgress(
-    getEditPane(),
-    getPreviewPane(),
-    false,
-  ));
+  handlePostRender(() => {
+    syncScrollProgress(
+      getEditPane(),
+      getPreviewPane(),
+      false,
+    );
+
+    const pageZoom = localStorage.getItem(Constants.previewPageZoomKey);
+    if (pageZoom !== null) {
+      previewPane.style.zoom = pageZoom;
+    }
+  });
+}
+
+export function handlePageZoom(event: KeyboardEvent) {
+  if (!event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
+    return;
+  }
+
+  const zoom = Number(previewPane.style.zoom) || 1.0;
+  const clamp = (value: number) => String(Math.min(Math.max(value, 0.5), 3.0));
+
+  switch (event.key) {
+    case '-': previewPane.style.zoom = clamp(zoom - 0.1); break;
+    case '=': previewPane.style.zoom = clamp(zoom + 0.1); break;
+    case '0': previewPane.style.zoom = '1'; break;
+    default: return; // Ignores caching and event handling
+  }
+
+  localStorage.setItem(
+    Constants.previewPageZoomKey,
+    previewPane.style.zoom,
+  );
+
+  event.preventDefault();
+  event.stopPropagation();
 }
 
 export function saveCleanHtml() {
@@ -232,6 +263,7 @@ const Constants = {
   dividerViewClass: 'markdown-divider',
   previewPaneClass: 'markdown-body',
   viewModeCacheKey: 'ui.view-mode',
+  previewPageZoomKey: 'ui.preview-page-zoom',
 };
 
 const states: {
