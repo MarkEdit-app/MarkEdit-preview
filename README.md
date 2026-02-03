@@ -42,6 +42,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
     "autoUpdate": true,
     "syncScroll": true,
     "hidePreviewButtons": true,
+    "syntaxAutoDetect": false,
     "imageHoverPreview": false,
     "styledHtmlTheme": "auto",
     "changeMode": {
@@ -61,7 +62,8 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 
 - `autoUpdate`: Whether to enable automatic update checks.
 - `syncScroll`: Whether to enable scroll synchronization.
-- `hidePreviewButtons`: Whether to hide the built-in preview buttons (doesn't apply for lite build).
+- `hidePreviewButtons`: Whether to hide the built-in preview buttons (not applicable for lite build).
+- `syntaxAutoDetect`: Whether to enable automatic language detection for syntax highlighting in code blocks (not applicable for lite build).
 - `imageHoverPreview`: Whether to enable image preview on hover.
 - `styledHtmlTheme`: Determine the color theme of saving styled html files, valid values are `light`, `dark`, and `auto`.
 - `changeMode.modes`: Define available preview modes for the "Change Mode" feature.
