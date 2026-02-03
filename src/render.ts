@@ -130,25 +130,33 @@ for (const type of blockTypes) {
 
 // Highlight.js, KaTex and Mermaid, for full builds only
 if (__FULL_BUILD__) {
-  import('markdown-it-highlightjs').then(mod => mdit.use(mod.default));
+  import('markdown-it-highlightjs').then(mod => {
+    mdit.use(mod.default);
+
+    // Now that highlightjs is loaded, wrap its fence rule with our custom handling
+    const renderFence = mdit.renderer.rules.fence;
+    mdit.renderer.rules.fence = (tokens, idx, options, env, slf) => {
+      const token = tokens[idx];
+      const code = token.content.trim();
+      const lang = token.info.trim();
+
+      if (lang === 'mermaid') {
+        return `<div class="mermaid">${code}</div>`;
+      }
+
+      // Skip highlight.js for code blocks without a language specifier
+      if (lang === '') {
+        return `<pre><code>${mdit.utils.escapeHtml(code)}</code></pre>`;
+      }
+
+      if (renderFence !== undefined) {
+        return renderFence(tokens, idx, options, env, slf);
+      }
+
+      return `<pre><code class="language-${lang}">${mdit.utils.escapeHtml(code)}</code></pre>`;
+    };
+  });
   import('@vscode/markdown-it-katex').then(mod => mdit.use(mod.default));
-
-  const renderFence = mdit.renderer.rules.fence;
-  mdit.renderer.rules.fence = (tokens, idx, options, env, slf) => {
-    const token = tokens[idx];
-    const code = token.content.trim();
-    const lang = token.info.trim();
-
-    if (lang === 'mermaid') {
-      return `<div class="mermaid">${code}</div>`;
-    }
-
-    if (renderFence !== undefined) {
-      return renderFence(tokens, idx, options, env, slf);
-    }
-
-    return `<pre><code class="language-${lang}">${mdit.utils.escapeHtml(code)}</code></pre>`;
-  };
 }
 
 // Add copy button to code blocks
