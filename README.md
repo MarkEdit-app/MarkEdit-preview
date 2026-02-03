@@ -18,6 +18,11 @@ Run `yarn install && yarn build` to build and deploy the script.
 
 To build the lite version, run `yarn build:lite` instead.
 
+## Development
+
+- `yarn test` — run tests
+- `yarn lint` — run linting (also runs automatically before build)
+
 ## How to Use
 
 Access it from the `Extensions` menu in the menu bar, or use the keyboard shortcut <kbd>Shift–Command–V</kbd>.

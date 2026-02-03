@@ -3,6 +3,7 @@
   "version": "1.5.1",
   "description": "Markdown preview for MarkEdit.",
   "scripts": {
+    "test": "vitest run",
     "lint": "eslint . --config eslint.config.mjs",
     "build": "yarn lint && vite build",
     "build:lite": "cross-env LITE_BUILD=true vite build",
@@ -27,7 +28,8 @@
     "markedit-vite": "https://github.com/MarkEdit-app/MarkEdit-vite#v0.4.0",
     "typescript": "^5.0.0",
     "vite": "^7.0.0",
-    "vite-plugin-singlefile": "^2.2.0"
+    "vite-plugin-singlefile": "^2.2.0",
+    "vitest": "^4.0.18"
   },
   "dependencies": {
     "@vscode/markdown-it-katex": "^1.1.1",
