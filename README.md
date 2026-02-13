@@ -45,6 +45,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
     "syntaxAutoDetect": false,
     "imageHoverPreview": false,
     "styledHtmlTheme": "auto",
+    "mathDelimiters": [],
     "changeMode": {
       "modes": ["side-by-side", "preview"],
       "hotKey": {
