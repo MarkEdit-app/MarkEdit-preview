@@ -21,11 +21,11 @@ export const hidePreviewButtons = toBoolean(rootValue.hidePreviewButtons);
 export const syntaxAutoDetect = toBoolean(rootValue.syntaxAutoDetect, false);
 export const imageHoverPreview = toBoolean(rootValue.imageHoverPreview, false);
 export const styledHtmlTheme = (rootValue.styledHtmlTheme ?? 'auto') as ColorTheme;
+export const mathDelimiters = rootValue.mathDelimiters;
 export const previewModes = (changeMode.modes ?? Constants.defaultModes) as string[];
 export const keyboardShortcut = toObject(changeMode.hotKey);
 export const markdownItPreset = (markdownIt.preset ?? Constants.defaultPreset) as PresetName;
 export const markdownItOptions = toObject(markdownIt.options);
-export const mathDelimiters = rootValue.mathDelimiters;
 
 function toObject(jsonValue: JSONValue, defaultValue = {}) {
   return (jsonValue ?? defaultValue) as JSONObject;
