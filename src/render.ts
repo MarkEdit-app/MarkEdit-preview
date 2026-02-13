@@ -7,7 +7,7 @@ import githubAlerts from 'markdown-it-github-alerts';
 
 import { coreCss, githubCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
-import { styledHtmlTheme, markdownItPreset, markdownItOptions } from './settings';
+import { syntaxAutoDetect, styledHtmlTheme, markdownItPreset, markdownItOptions } from './settings';
 
 /**
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
@@ -130,7 +130,7 @@ for (const type of blockTypes) {
 
 // Highlight.js, KaTex and Mermaid, for full builds only
 if (__FULL_BUILD__) {
-  import('markdown-it-highlightjs').then(mod => mdit.use(mod.default));
+  import('markdown-it-highlightjs').then(mod => mdit.use(mod.default, { auto: syntaxAutoDetect }));
   import('@vscode/markdown-it-katex').then(mod => mdit.use(mod.default));
 
   const renderFence = mdit.renderer.rules.fence;
