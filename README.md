@@ -70,7 +70,10 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `changeMode.hotKey`: Assign keyboard shortcuts for mode switching. See the specification [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#generalmainwindowhotkey).
 - `markdownIt.preset`: Override the default [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) preset.
 - `markdownIt.options`: Customize [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) options.
-- `mathDelimiters`: Customize math delimiters for KaTeX rendering (not applicable for lite build). Each delimiter object should have `left`, `right`, and `display` properties. This setting is optional; if omitted, the default delimiters `$...$`, `$$...$$`, `\(...\)`, and `\[...\]` are used. The order of delimiters matters for parsing precedence when multiple delimiters could match.
+- `mathDelimiters`: Customize math delimiters for KaTeX rendering (not applicable for lite build).
+  - Each delimiter object should have `left`, `right`, and `display` properties.
+  - This setting is optional; if omitted, the default delimiters `$...$`, `$$...$$`, `\(...\)`, and `\[...\]` are used.
+  - The order of delimiters matters for parsing precedence when multiple delimiters could match.
 
 **Example: Customizing Math Delimiters**
 
