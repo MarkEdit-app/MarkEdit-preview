@@ -131,7 +131,7 @@ for (const type of blockTypes) {
 // Highlight.js, KaTex and Mermaid, for full builds only
 if (__FULL_BUILD__) {
   import('markdown-it-highlightjs').then(mod => mdit.use(mod.default, { auto: syntaxAutoDetect }));
-  import('@vscode/markdown-it-katex').then(mod => mdit.use(mod.default));
+  import('markedit-katex').then(mod => mdit.use(mod.default));
 
   const renderFence = mdit.renderer.rules.fence;
   mdit.renderer.rules.fence = (tokens, idx, options, env, slf) => {
