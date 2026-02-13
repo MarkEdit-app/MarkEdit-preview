@@ -173,6 +173,10 @@ export function renderHtmlPreview() {
 }
 
 export function handlePageZoom(event: KeyboardEvent) {
+  if (states.viewMode === ViewMode.edit) {
+    return;
+  }
+
   if (!event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
     return;
   }
@@ -192,8 +196,10 @@ export function handlePageZoom(event: KeyboardEvent) {
     previewPane.style.zoom,
   );
 
-  event.preventDefault();
-  event.stopPropagation();
+  if (states.viewMode === ViewMode.preview) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 }
 
 export function saveCleanHtml() {
