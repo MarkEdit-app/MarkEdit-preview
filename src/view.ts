@@ -173,6 +173,10 @@ export function renderHtmlPreview() {
 }
 
 export function handlePageZoom(event: KeyboardEvent) {
+  if (states.viewMode === ViewMode.edit || (states.viewMode === ViewMode.sideBySide && MarkEdit.editorView.hasFocus)) {
+    return;
+  }
+
   if (!event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
     return;
   }
