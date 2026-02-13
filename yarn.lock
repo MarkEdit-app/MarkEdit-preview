@@ -840,13 +840,6 @@
     "@typescript-eslint/types" "8.54.0"
     eslint-visitor-keys "^4.2.1"
 
-"@vscode/markdown-it-katex@^1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@vscode/markdown-it-katex/-/markdown-it-katex-1.1.2.tgz#6ec355c5ec82d019f13a511e2363525384c91155"
-  integrity sha512-+4IIv5PgrmhKvW/3LpkpkGg257OViEhXkOOgCyj5KMsjsOfnRXkni8XAuuF9Ui5p3B8WnUovlDXAQNb8RJ/RaQ==
-  dependencies:
-    katex "^0.16.4"
-
 acorn-jsx@^5.3.2:
   version "5.3.2"
   resolved "https://registry.yarnpkg.com/acorn-jsx/-/acorn-jsx-5.3.2.tgz#7ed5bb55908b3b2f1bc55c6af1653bada7f07937"
@@ -1767,6 +1760,12 @@ marked@^16.2.1:
 "markedit-api@https://github.com/MarkEdit-app/MarkEdit-api#v0.21.0":
   version "0.21.0"
   resolved "https://github.com/MarkEdit-app/MarkEdit-api#080e8fbad8cd6de91b958c74e793c0dc34ef6fb2"
+
+"markedit-katex@https://github.com/MarkEdit-app/MarkEdit-katex#v1.1.2":
+  version "1.1.2"
+  resolved "https://github.com/MarkEdit-app/MarkEdit-katex#83ac7cebd1398ebf708a5bce397ea62700497403"
+  dependencies:
+    katex "^0.16.4"
 
 "markedit-vite@https://github.com/MarkEdit-app/MarkEdit-vite#v0.4.0":
   version "0.4.0"
