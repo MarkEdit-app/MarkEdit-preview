@@ -55,7 +55,13 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
     "markdownIt": {
       "preset": "default",
       "options": {}
-    }
+    },
+    "mathDelimiters": [
+      { "left": "$$", "right": "$$", "display": true },
+      { "left": "$", "right": "$", "display": false },
+      { "left": "\\[", "right": "\\]", "display": true },
+      { "left": "\\(", "right": "\\)", "display": false }
+    ]
   }
 }
 ```
@@ -70,5 +76,6 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `changeMode.hotKey`: Assign keyboard shortcuts for mode switching. See the specification [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#generalmainwindowhotkey).
 - `markdownIt.preset`: Override the default [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) preset.
 - `markdownIt.options`: Customize [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) options.
+- `mathDelimiters`: Customize math delimiters for KaTeX rendering (not applicable for lite build). Each delimiter object should have `left`, `right`, and `display` properties. By default, supports `$...$`, `$$...$$`, `\(...\)`, and `\[...\]`.
 
 > Extension settings require MarkEdit 1.24.0 or later.

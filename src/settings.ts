@@ -25,6 +25,7 @@ export const previewModes = (changeMode.modes ?? Constants.defaultModes) as stri
 export const keyboardShortcut = toObject(changeMode.hotKey);
 export const markdownItPreset = (markdownIt.preset ?? Constants.defaultPreset) as PresetName;
 export const markdownItOptions = toObject(markdownIt.options);
+export const mathDelimiters = rootValue.mathDelimiters;
 
 function toObject(jsonValue: JSONValue, defaultValue = {}) {
   return (jsonValue ?? defaultValue) as JSONObject;
