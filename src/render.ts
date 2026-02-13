@@ -7,7 +7,7 @@ import githubAlerts from 'markdown-it-github-alerts';
 
 import { coreCss, githubCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
-import { syntaxAutoDetect, styledHtmlTheme, markdownItPreset, markdownItOptions } from './settings';
+import { syntaxAutoDetect, styledHtmlTheme, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
 
 /**
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
@@ -131,7 +131,10 @@ for (const type of blockTypes) {
 // Highlight.js, KaTex and Mermaid, for full builds only
 if (__FULL_BUILD__) {
   import('markdown-it-highlightjs').then(mod => mdit.use(mod.default, { auto: syntaxAutoDetect }));
-  import('markedit-katex').then(mod => mdit.use(mod.default));
+  import('markedit-katex').then(mod => {
+    const options = mathDelimiters ? { delimiters: mathDelimiters } : {};
+    mdit.use(mod.default, options);
+  });
 
   const renderFence = mdit.renderer.rules.fence;
   mdit.renderer.rules.fence = (tokens, idx, options, env, slf) => {
