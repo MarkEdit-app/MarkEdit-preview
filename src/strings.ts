@@ -11,9 +11,9 @@ type LocalizableKeys = {
   copyCode: string;
   untitled: string;
   pageZoom: string;
+  resetZoom: string;
   increaseZoom: string;
   decreaseZoom: string;
-  resetZoom: string;
   version: string;
   checkReleases: string;
   newVersionAvailable: string;
@@ -36,9 +36,9 @@ const strings: Record<Locale, Localizable> = {
     copyCode: 'Copy Code',
     untitled: 'Untitled',
     pageZoom: 'Page Zoom',
+    resetZoom: 'Reset Zoom',
     increaseZoom: 'Increase Zoom',
     decreaseZoom: 'Decrease Zoom',
-    resetZoom: 'Reset Zoom',
     version: 'Version',
     checkReleases: 'Check Releases',
     newVersionAvailable: 'is available!',
@@ -59,9 +59,9 @@ const strings: Record<Locale, Localizable> = {
     copyCode: '复制代码',
     untitled: '未命名',
     pageZoom: '页面缩放',
+    resetZoom: '重置缩放',
     increaseZoom: '放大页面',
     decreaseZoom: '缩小页面',
-    resetZoom: '重置缩放',
     version: '版本',
     checkReleases: '查看版本',
     newVersionAvailable: '已发布！',
@@ -82,9 +82,9 @@ const strings: Record<Locale, Localizable> = {
     previewMode: '預覽模式',
     untitled: '未命名',
     pageZoom: '頁面縮放',
+    resetZoom: '重置縮放',
     increaseZoom: '放大頁面',
     decreaseZoom: '縮小頁面',
-    resetZoom: '重置縮放',
     version: '版本',
     checkReleases: '檢視版本',
     newVersionAvailable: '已釋出！',

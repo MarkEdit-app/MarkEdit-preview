@@ -11,9 +11,9 @@ import {
   currentViewMode,
   renderHtmlPreview,
   handlePageZoom,
+  resetPageZoom,
   increasePageZoom,
   decreasePageZoom,
-  resetPageZoom,
   isPageZoomAvailable,
   saveCleanHtml,
   saveStyledHtml,
@@ -54,6 +54,13 @@ MarkEdit.addMainMenuItem({
       title: localized('pageZoom'),
       children: [
         {
+          title: localized('resetZoom'),
+          action: resetPageZoom,
+          key: '0',
+          modifiers: ['Command'],
+          state: () => ({ isEnabled: isPageZoomAvailable() }),
+        },
+        {
           title: localized('increaseZoom'),
           action: increasePageZoom,
           key: '=',
@@ -64,13 +71,6 @@ MarkEdit.addMainMenuItem({
           title: localized('decreaseZoom'),
           action: decreasePageZoom,
           key: '-',
-          modifiers: ['Command'],
-          state: () => ({ isEnabled: isPageZoomAvailable() }),
-        },
-        {
-          title: localized('resetZoom'),
-          action: resetPageZoom,
-          key: '0',
           modifiers: ['Command'],
           state: () => ({ isEnabled: isPageZoomAvailable() }),
         },

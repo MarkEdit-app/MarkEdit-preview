@@ -207,6 +207,14 @@ export function handlePageZoom(event: KeyboardEvent) {
   event.stopPropagation();
 }
 
+export function resetPageZoom() {
+  previewPane.style.zoom = String(DEFAULT_ZOOM_LEVEL);
+  localStorage.setItem(
+    Constants.previewPageZoomKey,
+    previewPane.style.zoom,
+  );
+}
+
 export function increasePageZoom() {
   const zoom = Number(previewPane.style.zoom) || DEFAULT_ZOOM_LEVEL;
   previewPane.style.zoom = clampZoom(zoom + 0.1);
@@ -219,14 +227,6 @@ export function increasePageZoom() {
 export function decreasePageZoom() {
   const zoom = Number(previewPane.style.zoom) || DEFAULT_ZOOM_LEVEL;
   previewPane.style.zoom = clampZoom(zoom - 0.1);
-  localStorage.setItem(
-    Constants.previewPageZoomKey,
-    previewPane.style.zoom,
-  );
-}
-
-export function resetPageZoom() {
-  previewPane.style.zoom = String(DEFAULT_ZOOM_LEVEL);
   localStorage.setItem(
     Constants.previewPageZoomKey,
     previewPane.style.zoom,
