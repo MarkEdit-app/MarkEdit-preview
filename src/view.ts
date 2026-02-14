@@ -172,8 +172,12 @@ export function renderHtmlPreview() {
   });
 }
 
+export function canHandlePageZoom() {
+  return states.viewMode !== ViewMode.edit && (states.viewMode !== ViewMode.sideBySide || !MarkEdit.editorView.hasFocus);
+}
+
 export function handlePageZoom(event: KeyboardEvent) {
-  if (states.viewMode === ViewMode.edit || (states.viewMode === ViewMode.sideBySide && MarkEdit.editorView.hasFocus)) {
+  if (!canHandlePageZoom()) {
     return;
   }
 
@@ -208,10 +212,6 @@ export function decreasePageZoom() {
   const zoom = Number(previewPane.style.zoom) || DEFAULT_ZOOM_LEVEL;
   previewPane.style.zoom = clampZoom(zoom - 0.1);
   savePageZoom();
-}
-
-export function isPageZoomAvailable() {
-  return !(states.viewMode === ViewMode.edit || (states.viewMode === ViewMode.sideBySide && MarkEdit.editorView.hasFocus));
 }
 
 export function saveCleanHtml() {
