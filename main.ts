@@ -28,7 +28,7 @@ import { startObserving } from './src/scroll';
 import { checkForUpdates } from './src/updater';
 import { imageHoverPreview, keyboardShortcut } from './src/settings';
 import { localized } from './src/strings';
-import { macOSTahoe } from './src/utils';
+import { appVersionGreaterThan, macOSTahoe } from './src/utils';
 
 setUp();
 setTimeout(checkForUpdates, 4000);
@@ -49,33 +49,29 @@ MarkEdit.addMainMenuItem({
     createModeItem(localized('previewMode'), ViewMode.preview),
     { separator: true },
     ...createHtmlItems(),
-    { separator: true },
-    {
-      title: localized('pageZoom'),
-      children: [
-        {
-          title: localized('resetZoom'),
-          action: resetPageZoom,
-          key: '0',
-          modifiers: ['Command'],
-          state: () => ({ isEnabled: isPageZoomAvailable() }),
-        },
-        {
-          title: localized('increaseZoom'),
-          action: increasePageZoom,
-          key: '=',
-          modifiers: ['Command'],
-          state: () => ({ isEnabled: isPageZoomAvailable() }),
-        },
-        {
-          title: localized('decreaseZoom'),
-          action: decreasePageZoom,
-          key: '-',
-          modifiers: ['Command'],
-          state: () => ({ isEnabled: isPageZoomAvailable() }),
-        },
-      ],
-    },
+    ...(appVersionGreaterThan('1.29.1') ? [
+      { separator: true },
+      {
+        title: localized('pageZoom'),
+        children: [
+          {
+            title: localized('resetZoom'),
+            action: resetPageZoom,
+            state: () => ({ isEnabled: isPageZoomAvailable() }),
+          },
+          {
+            title: localized('increaseZoom'),
+            action: increasePageZoom,
+            state: () => ({ isEnabled: isPageZoomAvailable() }),
+          },
+          {
+            title: localized('decreaseZoom'),
+            action: decreasePageZoom,
+            state: () => ({ isEnabled: isPageZoomAvailable() }),
+          },
+        ],
+      },
+    ] : []),
     { separator: true },
     { title: `${localized('version')} ${__PKG_VERSION__}` },
     {

@@ -1,3 +1,29 @@
+export function appVersionGreaterThan(target: string) {
+  const appVer = (() => {
+    // E.g., "MarkEdit/1.29.1"
+    const match = navigator.userAgent.match(/MarkEdit\/([\d.]+)/);
+    return match === null ? '1.0.0' : match[1];
+  })();
+
+  const parts1 = appVer.split('.').map(Number);
+  const parts2 = target.split('.').map(Number);
+  const length = Math.max(parts1.length, parts2.length);
+
+  for (let i = 0; i < length; i++) {
+    const num1 = parts1[i] || 0;
+    const num2 = parts2[i] || 0;
+    if (num1 > num2) {
+      return true;
+    }
+
+    if (num1 < num2) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
 export function macOSTahoe() {
   const match = navigator.userAgent.match(/macOS\/(\d+)/);
   return match === null ? false : parseInt(match[1]) >= 26;
