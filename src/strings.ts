@@ -10,6 +10,7 @@ type LocalizableKeys = {
   copyRichText: string;
   copyCode: string;
   untitled: string;
+  pageZoom: string;
   increaseZoom: string;
   decreaseZoom: string;
   resetZoom: string;
@@ -34,6 +35,7 @@ const strings: Record<Locale, Localizable> = {
     copyRichText: 'Copy Rich Text',
     copyCode: 'Copy Code',
     untitled: 'Untitled',
+    pageZoom: 'Page Zoom',
     increaseZoom: 'Increase Zoom',
     decreaseZoom: 'Decrease Zoom',
     resetZoom: 'Reset Zoom',
@@ -56,6 +58,7 @@ const strings: Record<Locale, Localizable> = {
     copyRichText: '复制富文本',
     copyCode: '复制代码',
     untitled: '未命名',
+    pageZoom: '页面缩放',
     increaseZoom: '放大页面',
     decreaseZoom: '缩小页面',
     resetZoom: '重置缩放',
@@ -78,6 +81,7 @@ const strings: Record<Locale, Localizable> = {
     sideBySideMode: '並排模式',
     previewMode: '預覽模式',
     untitled: '未命名',
+    pageZoom: '頁面縮放',
     increaseZoom: '放大頁面',
     decreaseZoom: '縮小頁面',
     resetZoom: '重置縮放',
