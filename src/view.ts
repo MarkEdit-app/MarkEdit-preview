@@ -181,19 +181,12 @@ export function handlePageZoom(event: KeyboardEvent) {
     return;
   }
 
-  const zoom = Number(previewPane.style.zoom) || DEFAULT_ZOOM_LEVEL;
-
   switch (event.key) {
-    case '-': previewPane.style.zoom = clampZoom(zoom - 0.1); break;
-    case '=': previewPane.style.zoom = clampZoom(zoom + 0.1); break;
-    case '0': previewPane.style.zoom = String(DEFAULT_ZOOM_LEVEL); break;
+    case '-': decreasePageZoom(); break;
+    case '=': increasePageZoom(); break;
+    case '0': resetPageZoom(); break;
     default: return; // Ignores caching and event handling
   }
-
-  localStorage.setItem(
-    Constants.previewPageZoomKey,
-    previewPane.style.zoom,
-  );
 
   event.preventDefault();
   event.stopPropagation();
@@ -201,28 +194,19 @@ export function handlePageZoom(event: KeyboardEvent) {
 
 export function resetPageZoom() {
   previewPane.style.zoom = String(DEFAULT_ZOOM_LEVEL);
-  localStorage.setItem(
-    Constants.previewPageZoomKey,
-    previewPane.style.zoom,
-  );
+  savePageZoom();
 }
 
 export function increasePageZoom() {
   const zoom = Number(previewPane.style.zoom) || DEFAULT_ZOOM_LEVEL;
   previewPane.style.zoom = clampZoom(zoom + 0.1);
-  localStorage.setItem(
-    Constants.previewPageZoomKey,
-    previewPane.style.zoom,
-  );
+  savePageZoom();
 }
 
 export function decreasePageZoom() {
   const zoom = Number(previewPane.style.zoom) || DEFAULT_ZOOM_LEVEL;
   previewPane.style.zoom = clampZoom(zoom - 0.1);
-  localStorage.setItem(
-    Constants.previewPageZoomKey,
-    previewPane.style.zoom,
-  );
+  savePageZoom();
 }
 
 export function isPageZoomAvailable() {
@@ -275,6 +259,13 @@ const MAX_ZOOM_LEVEL = 3.0;
 
 function clampZoom(value: number): string {
   return String(Math.min(Math.max(value, MIN_ZOOM_LEVEL), MAX_ZOOM_LEVEL));
+}
+
+function savePageZoom() {
+  localStorage.setItem(
+    Constants.previewPageZoomKey,
+    previewPane.style.zoom,
+  );
 }
 
 async function saveGeneratedHtml(styled: boolean) {
