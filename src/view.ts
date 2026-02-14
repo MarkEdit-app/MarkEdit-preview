@@ -172,14 +172,6 @@ export function renderHtmlPreview() {
   });
 }
 
-const DEFAULT_ZOOM_LEVEL = 1.0;
-const MIN_ZOOM_LEVEL = 0.5;
-const MAX_ZOOM_LEVEL = 3.0;
-
-function clampZoom(value: number): string {
-  return String(Math.min(Math.max(value, MIN_ZOOM_LEVEL), MAX_ZOOM_LEVEL));
-}
-
 export function handlePageZoom(event: KeyboardEvent) {
   if (states.viewMode === ViewMode.edit || (states.viewMode === ViewMode.sideBySide && MarkEdit.editorView.hasFocus)) {
     return;
@@ -275,6 +267,14 @@ function getRenderedHtml(lineInfo = true) {
 function updateGutterStyle() {
   const backgroundColor = getComputedStyle(previewPane).backgroundColor;
   gutterView.style.background = `linear-gradient(to right, transparent 50%, ${backgroundColor} 50%)`;
+}
+
+const DEFAULT_ZOOM_LEVEL = 1.0;
+const MIN_ZOOM_LEVEL = 0.5;
+const MAX_ZOOM_LEVEL = 3.0;
+
+function clampZoom(value: number): string {
+  return String(Math.min(Math.max(value, MIN_ZOOM_LEVEL), MAX_ZOOM_LEVEL));
 }
 
 async function saveGeneratedHtml(styled: boolean) {
