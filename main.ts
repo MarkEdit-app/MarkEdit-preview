@@ -28,7 +28,7 @@ import { startObserving } from './src/scroll';
 import { checkForUpdates } from './src/updater';
 import { imageHoverPreview, keyboardShortcut } from './src/settings';
 import { localized } from './src/strings';
-import { appVersionGreaterThan, macOSTahoe } from './src/utils';
+import { appVersionGreaterOrEqual, macOSTahoe } from './src/utils';
 
 setUp();
 setTimeout(checkForUpdates, 4000);
@@ -49,7 +49,7 @@ MarkEdit.addMainMenuItem({
     createModeItem(localized('previewMode'), ViewMode.preview),
     { separator: true },
     ...createHtmlItems(),
-    ...(appVersionGreaterThan('1.29.1') ? [
+    ...(appVersionGreaterOrEqual('1.29.2') ? [
       { separator: true },
       {
         title: localized('pageZoom'),

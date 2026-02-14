@@ -1,9 +1,7 @@
-export function appVersionGreaterThan(target: string) {
-  const appVer = (() => {
-    // E.g., "MarkEdit/1.29.1"
-    const match = navigator.userAgent.match(/MarkEdit\/([\d.]+)/);
-    return match === null ? '1.0.0' : match[1];
-  })();
+export function appVersionGreaterOrEqual(target: string) {
+  // E.g., "MarkEdit/1.29.1"
+  const match = navigator.userAgent.match(/MarkEdit\/([\d.]+)/);
+  const appVer = match ? match[1] : '1.0.0';
 
   const parts1 = appVer.split('.').map(Number);
   const parts2 = target.split('.').map(Number);
@@ -21,7 +19,7 @@ export function appVersionGreaterThan(target: string) {
     }
   }
 
-  return false;
+  return true;
 }
 
 export function macOSTahoe() {
