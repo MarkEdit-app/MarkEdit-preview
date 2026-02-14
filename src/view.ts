@@ -193,7 +193,8 @@ export function handlePageZoom(event: KeyboardEvent) {
 }
 
 export function resetPageZoom() {
-  previewPane.style.zoom = String(DEFAULT_ZOOM_LEVEL);
+  const zoom = DEFAULT_ZOOM_LEVEL;
+  previewPane.style.zoom = String(zoom);
   savePageZoom();
 }
 
