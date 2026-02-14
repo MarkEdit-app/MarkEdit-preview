@@ -200,6 +200,38 @@ export function handlePageZoom(event: KeyboardEvent) {
   event.stopPropagation();
 }
 
+export function increasePageZoom() {
+  const zoom = Number(previewPane.style.zoom) || 1.0;
+  const clamp = (value: number) => String(Math.min(Math.max(value, 0.5), 3.0));
+  previewPane.style.zoom = clamp(zoom + 0.1);
+  localStorage.setItem(
+    Constants.previewPageZoomKey,
+    previewPane.style.zoom,
+  );
+}
+
+export function decreasePageZoom() {
+  const zoom = Number(previewPane.style.zoom) || 1.0;
+  const clamp = (value: number) => String(Math.min(Math.max(value, 0.5), 3.0));
+  previewPane.style.zoom = clamp(zoom - 0.1);
+  localStorage.setItem(
+    Constants.previewPageZoomKey,
+    previewPane.style.zoom,
+  );
+}
+
+export function resetPageZoom() {
+  previewPane.style.zoom = '1';
+  localStorage.setItem(
+    Constants.previewPageZoomKey,
+    previewPane.style.zoom,
+  );
+}
+
+export function isPageZoomAvailable() {
+  return !(states.viewMode === ViewMode.edit || (states.viewMode === ViewMode.sideBySide && MarkEdit.editorView.hasFocus));
+}
+
 export function saveCleanHtml() {
   saveGeneratedHtml(false);
 }
