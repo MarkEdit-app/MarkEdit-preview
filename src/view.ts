@@ -172,6 +172,14 @@ export function renderHtmlPreview() {
   });
 }
 
+const DEFAULT_ZOOM_LEVEL = 1.0;
+const MIN_ZOOM_LEVEL = 0.5;
+const MAX_ZOOM_LEVEL = 3.0;
+
+function clampZoom(value: number): string {
+  return String(Math.min(Math.max(value, MIN_ZOOM_LEVEL), MAX_ZOOM_LEVEL));
+}
+
 export function handlePageZoom(event: KeyboardEvent) {
   if (states.viewMode === ViewMode.edit || (states.viewMode === ViewMode.sideBySide && MarkEdit.editorView.hasFocus)) {
     return;
@@ -181,13 +189,12 @@ export function handlePageZoom(event: KeyboardEvent) {
     return;
   }
 
-  const zoom = Number(previewPane.style.zoom) || 1.0;
-  const clamp = (value: number) => String(Math.min(Math.max(value, 0.5), 3.0));
+  const zoom = Number(previewPane.style.zoom) || DEFAULT_ZOOM_LEVEL;
 
   switch (event.key) {
-    case '-': previewPane.style.zoom = clamp(zoom - 0.1); break;
-    case '=': previewPane.style.zoom = clamp(zoom + 0.1); break;
-    case '0': previewPane.style.zoom = '1'; break;
+    case '-': previewPane.style.zoom = clampZoom(zoom - 0.1); break;
+    case '=': previewPane.style.zoom = clampZoom(zoom + 0.1); break;
+    case '0': previewPane.style.zoom = String(DEFAULT_ZOOM_LEVEL); break;
     default: return; // Ignores caching and event handling
   }
 
@@ -201,9 +208,8 @@ export function handlePageZoom(event: KeyboardEvent) {
 }
 
 export function increasePageZoom() {
-  const zoom = Number(previewPane.style.zoom) || 1.0;
-  const clamp = (value: number) => String(Math.min(Math.max(value, 0.5), 3.0));
-  previewPane.style.zoom = clamp(zoom + 0.1);
+  const zoom = Number(previewPane.style.zoom) || DEFAULT_ZOOM_LEVEL;
+  previewPane.style.zoom = clampZoom(zoom + 0.1);
   localStorage.setItem(
     Constants.previewPageZoomKey,
     previewPane.style.zoom,
@@ -211,9 +217,8 @@ export function increasePageZoom() {
 }
 
 export function decreasePageZoom() {
-  const zoom = Number(previewPane.style.zoom) || 1.0;
-  const clamp = (value: number) => String(Math.min(Math.max(value, 0.5), 3.0));
-  previewPane.style.zoom = clamp(zoom - 0.1);
+  const zoom = Number(previewPane.style.zoom) || DEFAULT_ZOOM_LEVEL;
+  previewPane.style.zoom = clampZoom(zoom - 0.1);
   localStorage.setItem(
     Constants.previewPageZoomKey,
     previewPane.style.zoom,
@@ -221,7 +226,7 @@ export function decreasePageZoom() {
 }
 
 export function resetPageZoom() {
-  previewPane.style.zoom = '1';
+  previewPane.style.zoom = String(DEFAULT_ZOOM_LEVEL);
   localStorage.setItem(
     Constants.previewPageZoomKey,
     previewPane.style.zoom,
