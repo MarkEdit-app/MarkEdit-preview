@@ -1,5 +1,5 @@
 import { MarkEdit } from 'markedit-api';
-import { getClosestLine, getBlockRange, scrollToElement, scrollToPosition } from './utils';
+import { getClosestLine, getBlockRange, getElementTop, scrollToElement, scrollToPosition } from './utils';
 import { syncScroll } from './settings';
 
 export function startObserving(sourcePane: HTMLElement, targetPane: HTMLElement) {
@@ -61,14 +61,26 @@ function scrollToProgress(container: HTMLElement, line: number, progress: number
     return scrollToPosition(container, 0, animated);
   }
 
-  // Try a few lines before and after the current line
-  for (const attempt of [line - 1, line + 1, line - 2, line + 2]) {
-    const secondaryBlock = proposeTargetBlock(allBlocks, attempt);
-    if (secondaryBlock !== undefined) {
-      // For lines before the current line, use its end. Otherwise, use its start
-      const relativeProgress = attempt < line ? 1 : 0;
-      return scrollToElement(container, secondaryBlock, relativeProgress, animated);
-    }
+  // Interpolate between the closest blocks before and after the current line
+  const { beforeBlock, afterBlock } = findEnclosingBlocks(allBlocks, line);
+  if (beforeBlock !== undefined && afterBlock !== undefined) {
+    const beforeRange = getBlockRange(beforeBlock);
+    const afterRange = getBlockRange(afterBlock);
+    const beforeBlockBottom = getElementTop(container, beforeBlock) + beforeBlock.offsetHeight;
+    const afterBlockTop = getElementTop(container, afterBlock);
+    const totalGapLines = afterRange.from - beforeRange.to;
+    const linesIntoGap = (line - beforeRange.to) + progress;
+    const interpolation = totalGapLines > 0 ? clampProgressValue(linesIntoGap / totalGapLines) : 0;
+    const position = beforeBlockBottom + (afterBlockTop - beforeBlockBottom) * interpolation;
+    return scrollToPosition(container, position, animated);
+  }
+
+  if (beforeBlock !== undefined) {
+    return scrollToElement(container, beforeBlock, 1, animated);
+  }
+
+  if (afterBlock !== undefined) {
+    return scrollToElement(container, afterBlock, 0, animated);
   }
 }
 
@@ -90,6 +102,23 @@ function getRelativeProgress(line: number, progress: number, from: number, to: n
   // Clamp to [0, 1] because there are cases multiple paragraphs are merged into a single one
   const relative = (line - from) + progress;
   return clampProgressValue(relative / count);
+}
+
+function findEnclosingBlocks(blocks: HTMLElement[], line: number) {
+  let beforeBlock: HTMLElement | undefined;
+  let afterBlock: HTMLElement | undefined;
+
+  for (const block of blocks) {
+    const { from, to } = getBlockRange(block);
+    if (to < line) {
+      beforeBlock = block;
+    } else if (from > line) {
+      afterBlock = block;
+      break;
+    }
+  }
+
+  return { beforeBlock, afterBlock };
 }
 
 function clampProgressValue(value: number) {

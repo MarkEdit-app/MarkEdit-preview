@@ -30,8 +30,20 @@ export function getBlockRange(block: HTMLElement) {
   return { from, to };
 }
 
+export function getElementTop(container: HTMLElement, element: HTMLElement) {
+  let top = 0;
+  let current: HTMLElement | null = element;
+
+  while (current !== null && current !== container) {
+    top += current.offsetTop;
+    current = current.offsetParent as HTMLElement | null;
+  }
+
+  return top;
+}
+
 export function scrollToElement(container: HTMLElement, element: HTMLElement, progress: number, animated = true) {
-  const position = element.offsetTop + (element.offsetHeight * progress);
+  const position = getElementTop(container, element) + (element.offsetHeight * progress);
   scrollToPosition(container, position, animated);
 }
 
