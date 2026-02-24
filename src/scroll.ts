@@ -19,11 +19,6 @@ export function startObserving(sourcePane: HTMLElement, targetPane: HTMLElement)
 }
 
 export function syncScrollProgress(sourcePane: HTMLElement, targetPane: HTMLElement, animated = true) {
-  // When the editor is scrolled to the bottom, sync the preview to the bottom
-  if (isAtBottom(sourcePane)) {
-    return scrollToPosition(targetPane, targetPane.scrollHeight, animated);
-  }
-
   const { line, progress } = getScrollProgress(sourcePane);
   scrollToProgress(targetPane, line, progress, animated);
 }
@@ -67,28 +62,25 @@ function scrollToProgress(container: HTMLElement, line: number, progress: number
   }
 
   // Interpolate between the closest blocks before and after the current line
-  const { before, after } = findSurroundingBlocks(allBlocks, line);
-
-  if (before !== undefined && after !== undefined) {
-    const beforeRange = getBlockRange(before);
-    const afterRange = getBlockRange(after);
-    const beforeEnd = getElementTop(container, before) + before.offsetHeight;
-    const afterStart = getElementTop(container, after);
-
-    const gapLines = afterRange.from - beforeRange.to;
-    const lineInGap = (line - beforeRange.to) + progress;
-    const gapProgress = gapLines > 0 ? clampProgressValue(lineInGap / gapLines) : 0;
-
-    const position = beforeEnd + (afterStart - beforeEnd) * gapProgress;
+  const { beforeBlock, afterBlock } = findEnclosingBlocks(allBlocks, line);
+  if (beforeBlock !== undefined && afterBlock !== undefined) {
+    const beforeRange = getBlockRange(beforeBlock);
+    const afterRange = getBlockRange(afterBlock);
+    const beforeBlockBottom = getElementTop(container, beforeBlock) + beforeBlock.offsetHeight;
+    const afterBlockTop = getElementTop(container, afterBlock);
+    const totalGapLines = afterRange.from - beforeRange.to;
+    const linesIntoGap = (line - beforeRange.to) + progress;
+    const interpolation = totalGapLines > 0 ? clampProgressValue(linesIntoGap / totalGapLines) : 0;
+    const position = beforeBlockBottom + (afterBlockTop - beforeBlockBottom) * interpolation;
     return scrollToPosition(container, position, animated);
   }
 
-  if (before !== undefined) {
-    return scrollToElement(container, before, 1, animated);
+  if (beforeBlock !== undefined) {
+    return scrollToElement(container, beforeBlock, 1, animated);
   }
 
-  if (after !== undefined) {
-    return scrollToElement(container, after, 0, animated);
+  if (afterBlock !== undefined) {
+    return scrollToElement(container, afterBlock, 0, animated);
   }
 }
 
@@ -112,25 +104,21 @@ function getRelativeProgress(line: number, progress: number, from: number, to: n
   return clampProgressValue(relative / count);
 }
 
-function findSurroundingBlocks(blocks: HTMLElement[], line: number) {
-  let before: HTMLElement | undefined;
-  let after: HTMLElement | undefined;
+function findEnclosingBlocks(blocks: HTMLElement[], line: number) {
+  let beforeBlock: HTMLElement | undefined;
+  let afterBlock: HTMLElement | undefined;
 
   for (const block of blocks) {
     const { from, to } = getBlockRange(block);
     if (to < line) {
-      before = block;
+      beforeBlock = block;
     } else if (from > line) {
-      after = block;
+      afterBlock = block;
       break;
     }
   }
 
-  return { before, after };
-}
-
-function isAtBottom(element: HTMLElement) {
-  return element.scrollTop + element.clientHeight >= element.scrollHeight - 1;
+  return { beforeBlock, afterBlock };
 }
 
 function clampProgressValue(value: number) {

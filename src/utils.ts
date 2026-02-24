@@ -32,11 +32,11 @@ export function getBlockRange(block: HTMLElement) {
 
 export function getElementTop(container: HTMLElement, element: HTMLElement) {
   let top = 0;
-  let el: HTMLElement | null = element;
+  let current: HTMLElement | null = element;
 
-  while (el !== null && el !== container) {
-    top += el.offsetTop;
-    el = el.offsetParent as HTMLElement | null;
+  while (current !== null && current !== container) {
+    top += current.offsetTop;
+    current = current.offsetParent as HTMLElement | null;
   }
 
   return top;
