@@ -31,7 +31,15 @@ export function getBlockRange(block: HTMLElement) {
 }
 
 export function scrollToElement(container: HTMLElement, element: HTMLElement, progress: number, animated = true) {
-  const position = element.offsetTop + (element.offsetHeight * progress);
+  let top = 0;
+  let el: HTMLElement | null = element;
+
+  while (el !== null && el !== container) {
+    top += el.offsetTop;
+    el = el.offsetParent as HTMLElement | null;
+  }
+
+  const position = top + (element.offsetHeight * progress);
   scrollToPosition(container, position, animated);
 }
 
