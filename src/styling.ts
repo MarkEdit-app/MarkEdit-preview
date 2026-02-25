@@ -1,21 +1,21 @@
-import githubBase from '../styles/github/base.css?raw';
-import githubLight from '../styles/github/light.css?raw';
-import githubDark from '../styles/github/dark.css?raw';
+import githubBase from '../styles/themes/github/base.css?raw';
+import githubLight from '../styles/themes/github/light.css?raw';
+import githubDark from '../styles/themes/github/dark.css?raw';
 
-import cobaltDark from '../styles/cobalt/dark.css?raw';
-import draculaDark from '../styles/dracula/dark.css?raw';
-import minimalLight from '../styles/minimal/light.css?raw';
-import minimalDark from '../styles/minimal/dark.css?raw';
-import nightOwlDark from '../styles/night-owl/dark.css?raw';
-import rosePineLight from '../styles/rose-pine/light.css?raw';
-import rosePineDark from '../styles/rose-pine/dark.css?raw';
-import solarizedLight from '../styles/solarized/light.css?raw';
-import solarizedDark from '../styles/solarized/dark.css?raw';
-import synthwave84Dark from '../styles/synthwave84/dark.css?raw';
-import winterIsComingLight from '../styles/winter-is-coming/light.css?raw';
-import winterIsComingDark from '../styles/winter-is-coming/dark.css?raw';
-import xcodeLight from '../styles/xcode/light.css?raw';
-import xcodeDark from '../styles/xcode/dark.css?raw';
+import cobaltDark from '../styles/themes/cobalt/dark.css?raw';
+import draculaDark from '../styles/themes/dracula/dark.css?raw';
+import minimalLight from '../styles/themes/minimal/light.css?raw';
+import minimalDark from '../styles/themes/minimal/dark.css?raw';
+import nightOwlDark from '../styles/themes/night-owl/dark.css?raw';
+import rosePineLight from '../styles/themes/rose-pine/light.css?raw';
+import rosePineDark from '../styles/themes/rose-pine/dark.css?raw';
+import solarizedLight from '../styles/themes/solarized/light.css?raw';
+import solarizedDark from '../styles/themes/solarized/dark.css?raw';
+import synthwave84Dark from '../styles/themes/synthwave84/dark.css?raw';
+import winterIsComingLight from '../styles/themes/winter-is-coming/light.css?raw';
+import winterIsComingDark from '../styles/themes/winter-is-coming/dark.css?raw';
+import xcodeLight from '../styles/themes/xcode/light.css?raw';
+import xcodeDark from '../styles/themes/xcode/dark.css?raw';
 
 import alertsBase from '../styles/alerts/base.css?raw';
 import alertsLight from '../styles/alerts/light.css?raw';
@@ -61,12 +61,12 @@ const previewThemes: Record<string, ThemeVariants> = {
 
 export function coreCss(themeName: string = 'github', theme: ColorTheme = 'auto') {
   const variants = previewThemes[themeName] ?? previewThemes['github'];
-  const lightBg = extractBgColor(variants.light) ?? '#ffffff';
-  const darkBg = extractBgColor(variants.dark) ?? '#0d1117';
+  const lightBackground = extractBackgroundColor(variants.light) ?? '#ffffff';
+  const darkBackground = extractBackgroundColor(variants.dark) ?? '#0d1117';
 
   const styles = [
     '.markdown-body { padding: 25px; }',
-    ...createCss(theme, `body { background: ${lightBg}; }`, `body { background: ${darkBg}; }`),
+    ...createCss(theme, `body { background: ${lightBackground}; }`, `body { background: ${darkBackground}; }`),
   ];
 
   return styles.join('\n');
@@ -126,7 +126,7 @@ function createCss(theme: ColorTheme, lightCss: string, darkCss: string): string
   return styles;
 }
 
-function extractBgColor(css: string | undefined): string | undefined {
+function extractBackgroundColor(css: string | undefined): string | undefined {
   const match = css?.match(/--bgColor-default:\s*([^;]+);/);
   return match?.[1]?.trim();
 }
