@@ -59,57 +59,57 @@ const previewThemes: Record<string, ThemeVariants> = {
   'xcode': { light: xcodeLight, dark: xcodeDark },
 };
 
-export function coreCss(themeName: string = 'github', theme: ColorScheme = 'auto') {
+export function coreCss(themeName: string = 'github', colorScheme: ColorScheme = 'auto') {
   const variants = previewThemes[themeName] ?? previewThemes['github'];
   const lightBackground = extractBackgroundColor(variants.light) ?? '#ffffff';
   const darkBackground = extractBackgroundColor(variants.dark) ?? '#0d1117';
 
   const styles = [
     '.markdown-body { padding: 25px; }',
-    ...createCss(theme, `body { background: ${lightBackground}; }`, `body { background: ${darkBackground}; }`),
+    ...createCss(colorScheme, `body { background: ${lightBackground}; }`, `body { background: ${darkBackground}; }`),
   ];
 
   return styles.join('\n');
 }
 
-export function previewThemeCss(themeName: string = 'github', theme: ColorScheme = 'auto') {
+export function previewThemeCss(themeName: string = 'github', colorScheme: ColorScheme = 'auto') {
   const variants = previewThemes[themeName] ?? previewThemes['github'];
   const light = (variants.light ?? variants.dark) as string;
   const dark = (variants.dark ?? variants.light) as string;
 
   const styles = [
     githubBase,
-    ...createCss(theme, light, dark),
+    ...createCss(colorScheme, light, dark),
   ];
 
   return styles.join('\n');
 }
 
-export function alertsCss(theme: ColorScheme = 'auto') {
+export function alertsCss(colorScheme: ColorScheme = 'auto') {
   const styles = [
     alertsBase,
-    ...createCss(theme, alertsLight, alertsDark),
+    ...createCss(colorScheme, alertsLight, alertsDark),
   ];
 
   return styles.join('\n');
 }
 
-export function hljsCss(theme: ColorScheme = 'auto') {
-  return createCss(theme, hljsBase, hljsDark).join('\n');
+export function hljsCss(colorScheme: ColorScheme = 'auto') {
+  return createCss(colorScheme, hljsBase, hljsDark).join('\n');
 }
 
-export function codeCopyCss(theme: ColorScheme = 'auto') {
+export function codeCopyCss(colorScheme: ColorScheme = 'auto') {
   const styles = [
     codeCopyBase,
-    ...createCss(theme, codeCopyLight, codeCopyDark),
+    ...createCss(colorScheme, codeCopyLight, codeCopyDark),
   ];
 
   return styles.join('\n');
 }
 
-function createCss(theme: ColorScheme, lightCss: string, darkCss: string): string[] {
+function createCss(colorScheme: ColorScheme, lightCss: string, darkCss: string): string[] {
   const styles: string[] = [];
-  switch (theme) {
+  switch (colorScheme) {
     case 'light': styles.push(lightCss); break;
     case 'dark': styles.push(darkCss); break;
     case 'auto':
