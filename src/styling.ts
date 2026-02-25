@@ -1,3 +1,6 @@
+import { extractBackgroundColor } from './utils';
+import { themeName } from './settings';
+
 import githubBase from '../styles/themes/github/base.css?raw';
 import githubLight from '../styles/themes/github/light.css?raw';
 import githubDark from '../styles/themes/github/dark.css?raw';
@@ -59,7 +62,7 @@ const previewThemes: Record<string, ThemeVariants> = {
   'xcode': { light: xcodeLight, dark: xcodeDark },
 };
 
-export function coreCss(themeName: string = 'github', colorScheme: ColorScheme = 'auto') {
+export function coreCss(colorScheme: ColorScheme = 'auto') {
   const variants = previewThemes[themeName] ?? previewThemes['github'];
   const lightBackground = extractBackgroundColor(variants.light) ?? '#ffffff';
   const darkBackground = extractBackgroundColor(variants.dark) ?? '#0d1117';
@@ -72,7 +75,7 @@ export function coreCss(themeName: string = 'github', colorScheme: ColorScheme =
   return styles.join('\n');
 }
 
-export function previewThemeCss(themeName: string = 'github', colorScheme: ColorScheme = 'auto') {
+export function previewThemeCss(colorScheme: ColorScheme = 'auto') {
   const variants = previewThemes[themeName] ?? previewThemes['github'];
   const light = (variants.light ?? variants.dark) as string;
   const dark = (variants.dark ?? variants.light) as string;
@@ -124,9 +127,4 @@ function createCss(colorScheme: ColorScheme, lightCss: string, darkCss: string):
   }
 
   return styles;
-}
-
-function extractBackgroundColor(css: string | undefined): string | undefined {
-  const match = css?.match(/--bgColor-default:\s*([^;]+);/);
-  return match?.[1]?.trim();
 }

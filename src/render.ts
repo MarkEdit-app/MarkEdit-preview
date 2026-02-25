@@ -7,7 +7,7 @@ import githubAlerts from 'markdown-it-github-alerts';
 
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
-import { syntaxAutoDetect, styledHtmlColorScheme, themeName, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
+import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
 
 /**
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
@@ -39,8 +39,8 @@ export async function applyStyles(html: string) {
   const components = [
     '<!doctype html><html lang="en"><head><meta charset="UTF-8" /></head><body>',
     `<div class="markdown-body">\n${html}\n</div>`,
-    stylify(coreCss(themeName, styledHtmlColorScheme)),
-    stylify(previewThemeCss(themeName, styledHtmlColorScheme)),
+    stylify(coreCss(styledHtmlColorScheme)),
+    stylify(previewThemeCss(styledHtmlColorScheme)),
     stylify(alertsCss(styledHtmlColorScheme)),
     stylify(codeCopyCss(styledHtmlColorScheme)),
     '</body></html>',
