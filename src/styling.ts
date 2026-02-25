@@ -64,8 +64,10 @@ const previewThemes: Record<string, ThemeVariants> = {
 
 export function coreCss(colorScheme: ColorScheme = 'auto') {
   const variants = previewThemes[themeName] ?? previewThemes['github'];
-  const lightBackground = extractBackgroundColor(variants.light) ?? '#ffffff';
-  const darkBackground = extractBackgroundColor(variants.dark) ?? '#0d1117';
+  const lightVariant = variants.light ?? variants.dark;
+  const darkVariant = variants.dark ?? variants.light;
+  const lightBackground = extractBackgroundColor(lightVariant) ?? '#ffffff';
+  const darkBackground = extractBackgroundColor(darkVariant) ?? '#0d1117';
 
   const styles = [
     '.markdown-body { padding: 25px; }',
