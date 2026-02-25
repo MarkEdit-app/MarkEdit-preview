@@ -66,7 +66,7 @@ MarkEdit.addExtension(EditorView.updateListener.of(update => {
   states.renderUpdater = setTimeout(renderHtmlPreview, 500);
 }));
 
-MarkEdit.onEditorReady(() => {
+MarkEdit.onEditorReady(async() => {
   if (imageHoverPreview) {
     enableHoverPreview(MarkEdit.editorView.scrollDOM);
   }
@@ -74,6 +74,13 @@ MarkEdit.onEditorReady(() => {
   if (states.isInitiating) {
     states.isInitiating = false;
     restoreViewMode();
+  }
+
+  if (typeof MarkEdit.getFileInfo === 'function') {
+    const isDraft = (await MarkEdit.getFileInfo())?.filePath === undefined;
+    if (isDraft && MarkEdit.editorAPI.getText().length === 0) {
+      setViewMode(ViewMode.edit, false);
+    }
   }
 
   renderHtmlPreview();
