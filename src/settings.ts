@@ -1,7 +1,7 @@
 import { MarkEdit } from 'markedit-api';
 import type { JSONObject, JSONValue } from 'markedit-api';
 import type { PresetName } from 'markdown-it';
-import type { ColorTheme } from './styling';
+import type { ColorScheme } from './styling';
 
 const Constants = {
   rootValueKey: 'extension.markeditPreview',
@@ -20,7 +20,7 @@ export const syncScroll = toBoolean(rootValue.syncScroll);
 export const hidePreviewButtons = toBoolean(rootValue.hidePreviewButtons);
 export const syntaxAutoDetect = toBoolean(rootValue.syntaxAutoDetect, false);
 export const imageHoverPreview = toBoolean(rootValue.imageHoverPreview, false);
-export const styledHtmlTheme = (rootValue.styledHtmlTheme ?? 'auto') as ColorTheme;
+export const styledHtmlTheme = (rootValue.styledHtmlTheme ?? 'auto') as ColorScheme;
 export const previewTheme = (rootValue.previewTheme ?? 'github') as string;
 export const mathDelimiters = rootValue.mathDelimiters;
 export const previewModes = (changeMode.modes ?? Constants.defaultModes) as string[];

@@ -28,7 +28,7 @@ import codeCopyBase from '../styles/code-copy/base.css?raw';
 import codeCopyLight from '../styles/code-copy/light.css?raw';
 import codeCopyDark from '../styles/code-copy/dark.css?raw';
 
-export type ColorTheme = 'light' | 'dark' | 'auto';
+export type ColorScheme = 'light' | 'dark' | 'auto';
 export type PreviewTheme = typeof previewThemeNames[number];
 
 export const previewThemeNames = [
@@ -59,7 +59,7 @@ const previewThemes: Record<string, ThemeVariants> = {
   'xcode': { light: xcodeLight, dark: xcodeDark },
 };
 
-export function coreCss(themeName: string = 'github', theme: ColorTheme = 'auto') {
+export function coreCss(themeName: string = 'github', theme: ColorScheme = 'auto') {
   const variants = previewThemes[themeName] ?? previewThemes['github'];
   const lightBackground = extractBackgroundColor(variants.light) ?? '#ffffff';
   const darkBackground = extractBackgroundColor(variants.dark) ?? '#0d1117';
@@ -72,10 +72,10 @@ export function coreCss(themeName: string = 'github', theme: ColorTheme = 'auto'
   return styles.join('\n');
 }
 
-export function previewThemeCss(themeName: string = 'github', theme: ColorTheme = 'auto') {
+export function previewThemeCss(themeName: string = 'github', theme: ColorScheme = 'auto') {
   const variants = previewThemes[themeName] ?? previewThemes['github'];
-  const light = variants.light ?? variants.dark!;
-  const dark = variants.dark ?? variants.light!;
+  const light = (variants.light ?? variants.dark) as string;
+  const dark = (variants.dark ?? variants.light) as string;
 
   const styles = [
     githubBase,
@@ -85,7 +85,7 @@ export function previewThemeCss(themeName: string = 'github', theme: ColorTheme 
   return styles.join('\n');
 }
 
-export function alertsCss(theme: ColorTheme = 'auto') {
+export function alertsCss(theme: ColorScheme = 'auto') {
   const styles = [
     alertsBase,
     ...createCss(theme, alertsLight, alertsDark),
@@ -94,11 +94,11 @@ export function alertsCss(theme: ColorTheme = 'auto') {
   return styles.join('\n');
 }
 
-export function hljsCss(theme: ColorTheme = 'auto') {
+export function hljsCss(theme: ColorScheme = 'auto') {
   return createCss(theme, hljsBase, hljsDark).join('\n');
 }
 
-export function codeCopyCss(theme: ColorTheme = 'auto') {
+export function codeCopyCss(theme: ColorScheme = 'auto') {
   const styles = [
     codeCopyBase,
     ...createCss(theme, codeCopyLight, codeCopyDark),
@@ -107,7 +107,7 @@ export function codeCopyCss(theme: ColorTheme = 'auto') {
   return styles.join('\n');
 }
 
-function createCss(theme: ColorTheme, lightCss: string, darkCss: string): string[] {
+function createCss(theme: ColorScheme, lightCss: string, darkCss: string): string[] {
   const styles: string[] = [];
   switch (theme) {
     case 'light': styles.push(lightCss); break;
