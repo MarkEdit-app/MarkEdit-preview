@@ -11,7 +11,7 @@ import type { SplitInstance as Splitter } from 'split-grid';
 
 import mainCss from '../styles/main.css?raw';
 import { previewThemeCss, hljsCss, codeCopyCss } from './styling';
-import { previewTheme } from './settings';
+import { themeName } from './settings';
 
 const containerView = document.body;
 const gutterView = document.createElement('div');
@@ -31,7 +31,7 @@ export enum ViewMode {
 
 export function setUp() {
   appendStyle(mainCss);
-  appendStyle(previewThemeCss(previewTheme));
+  appendStyle(previewThemeCss(themeName));
   appendStyle(codeCopyCss());
 
   if (__FULL_BUILD__) {
