@@ -5,9 +5,9 @@ import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
 
-import { coreCss, githubCss, alertsCss, hljsCss, codeCopyCss } from './styling';
+import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
-import { syntaxAutoDetect, styledHtmlTheme, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
+import { syntaxAutoDetect, styledHtmlTheme, previewTheme, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
 
 /**
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
@@ -39,8 +39,8 @@ export async function applyStyles(html: string) {
   const components = [
     '<!doctype html><html lang="en"><head><meta charset="UTF-8" /></head><body>',
     `<div class="markdown-body">\n${html}\n</div>`,
-    stylify(coreCss(styledHtmlTheme)),
-    stylify(githubCss(styledHtmlTheme)),
+    stylify(coreCss(previewTheme, styledHtmlTheme)),
+    stylify(previewThemeCss(previewTheme, styledHtmlTheme)),
     stylify(alertsCss(styledHtmlTheme)),
     stylify(codeCopyCss(styledHtmlTheme)),
     '</body></html>',
