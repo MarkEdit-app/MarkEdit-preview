@@ -5,6 +5,7 @@ import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
 
+import { frontmatterPlugin as frontmatter } from './frontmatter';
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
 import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
@@ -96,6 +97,7 @@ mdit.use(mila, {
 mdit.use(footnote);
 mdit.use(tasklist);
 mdit.use(githubAlerts);
+mdit.use(frontmatter);
 
 const blockTypes = new Set([
   'paragraph_open',
@@ -108,6 +110,7 @@ const blockTypes = new Set([
   'code_block',
   'table_open',
   'html_block',
+  'front_matter',
 ]);
 
 // Add "line from" and "line to" info to each block
