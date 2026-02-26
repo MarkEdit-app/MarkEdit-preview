@@ -4,7 +4,7 @@ import mila from 'markdown-it-link-attributes';
 import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
-import frontMatterPlugin from 'markdown-it-front-matter';
+import frontMatter from 'markdown-it-front-matter';
 
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
@@ -110,8 +110,7 @@ mdit.use(mila, {
 mdit.use(footnote);
 mdit.use(tasklist);
 mdit.use(githubAlerts);
-// Extracts frontmatter into a token; the callback is unused because we read the token directly
-mdit.use(frontMatterPlugin, () => {});
+mdit.use(frontMatter, () => {});
 
 const blockTypes = new Set([
   'paragraph_open',
