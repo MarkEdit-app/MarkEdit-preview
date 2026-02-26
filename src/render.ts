@@ -4,30 +4,16 @@ import mila from 'markdown-it-link-attributes';
 import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
-import frontMatter from 'markdown-it-front-matter';
-
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
-import { parseFrontmatter, renderFrontmatter } from './frontmatter';
+import { frontmatterPlugin } from './frontmatter';
 import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
 
 /**
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
  */
 export function renderMarkdown(markdown: string, lineInfo = true) {
-  const env = { lineInfo };
-  const tokens = mdit.parse(markdown, env);
-  const body = mdit.renderer.render(tokens, mdit.options, env);
-  const frontmatterToken = tokens.find(token => token.type === 'front_matter');
-
-  if (frontmatterToken !== undefined) {
-    const metadata = parseFrontmatter(frontmatterToken.meta);
-    if (metadata !== undefined) {
-      return renderFrontmatter(metadata) + body;
-    }
-  }
-
-  return body;
+  return mdit.render(markdown, { lineInfo });
 }
 
 export function handlePostRender(process: () => void) {
@@ -110,7 +96,7 @@ mdit.use(mila, {
 mdit.use(footnote);
 mdit.use(tasklist);
 mdit.use(githubAlerts);
-mdit.use(frontMatter, () => {});
+mdit.use(frontmatterPlugin);
 
 const blockTypes = new Set([
   'paragraph_open',

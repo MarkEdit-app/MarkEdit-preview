@@ -1,10 +1,26 @@
+import type MarkdownIt from 'markdown-it';
+import frontMatter from 'markdown-it-front-matter';
 import { parse as parseYaml } from 'yaml';
 import { escapeHtml } from './utils';
 
 /**
- * Parses a raw YAML frontmatter string into a structured object.
+ * Self-contained markdown-it plugin that extracts YAML frontmatter
+ * and renders it as an HTML table.
  */
-export function parseFrontmatter(raw: string): Record<string, unknown> | undefined {
+export function frontmatterPlugin(mdit: MarkdownIt) {
+  let frontmatterHtml = '';
+
+  mdit.use(frontMatter, (raw: string) => {
+    const metadata = parseFrontmatter(raw);
+    frontmatterHtml = metadata !== undefined ? renderFrontmatter(metadata) : '';
+  });
+
+  mdit.renderer.rules.front_matter = () => {
+    return frontmatterHtml;
+  };
+}
+
+function parseFrontmatter(raw: string): Record<string, unknown> | undefined {
   try {
     const parsed: unknown = parseYaml(raw);
     if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
@@ -17,10 +33,7 @@ export function parseFrontmatter(raw: string): Record<string, unknown> | undefin
   return undefined;
 }
 
-/**
- * Renders a parsed frontmatter object as an HTML table.
- */
-export function renderFrontmatter(metadata: Record<string, unknown>): string {
+function renderFrontmatter(metadata: Record<string, unknown>): string {
   const entries = Object.entries(metadata);
   const headers = entries.map(([key]) => `<th>${escapeHtml(key)}</th>`).join('');
   const values = entries.map(([, value]) => `<td>${formatValue(value)}</td>`).join('');
