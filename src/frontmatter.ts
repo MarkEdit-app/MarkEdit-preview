@@ -1,5 +1,6 @@
 import type MarkdownIt from 'markdown-it';
-import frontMatter from 'markdown-it-front-matter';
+import extractFrontmatter from 'markdown-it-front-matter';
+
 import { parse as parseYaml } from 'yaml';
 import { escapeHtml } from './utils';
 
@@ -10,7 +11,7 @@ import { escapeHtml } from './utils';
 export function frontmatterPlugin(mdit: MarkdownIt) {
   let frontmatterHtml = '';
 
-  mdit.use(frontMatter, (raw: string) => {
+  mdit.use(extractFrontmatter, (raw: string) => {
     const metadata = parseFrontmatter(raw);
     frontmatterHtml = metadata !== undefined ? renderFrontmatter(metadata) : '';
   });
@@ -35,6 +36,10 @@ function parseFrontmatter(raw: string): Record<string, unknown> | undefined {
 
 function renderFrontmatter(metadata: Record<string, unknown>): string {
   const entries = Object.entries(metadata);
+  if (entries.length === 0) {
+    return '';
+  }
+
   const headers = entries.map(([key]) => `<th>${escapeHtml(key)}</th>`).join('');
   const values = entries.map(([, value]) => `<td>${formatValue(value)}</td>`).join('');
   return `<table>\n<thead><tr>${headers}</tr></thead>\n<tbody>\n<tr>${values}</tr>\n</tbody>\n</table>\n`;

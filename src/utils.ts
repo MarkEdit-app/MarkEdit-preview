@@ -77,7 +77,7 @@ export function isLocalImagePath(path: string) {
   return /\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i.test(path);
 }
 
-export function escapeHtml(text: string): string {
+export function escapeHtml(text: string) {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
