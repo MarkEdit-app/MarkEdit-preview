@@ -58,7 +58,7 @@ function formatValue(value: unknown, escape: escapeFn): string {
   }
 
   if (Array.isArray(value)) {
-    return value.map(item => escape(String(item))).join(', ');
+    return value.map(item => formatValue(item, escape)).join(', ');
   }
 
   if (typeof value === 'object') {
