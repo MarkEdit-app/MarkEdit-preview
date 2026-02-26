@@ -110,6 +110,7 @@ mdit.use(mila, {
 mdit.use(footnote);
 mdit.use(tasklist);
 mdit.use(githubAlerts);
+// Extracts frontmatter into a token; the callback is unused because we read the token directly
 mdit.use(frontMatterPlugin, () => {});
 
 const blockTypes = new Set([
