@@ -1,4 +1,5 @@
 import markdownit from 'markdown-it';
+import frontMatter from 'markdown-it-front-matter';
 import anchor from 'markdown-it-anchor';
 import mila from 'markdown-it-link-attributes';
 import footnote from 'markdown-it-footnote';
@@ -14,9 +15,8 @@ import { syntaxAutoDetect, styledHtmlTheme, mathDelimiters, markdownItPreset, ma
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
  */
 export function renderMarkdown(markdown: string, lineInfo = true) {
-  const { content, metadata } = parseFrontmatter(markdown);
-
-  const renderedContent = mdit.render(content, { lineInfo });
+  const metadata = parseFrontmatter(markdown);
+  const renderedContent = mdit.render(markdown, { lineInfo });
   if (metadata === undefined) {
     return renderedContent;
   }
@@ -25,7 +25,7 @@ export function renderMarkdown(markdown: string, lineInfo = true) {
 }
 
 export function getFrontmatterMetadata(markdown: string) {
-  return parseFrontmatter(markdown).metadata;
+  return parseFrontmatter(markdown);
 }
 
 export function handlePostRender(process: () => void) {
@@ -95,6 +95,8 @@ const mdit = markdownit(markdownItPreset, {
 });
 
 // Link attributes
+// Ignore frontmatter in HTML output; parseFrontmatter() extracts metadata separately.
+mdit.use(frontMatter, () => undefined);
 mdit.use(anchor);
 mdit.use(mila, {
   matcher: (href: string) => !href.startsWith('#'),
@@ -184,29 +186,25 @@ for (const type of ['fence', 'code_block']) {
   };
 }
 
-function parseFrontmatter(markdown: string): {
-  content: string;
-  metadata: FrontmatterMetadata | undefined;
-} {
-  const match = markdown.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/);
-  if (match === null) {
-    return { content: markdown, metadata: undefined };
+function parseFrontmatter(markdown: string): FrontmatterMetadata | undefined {
+  let source: string | undefined;
+  markdownit().use(frontMatter, frontmatter => {
+    source = frontmatter;
+  }).parse(markdown, {});
+
+  if (source === undefined) {
+    return undefined;
   }
 
   try {
-    const metadata = YAML.parse(match[1]);
+    const metadata = YAML.parse(source);
     if (metadata === null || typeof metadata !== 'object' || Array.isArray(metadata)) {
-      return { content: markdown, metadata: undefined };
+      return undefined;
     }
 
-    const lineCount = match[0].match(/\r?\n/g)?.length ?? 0;
-    const content = `${'\n'.repeat(lineCount)}${markdown.slice(match[0].length)}`;
-    return {
-      content,
-      metadata: metadata as FrontmatterMetadata,
-    };
+    return metadata as FrontmatterMetadata;
   } catch {
-    return { content: markdown, metadata: undefined };
+    return undefined;
   }
 }
 
