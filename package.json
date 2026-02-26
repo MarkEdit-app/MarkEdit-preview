@@ -34,12 +34,14 @@
     "markdown-it": "^14.1.1",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-footnote": "^4.0.0",
+    "markdown-it-front-matter": "^0.2.4",
     "markdown-it-github-alerts": "^1.0.1",
     "markdown-it-highlightjs": "^4.3.0",
     "markdown-it-link-attributes": "^4.0.1",
     "markdown-it-task-lists": "^2.1.1",
     "markedit-katex": "https://github.com/MarkEdit-app/MarkEdit-katex#v1.1.4",
     "mermaid": "^11.12.2",
-    "split-grid": "^1.0.11"
+    "split-grid": "^1.0.11",
+    "yaml": "^2.8.0"
   }
 }
