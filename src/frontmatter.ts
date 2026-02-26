@@ -18,7 +18,7 @@ export function frontmatterPlugin(mdit: MarkdownIt) {
     }
   });
 
-  mdit.renderer.rules.front_matter = (tokens, idx, options, _env, self) => {
+  mdit.renderer.rules.front_matter = (tokens, idx, _options, _env, self) => {
     if (frontmatterHtml === '') {
       return '';
     }
