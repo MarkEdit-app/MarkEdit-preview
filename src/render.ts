@@ -15,7 +15,6 @@ import { syntaxAutoDetect, styledHtmlTheme, mathDelimiters, markdownItPreset, ma
  */
 export function renderMarkdown(markdown: string, lineInfo = true) {
   const { content, metadata } = parseFrontmatter(markdown);
-  states.frontmatterMetadata = metadata;
 
   const renderedContent = mdit.render(content, { lineInfo });
   if (metadata === undefined) {
@@ -25,8 +24,8 @@ export function renderMarkdown(markdown: string, lineInfo = true) {
   return `${renderFrontmatterTable(metadata)}\n${renderedContent}`;
 }
 
-export function getFrontmatterMetadata() {
-  return states.frontmatterMetadata;
+export function getFrontmatterMetadata(markdown: string) {
+  return parseFrontmatter(markdown).metadata;
 }
 
 export function handlePostRender(process: () => void) {
@@ -212,7 +211,7 @@ function parseFrontmatter(markdown: string): {
 }
 
 function renderFrontmatterTable(metadata: FrontmatterMetadata) {
-  const rows = Object.entries(metadata).map(([key, value]) => `
+  const rows = Object.entries(metadata).sort(([a], [b]) => a.localeCompare(b)).map(([key, value]) => `
     <tr>
       <th>${mdit.utils.escapeHtml(key)}</th>
       <td>${renderFrontmatterValue(value)}</td>
@@ -234,9 +233,3 @@ function renderFrontmatterValue(value: unknown): string {
 }
 
 type FrontmatterMetadata = Record<string, unknown>;
-
-const states: {
-  frontmatterMetadata: FrontmatterMetadata | undefined;
-} = {
-  frontmatterMetadata: undefined,
-};
