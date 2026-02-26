@@ -1,0 +1,24 @@
+.markdown-body {
+  /* dark */
+  color-scheme: dark;
+  --bgColor-attention-muted: #f7ecb51a;
+  --bgColor-default: #282822;
+  --bgColor-muted: #1e1e1a;
+  --bgColor-neutral-muted: #ffffff1a;
+  --borderColor-accent-emphasis: #5abeb0;
+  --borderColor-attention-emphasis: #f7ecb5;
+  --borderColor-danger-emphasis: #da3633;
+  --borderColor-default: #3b3a32;
+  --borderColor-done-emphasis: #d29ffc;
+  --borderColor-success-emphasis: #8dec95;
+  --fgColor-accent: #5abeb0;
+  --fgColor-attention: #f7ecb5;
+  --fgColor-danger: #f85149;
+  --fgColor-default: #ffffff;
+  --fgColor-done: #d29ffc;
+  --fgColor-muted: #999999;
+  --fgColor-success: #8dec95;
+  --borderColor-muted: #3b3a3280;
+  --focus-outlineColor: var(--borderColor-accent-emphasis);
+  --borderColor-neutral-muted: var(--borderColor-muted);
+}

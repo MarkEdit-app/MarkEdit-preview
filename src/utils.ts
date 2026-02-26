@@ -12,6 +12,11 @@ export function appendStyle(css: string, enabled = true) {
   return style;
 }
 
+export function extractBackgroundColor(css: string | undefined): string | undefined {
+  const match = css?.match(/--bgColor-default:\s*([^;]+);/);
+  return match?.[1]?.trim();
+}
+
 /**
  * @returns File name without the path extension.
  */

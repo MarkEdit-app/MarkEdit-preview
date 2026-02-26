@@ -5,9 +5,9 @@ import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
 
-import { coreCss, githubCss, alertsCss, hljsCss, codeCopyCss } from './styling';
+import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
-import { syntaxAutoDetect, styledHtmlTheme, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
+import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
 
 /**
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
@@ -39,15 +39,15 @@ export async function applyStyles(html: string) {
   const components = [
     '<!doctype html><html lang="en"><head><meta charset="UTF-8" /></head><body>',
     `<div class="markdown-body">\n${html}\n</div>`,
-    stylify(coreCss(styledHtmlTheme)),
-    stylify(githubCss(styledHtmlTheme)),
-    stylify(alertsCss(styledHtmlTheme)),
-    stylify(codeCopyCss(styledHtmlTheme)),
+    stylify(coreCss(styledHtmlColorScheme)),
+    stylify(previewThemeCss(styledHtmlColorScheme)),
+    stylify(alertsCss(styledHtmlColorScheme)),
+    stylify(codeCopyCss(styledHtmlColorScheme)),
     '</body></html>',
   ];
 
   if (__FULL_BUILD__) {
-    components.push(stylify(hljsCss(styledHtmlTheme)));
+    components.push(stylify(hljsCss(styledHtmlColorScheme)));
 
     const { default: katexCss } = await import('../styles/katex.css?raw');
     components.push(stylify(katexCss));
@@ -55,7 +55,7 @@ export async function applyStyles(html: string) {
     const mermaid = `
     <script type="module">
       import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      if (${styledHtmlTheme === 'auto' ? 'true' : 'false'}) {
+      if (${styledHtmlColorScheme === 'auto' ? 'true' : 'false'}) {
         const darkMode = matchMedia("(prefers-color-scheme: dark)");
         mermaid.initialize({ theme: darkMode.matches ? "dark" : undefined });
         darkMode.addEventListener("change", () => {
@@ -64,7 +64,7 @@ export async function applyStyles(html: string) {
           }
         });
       } else {
-        const isDark = ${styledHtmlTheme === 'dark' ? 'true' : 'false'};
+        const isDark = ${styledHtmlColorScheme === 'dark' ? 'true' : 'false'};
         mermaid.initialize({ theme: isDark ? "dark" : undefined });
       }
     </script>`;
