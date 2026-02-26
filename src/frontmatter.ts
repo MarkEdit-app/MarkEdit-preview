@@ -1,23 +1,14 @@
 import { parse } from 'yaml';
 import { escapeHtml } from './utils';
 
-const frontmatterRegex = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
-
 /**
- * Extract and parse YAML frontmatter from a markdown string.
- *
- * @returns The parsed metadata and the remaining body, or `undefined` if no valid frontmatter is found.
+ * Parse a raw YAML frontmatter string into a structured object.
  */
-export function extractFrontmatter(markdown: string): { metadata: Record<string, unknown>; body: string } | undefined {
-  const match = markdown.match(frontmatterRegex);
-  if (match === null) {
-    return undefined;
-  }
-
+export function parseFrontmatter(raw: string): Record<string, unknown> | undefined {
   try {
-    const parsed: unknown = parse(match[1]);
+    const parsed: unknown = parse(raw);
     if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
-      return { metadata: parsed as Record<string, unknown>, body: markdown.slice(match[0].length) };
+      return parsed as Record<string, unknown>;
     }
   } catch {
     // Silently ignore malformed YAML

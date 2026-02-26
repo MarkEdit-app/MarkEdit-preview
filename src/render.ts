@@ -4,19 +4,23 @@ import mila from 'markdown-it-link-attributes';
 import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
+import frontMatterPlugin from 'markdown-it-front-matter';
 
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
-import { extractFrontmatter, renderFrontmatter } from './frontmatter';
+import { parseFrontmatter, renderFrontmatter } from './frontmatter';
 import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
 
 /**
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
  */
 export function renderMarkdown(markdown: string, lineInfo = true) {
-  const frontmatter = extractFrontmatter(markdown);
-  const body = mdit.render(frontmatter?.body ?? markdown, { lineInfo });
-  return frontmatter ? renderFrontmatter(frontmatter.metadata) + body : body;
+  const env = { lineInfo };
+  const tokens = mdit.parse(markdown, env);
+  const fmToken = tokens.find(t => t.type === 'front_matter');
+  const metadata = fmToken ? parseFrontmatter(fmToken.meta) : undefined;
+  const body = mdit.renderer.render(tokens, mdit.options, env);
+  return metadata ? renderFrontmatter(metadata) + body : body;
 }
 
 export function handlePostRender(process: () => void) {
@@ -99,6 +103,7 @@ mdit.use(mila, {
 mdit.use(footnote);
 mdit.use(tasklist);
 mdit.use(githubAlerts);
+mdit.use(frontMatterPlugin, () => {});
 
 const blockTypes = new Set([
   'paragraph_open',
