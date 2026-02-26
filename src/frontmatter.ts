@@ -1,6 +1,5 @@
 import type MarkdownIt from 'markdown-it';
 import extractFrontmatter from 'markdown-it-front-matter';
-
 import { parse as parseYaml } from 'yaml';
 
 /**
@@ -8,12 +7,15 @@ import { parse as parseYaml } from 'yaml';
  * and renders it as an HTML table.
  */
 export function frontmatterPlugin(mdit: MarkdownIt) {
-  const escape = mdit.utils.escapeHtml;
   let frontmatterHtml = '';
 
   mdit.use(extractFrontmatter, (raw: string) => {
     const metadata = parseFrontmatter(raw);
-    frontmatterHtml = metadata !== undefined ? renderFrontmatter(metadata, escape) : '';
+    if (metadata !== undefined) {
+      frontmatterHtml = renderFrontmatter(metadata, mdit.utils.escapeHtml);
+    } else {
+      frontmatterHtml = '';
+    }
   });
 
   mdit.renderer.rules.front_matter = () => {
@@ -34,7 +36,7 @@ function parseFrontmatter(raw: string): Record<string, unknown> | undefined {
   return undefined;
 }
 
-function renderFrontmatter(metadata: Record<string, unknown>, escape: (str: string) => string): string {
+function renderFrontmatter(metadata: Record<string, unknown>, escape: escapeFn): string {
   const entries = Object.entries(metadata);
   if (entries.length === 0) {
     return '';
@@ -45,7 +47,7 @@ function renderFrontmatter(metadata: Record<string, unknown>, escape: (str: stri
   return `<table>\n<thead><tr>${headers}</tr></thead>\n<tbody>\n<tr>${values}</tr>\n</tbody>\n</table>\n`;
 }
 
-function formatValue(value: unknown, escape: (str: string) => string): string {
+function formatValue(value: unknown, escape: escapeFn): string {
   if (value === null || value === undefined) {
     return '';
   }
@@ -60,3 +62,5 @@ function formatValue(value: unknown, escape: (str: string) => string): string {
 
   return escape(String(value));
 }
+
+type escapeFn = (input: string) => string;

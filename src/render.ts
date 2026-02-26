@@ -110,6 +110,7 @@ const blockTypes = new Set([
   'code_block',
   'table_open',
   'html_block',
+  'front_matter',
 ]);
 
 // Add "line from" and "line to" info to each block
