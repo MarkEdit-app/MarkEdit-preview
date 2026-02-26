@@ -2,18 +2,18 @@ import type MarkdownIt from 'markdown-it';
 import extractFrontmatter from 'markdown-it-front-matter';
 
 import { parse as parseYaml } from 'yaml';
-import { escapeHtml } from './utils';
 
 /**
  * Self-contained markdown-it plugin that extracts YAML frontmatter
  * and renders it as an HTML table.
  */
 export function frontmatterPlugin(mdit: MarkdownIt) {
+  const escape = mdit.utils.escapeHtml;
   let frontmatterHtml = '';
 
   mdit.use(extractFrontmatter, (raw: string) => {
     const metadata = parseFrontmatter(raw);
-    frontmatterHtml = metadata !== undefined ? renderFrontmatter(metadata) : '';
+    frontmatterHtml = metadata !== undefined ? renderFrontmatter(metadata, escape) : '';
   });
 
   mdit.renderer.rules.front_matter = () => {
@@ -34,29 +34,29 @@ function parseFrontmatter(raw: string): Record<string, unknown> | undefined {
   return undefined;
 }
 
-function renderFrontmatter(metadata: Record<string, unknown>): string {
+function renderFrontmatter(metadata: Record<string, unknown>, escape: (str: string) => string): string {
   const entries = Object.entries(metadata);
   if (entries.length === 0) {
     return '';
   }
 
-  const headers = entries.map(([key]) => `<th>${escapeHtml(key)}</th>`).join('');
-  const values = entries.map(([, value]) => `<td>${formatValue(value)}</td>`).join('');
+  const headers = entries.map(([key]) => `<th>${escape(key)}</th>`).join('');
+  const values = entries.map(([, value]) => `<td>${formatValue(value, escape)}</td>`).join('');
   return `<table>\n<thead><tr>${headers}</tr></thead>\n<tbody>\n<tr>${values}</tr>\n</tbody>\n</table>\n`;
 }
 
-function formatValue(value: unknown): string {
+function formatValue(value: unknown, escape: (str: string) => string): string {
   if (value === null || value === undefined) {
     return '';
   }
 
   if (Array.isArray(value)) {
-    return value.map(item => escapeHtml(String(item))).join(', ');
+    return value.map(item => escape(String(item))).join(', ');
   }
 
   if (typeof value === 'object') {
-    return escapeHtml(JSON.stringify(value));
+    return escape(JSON.stringify(value));
   }
 
-  return escapeHtml(String(value));
+  return escape(String(value));
 }

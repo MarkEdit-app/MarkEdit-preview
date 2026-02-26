@@ -77,15 +77,6 @@ export function isLocalImagePath(path: string) {
   return /\.(png|jpe?g|gif|bmp|webp|svg)(\?.*)?$/i.test(path);
 }
 
-export function escapeHtml(text: string) {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 export function joinPaths(path1: string, path2: string) {
   if (path1.endsWith('/')) {
     return path1 + path2;
