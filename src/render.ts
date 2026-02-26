@@ -4,6 +4,7 @@ import mila from 'markdown-it-link-attributes';
 import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
+import YAML from 'yaml';
 
 import { coreCss, githubCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
@@ -13,7 +14,19 @@ import { syntaxAutoDetect, styledHtmlTheme, mathDelimiters, markdownItPreset, ma
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
  */
 export function renderMarkdown(markdown: string, lineInfo = true) {
-  return mdit.render(markdown, { lineInfo });
+  const { content, metadata } = parseFrontmatter(markdown);
+  states.frontmatterMetadata = metadata;
+
+  const renderedContent = mdit.render(content, { lineInfo });
+  if (metadata === undefined) {
+    return renderedContent;
+  }
+
+  return `${renderFrontmatterTable(metadata)}\n${renderedContent}`;
+}
+
+export function getFrontmatterMetadata() {
+  return states.frontmatterMetadata;
 }
 
 export function handlePostRender(process: () => void) {
@@ -171,3 +184,59 @@ for (const type of ['fence', 'code_block']) {
     </div>`;
   };
 }
+
+function parseFrontmatter(markdown: string): {
+  content: string;
+  metadata: FrontmatterMetadata | undefined;
+} {
+  const match = markdown.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/);
+  if (match === null) {
+    return { content: markdown, metadata: undefined };
+  }
+
+  try {
+    const metadata = YAML.parse(match[1]);
+    if (metadata === null || typeof metadata !== 'object' || Array.isArray(metadata)) {
+      return { content: markdown, metadata: undefined };
+    }
+
+    const lineCount = match[0].match(/\r?\n/g)?.length ?? 0;
+    const content = `${'\n'.repeat(lineCount)}${markdown.slice(match[0].length)}`;
+    return {
+      content,
+      metadata: metadata as FrontmatterMetadata,
+    };
+  } catch {
+    return { content: markdown, metadata: undefined };
+  }
+}
+
+function renderFrontmatterTable(metadata: FrontmatterMetadata) {
+  const rows = Object.entries(metadata).map(([key, value]) => `
+    <tr>
+      <th>${mdit.utils.escapeHtml(key)}</th>
+      <td>${renderFrontmatterValue(value)}</td>
+    </tr>`).join('');
+
+  return `
+  <table class="frontmatter-table">
+    <tbody>${rows}
+    </tbody>
+  </table>`;
+}
+
+function renderFrontmatterValue(value: unknown): string {
+  if (value === null || typeof value === 'number' || typeof value === 'boolean' || typeof value === 'string') {
+    return mdit.utils.escapeHtml(String(value));
+  }
+
+  return `<pre><code>${mdit.utils.escapeHtml(JSON.stringify(value, null, 2))}</code></pre>`;
+}
+
+type FrontmatterMetadata = Record<string, unknown>;
+
+const states: {
+  frontmatterMetadata: FrontmatterMetadata | undefined;
+} = {
+  frontmatterMetadata: undefined,
+};
