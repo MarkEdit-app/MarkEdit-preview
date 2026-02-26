@@ -24,7 +24,7 @@ export function frontmatterPlugin(mdit: MarkdownIt) {
     }
 
     const attrs = self.renderAttrs(tokens[idx]);
-    return frontmatterHtml.replace('<table>', `<table${attrs}>`);
+    return `<table${attrs}>\n${frontmatterHtml}\n</table>\n`;
   };
 }
 
@@ -49,7 +49,7 @@ function renderFrontmatter(metadata: Record<string, unknown>, escape: escapeFn):
 
   const headers = entries.map(([key]) => `<th scope="col">${escape(key)}</th>`).join('');
   const values = entries.map(([, value]) => `<td>${formatValue(value, escape)}</td>`).join('');
-  return `<table>\n<thead><tr>${headers}</tr></thead>\n<tbody>\n<tr>${values}</tr>\n</tbody>\n</table>\n`;
+  return `<thead><tr>${headers}</tr></thead>\n<tbody>\n<tr>${values}</tr>\n</tbody>`;
 }
 
 function formatValue(value: unknown, escape: escapeFn): string {
