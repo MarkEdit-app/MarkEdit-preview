@@ -18,8 +18,13 @@ export function frontmatterPlugin(mdit: MarkdownIt) {
     }
   });
 
-  mdit.renderer.rules.front_matter = () => {
-    return frontmatterHtml;
+  mdit.renderer.rules.front_matter = (tokens, idx, options, _env, self) => {
+    if (frontmatterHtml === '') {
+      return '';
+    }
+
+    const attrs = self.renderAttrs(tokens[idx]);
+    return frontmatterHtml.replace('<table>', `<table${attrs}>`);
   };
 }
 
@@ -42,7 +47,7 @@ function renderFrontmatter(metadata: Record<string, unknown>, escape: escapeFn):
     return '';
   }
 
-  const headers = entries.map(([key]) => `<th>${escape(key)}</th>`).join('');
+  const headers = entries.map(([key]) => `<th scope="col">${escape(key)}</th>`).join('');
   const values = entries.map(([, value]) => `<td>${formatValue(value, escape)}</td>`).join('');
   return `<table>\n<thead><tr>${headers}</tr></thead>\n<tbody>\n<tr>${values}</tr>\n</tbody>\n</table>\n`;
 }
