@@ -17,10 +17,17 @@ import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPres
 export function renderMarkdown(markdown: string, lineInfo = true) {
   const env = { lineInfo };
   const tokens = mdit.parse(markdown, env);
-  const fmToken = tokens.find(t => t.type === 'front_matter');
-  const metadata = fmToken ? parseFrontmatter(fmToken.meta) : undefined;
   const body = mdit.renderer.render(tokens, mdit.options, env);
-  return metadata ? renderFrontmatter(metadata) + body : body;
+  const frontmatterToken = tokens.find(token => token.type === 'front_matter');
+
+  if (frontmatterToken !== undefined) {
+    const metadata = parseFrontmatter(frontmatterToken.meta);
+    if (metadata !== undefined) {
+      return renderFrontmatter(metadata) + body;
+    }
+  }
+
+  return body;
 }
 
 export function handlePostRender(process: () => void) {
