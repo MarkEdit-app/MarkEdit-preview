@@ -21,11 +21,11 @@ export function parseFrontmatter(raw: string): Record<string, unknown> | undefin
  * Render a parsed frontmatter object as an HTML table.
  */
 export function renderFrontmatter(metadata: Record<string, unknown>): string {
-  const rows = Object.entries(metadata)
-    .map(([key, value]) => `<tr><th>${escapeHtml(key)}</th><td>${formatValue(value)}</td></tr>`)
-    .join('\n');
+  const entries = Object.entries(metadata);
+  const headers = entries.map(([key]) => `<th>${escapeHtml(key)}</th>`).join('');
+  const values = entries.map(([, value]) => `<td>${formatValue(value)}</td>`).join('');
 
-  return `<table>\n<thead><tr><th>Key</th><th>Value</th></tr></thead>\n<tbody>\n${rows}\n</tbody>\n</table>\n`;
+  return `<table>\n<thead><tr>${headers}</tr></thead>\n<tbody>\n<tr>${values}</tr>\n</tbody>\n</table>\n`;
 }
 
 function formatValue(value: unknown): string {
