@@ -4,9 +4,7 @@ import extractFrontmatter from 'markdown-it-front-matter';
 let parseYaml: (raw: string) => unknown = parseYamlLite;
 
 if (__FULL_BUILD__) {
-  import('yaml').then(({ parse }) => {
-    parseYaml = parse;
-  });
+  parseYaml = (await import('yaml')).parse;
 }
 
 /**
