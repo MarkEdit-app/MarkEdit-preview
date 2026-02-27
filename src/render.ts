@@ -5,7 +5,7 @@ import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
 
-import { frontmatterPlugin as frontmatter } from './frontmatter';
+import { frontMatterPlugin as frontMatter } from './frontMatter';
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
 import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
@@ -97,7 +97,7 @@ mdit.use(mila, {
 mdit.use(footnote);
 mdit.use(tasklist);
 mdit.use(githubAlerts);
-mdit.use(frontmatter);
+mdit.use(frontMatter);
 
 const blockTypes = new Set([
   'paragraph_open',
