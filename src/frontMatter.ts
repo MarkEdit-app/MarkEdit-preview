@@ -94,5 +94,5 @@ function formatValue(value: unknown, escape: escapeHtmlFn): string {
   return escape(String(value));
 }
 
-type parseYamlFn = (raw: string) => Record<string, unknown>;
+type parseYamlFn = (raw: string) => unknown;
 type escapeHtmlFn = (input: string) => string;
