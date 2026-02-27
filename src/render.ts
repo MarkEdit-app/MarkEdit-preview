@@ -89,7 +89,7 @@ const pluginInits: Promise<void>[] = [];
 
 // Front matter
 pluginInits.push(
-  createFrontMatterPlugin(mdit).then(frontMatter => { mdit.use(frontMatter); }),
+  createFrontMatterPlugin(mdit).then(mod => { mdit.use(mod); }),
 );
 
 // Link attributes
@@ -144,6 +144,7 @@ if (__FULL_BUILD__) {
   pluginInits.push(
     import('markdown-it-highlightjs').then(mod => { mdit.use(mod.default, { auto: syntaxAutoDetect }); }),
   );
+
   pluginInits.push(
     import('markedit-katex').then(mod => {
       const options = mathDelimiters ? { delimiters: mathDelimiters } : {};
