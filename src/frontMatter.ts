@@ -1,35 +1,37 @@
 import type MarkdownIt from 'markdown-it';
 import extractFrontMatter from 'markdown-it-front-matter';
+import { stripQuotes } from './utils';
 
 /**
  * Self-contained markdown-it plugin that extracts YAML frontMatter
  * and renders it as an HTML table.
  */
-export async function frontMatterPlugin(mdit: MarkdownIt) {
-  let renderedHtml = '';
+export async function createFrontMatterPlugin(mdit: MarkdownIt): Promise<MarkdownIt.PluginSimple> {
   let parseYaml = parseYamlLite;
-
-  // Additional 100 KB bundle size increase
   if (__FULL_BUILD__) {
+    // Additional 100 KB bundle size increase
     parseYaml = (await import('yaml')).parse;
   }
 
-  mdit.use(extractFrontMatter, (raw: string) => {
-    const metadata = parseFrontMatter(raw, parseYaml);
-    if (metadata !== undefined) {
-      renderedHtml = renderFrontMatter(metadata, mdit.utils.escapeHtml);
-    } else {
-      renderedHtml = '';
-    }
-  });
+  return () => {
+    let renderedHtml = '';
+    mdit.use(extractFrontMatter, (raw: string) => {
+      const metadata = parseFrontMatter(raw, parseYaml);
+      if (metadata !== undefined) {
+        renderedHtml = renderFrontMatter(metadata, mdit.utils.escapeHtml);
+      } else {
+        renderedHtml = '';
+      }
+    });
 
-  mdit.renderer.rules.front_matter = (tokens, idx, _options, _env, self) => {
-    if (renderedHtml === '') {
-      return '';
-    }
+    mdit.renderer.rules.front_matter = (tokens, idx, _options, _env, self) => {
+      if (renderedHtml === '') {
+        return '';
+      }
 
-    const attrs = self.renderAttrs(tokens[idx]);
-    return `<table class="markdown-frontMatter"${attrs}>\n${renderedHtml}\n</table>\n`;
+      const attrs = self.renderAttrs(tokens[idx]);
+      return `<table class="markdown-frontMatter"${attrs}>\n${renderedHtml}\n</table>\n`;
+    };
   };
 }
 
@@ -60,7 +62,7 @@ function parseYamlLite(raw: string): Record<string, unknown> {
     const key = line.slice(0, index).trim();
     const value = line.slice(index + 1).trim();
     if (key.length > 0) {
-      result[key] = value;
+      result[key] = stripQuotes(value);
     }
   }
 

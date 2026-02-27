@@ -84,3 +84,11 @@ export function joinPaths(path1: string, path2: string) {
 
   return path1 + '/' + path2;
 }
+
+export function stripQuotes(input: string) {
+  if ((input.startsWith('"') && input.endsWith('"')) || (input.startsWith("'") && input.endsWith("'"))) {
+    return input.slice(1, -1);
+  }
+
+  return input;
+}
