@@ -24,7 +24,7 @@ export function frontmatterPlugin(mdit: MarkdownIt) {
     }
 
     const attrs = self.renderAttrs(tokens[idx]);
-    return `<table${attrs}>\n${frontmatterHtml}\n</table>\n`;
+    return `<table class="markdown-frontmatter"${attrs}>\n${frontmatterHtml}\n</table>\n`;
   };
 }
 
