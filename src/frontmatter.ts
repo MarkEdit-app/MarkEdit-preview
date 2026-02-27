@@ -1,6 +1,13 @@
 import type MarkdownIt from 'markdown-it';
 import extractFrontmatter from 'markdown-it-front-matter';
-import { parse as parseYaml } from 'yaml';
+
+let parseYaml: (raw: string) => unknown = parseYamlLite;
+
+if (__FULL_BUILD__) {
+  import('yaml').then(({ parse }) => {
+    parseYaml = parse;
+  });
+}
 
 /**
  * Self-contained markdown-it plugin that extracts YAML frontmatter
@@ -66,6 +73,31 @@ function formatValue(value: unknown, escape: escapeFn): string {
   }
 
   return escape(String(value));
+}
+
+/**
+ * Lightweight YAML parser for simple key-value frontmatter.
+ *
+ * Only covers flat `key: value` pairs; nested structures
+ * and advanced YAML features are handled by the full `yaml` package
+ * in __FULL_BUILD__ mode.
+ */
+function parseYamlLite(raw: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const line of raw.split('\n')) {
+    const index = line.indexOf(':');
+    if (index === -1) {
+      continue;
+    }
+
+    const key = line.slice(0, index).trim();
+    const value = line.slice(index + 1).trim();
+    if (key.length > 0) {
+      result[key] = value;
+    }
+  }
+
+  return result;
 }
 
 type escapeFn = (input: string) => string;
