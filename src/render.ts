@@ -13,7 +13,8 @@ import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPres
 /**
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
  */
-export function renderMarkdown(markdown: string, lineInfo = true) {
+export async function renderMarkdown(markdown: string, lineInfo = true) {
+  await pluginsReady;
   return mdit.render(markdown, { lineInfo });
 }
 
@@ -83,11 +84,13 @@ const mdit = markdownit(markdownItPreset, {
   ...markdownItOptions,
 });
 
+// Collect all async plugin initializations
+const pluginInits: Promise<void>[] = [];
+
 // Front matter
-(async() => {
-  const frontMatter = await createFrontMatterPlugin(mdit);
-  mdit.use(frontMatter);
-})();
+pluginInits.push(
+  createFrontMatterPlugin(mdit).then(frontMatter => { mdit.use(frontMatter); }),
+);
 
 // Link attributes
 mdit.use(anchor);
@@ -138,11 +141,15 @@ for (const type of blockTypes) {
 
 // Highlight.js, KaTex and Mermaid, for full builds only
 if (__FULL_BUILD__) {
-  import('markdown-it-highlightjs').then(mod => mdit.use(mod.default, { auto: syntaxAutoDetect }));
-  import('markedit-katex').then(mod => {
-    const options = mathDelimiters ? { delimiters: mathDelimiters } : {};
-    mdit.use(mod.default, options);
-  });
+  pluginInits.push(
+    import('markdown-it-highlightjs').then(mod => { mdit.use(mod.default, { auto: syntaxAutoDetect }); }),
+  );
+  pluginInits.push(
+    import('markedit-katex').then(mod => {
+      const options = mathDelimiters ? { delimiters: mathDelimiters } : {};
+      mdit.use(mod.default, options);
+    }),
+  );
 
   const renderFence = mdit.renderer.rules.fence;
   mdit.renderer.rules.fence = (tokens, idx, options, env, slf) => {
@@ -179,3 +186,6 @@ for (const type of ['fence', 'code_block']) {
     </div>`;
   };
 }
+
+// Ensure all async plugins are ready before rendering
+const pluginsReady = Promise.all(pluginInits);
