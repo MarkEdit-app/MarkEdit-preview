@@ -150,12 +150,12 @@ export function currentViewMode() {
   return states.viewMode;
 }
 
-export function renderHtmlPreview() {
+export async function renderHtmlPreview() {
   if (states.viewMode === ViewMode.edit) {
     return;
   }
 
-  const html = replaceImageURLs(getRenderedHtml());
+  const html = replaceImageURLs(await getRenderedHtml());
   previewPane.innerHTML = html;
 
   handlePostRender(() => {
@@ -209,13 +209,14 @@ export function saveStyledHtml() {
 }
 
 export async function copyHtml() {
-  const html = getRenderedHtml(false);
+  const html = await getRenderedHtml(false);
   await navigator.clipboard.writeText(html);
 }
 
 export async function copyRichText() {
+  const html = await getRenderedHtml(false);
   const items = new ClipboardItem({
-    'text/html': new Blob([getRenderedHtml(false)], { type: 'text/html' }),
+    'text/html': new Blob([html], { type: 'text/html' }),
     'text/plain': new Blob([previewPane.innerText], { type: 'text/plain' }),
   });
 
@@ -230,9 +231,9 @@ export function getPreviewPane() {
   return previewPane;
 }
 
-function getRenderedHtml(lineInfo = true) {
+async function getRenderedHtml(lineInfo = true) {
   const markdown = MarkEdit.editorAPI.getText();
-  return renderMarkdown(markdown, lineInfo);
+  return await renderMarkdown(markdown, lineInfo);
 }
 
 function updateGutterStyle() {
@@ -251,7 +252,7 @@ async function saveGeneratedHtml(styled: boolean) {
   })();
 
   const fileContent = await (async() => {
-    const html = getRenderedHtml(false);
+    const html = await getRenderedHtml(false);
     return styled ? (await applyStyles(html)) : html;
   })();
 
