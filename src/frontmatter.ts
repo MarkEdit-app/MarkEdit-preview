@@ -82,8 +82,8 @@ function formatValue(value: unknown, escape: escapeFn): string {
  * and advanced YAML features are handled by the full `yaml` package
  * in __FULL_BUILD__ mode.
  */
-function parseYamlLite(raw: string): Record<string, string> {
-  const result: Record<string, string> = {};
+function parseYamlLite(raw: string): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
   for (const line of raw.split('\n')) {
     const index = line.indexOf(':');
     if (index === -1) {
