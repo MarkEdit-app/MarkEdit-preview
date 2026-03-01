@@ -30,7 +30,7 @@
     "vite-plugin-singlefile": "^2.2.0"
   },
   "dependencies": {
-    "katex": "^0.16.28",
+    "katex": "^0.16.33",
     "markdown-it": "^14.1.1",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-footnote": "^4.0.0",
@@ -40,8 +40,8 @@
     "markdown-it-link-attributes": "^4.0.1",
     "markdown-it-task-lists": "^2.1.1",
     "markedit-katex": "https://github.com/MarkEdit-app/MarkEdit-katex#v1.1.4",
-    "mermaid": "^11.12.2",
+    "mermaid": "^11.12.3",
     "split-grid": "^1.0.11",
-    "yaml": "^2.8.0"
+    "yaml": "^2.8.2"
   }
 }
