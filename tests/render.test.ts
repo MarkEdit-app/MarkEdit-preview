@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { renderMarkdown } from './render';
+import { renderMarkdown } from './src/render';
 
 // Wait for async imports to complete (highlight.js, katex)
 beforeAll(async () => {
@@ -9,23 +9,23 @@ beforeAll(async () => {
 
 describe('renderMarkdown', () => {
   describe('code blocks without language specifier', () => {
-    it('should NOT apply syntax highlighting classes', () => {
+    it('should NOT apply syntax highlighting classes', async () => {
       const md = '```\nNATURAL ENGLAND\n```';
-      const html = renderMarkdown(md);
+      const html = await renderMarkdown(md);
       // Should NOT contain hljs classes
       expect(html).not.toMatch(/class="[^"]*hljs/);
     });
 
-    it('should render plain text without keyword highlighting', () => {
+    it('should render plain text without keyword highlighting', async () => {
       const md = '```\nOR trigger within\n```';
-      const html = renderMarkdown(md);
+      const html = await renderMarkdown(md);
       // Should NOT contain hljs-keyword or similar
       expect(html).not.toMatch(/hljs-keyword|hljs-built_in|hljs-type/);
     });
 
-    it('should properly escape HTML in plain code blocks', () => {
+    it('should properly escape HTML in plain code blocks', async () => {
       const md = '```\n<script>alert("xss")</script>\n```';
-      const html = renderMarkdown(md);
+      const html = await renderMarkdown(md);
       // Should NOT have hljs classes when no language specified
       expect(html).not.toMatch(/class="[^"]*hljs/);
       // Should still escape HTML properly (not execute scripts)
@@ -34,31 +34,31 @@ describe('renderMarkdown', () => {
   });
 
   describe('code blocks WITH language specifier', () => {
-    it('should apply syntax highlighting for javascript', () => {
+    it('should apply syntax highlighting for javascript', async () => {
       const md = '```javascript\nconst x = 1;\n```';
-      const html = renderMarkdown(md);
+      const html = await renderMarkdown(md);
       // Should contain hljs classes
       expect(html).toMatch(/class="[^"]*hljs/);
     });
 
-    it('should apply syntax highlighting for python', () => {
+    it('should apply syntax highlighting for python', async () => {
       const md = '```python\ndef foo():\n    pass\n```';
-      const html = renderMarkdown(md);
+      const html = await renderMarkdown(md);
       // Should contain hljs classes
       expect(html).toMatch(/class="[^"]*hljs/);
     });
   });
 
   describe('mermaid blocks', () => {
-    it('should render as mermaid div', () => {
+    it('should render as mermaid div', async () => {
       const md = '```mermaid\ngraph TD\n```';
-      const html = renderMarkdown(md);
+      const html = await renderMarkdown(md);
       expect(html).toContain('<div class="mermaid">');
     });
 
-    it('should not apply hljs classes to mermaid blocks', () => {
+    it('should not apply hljs classes to mermaid blocks', async () => {
       const md = '```mermaid\ngraph TD\n    A --> B\n```';
-      const html = renderMarkdown(md);
+      const html = await renderMarkdown(md);
       expect(html).not.toMatch(/class="[^"]*hljs/);
     });
   });
