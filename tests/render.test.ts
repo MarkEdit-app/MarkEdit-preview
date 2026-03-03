@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { renderMarkdown } from './src/render';
+import { renderMarkdown } from '../src/render';
 
 // Wait for async imports to complete (highlight.js, katex)
 beforeAll(async () => {
