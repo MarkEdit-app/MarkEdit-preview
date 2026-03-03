@@ -42,7 +42,7 @@ function getScrollProgress(container: HTMLElement, paddingTop: number = 0) {
 }
 
 function scrollToProgress(container: HTMLElement, line: number, progress: number, animated = true) {
-  // When the editor is at the very start, the preview should also be at the very start
+  // Scroll to top when the editor is at the very start
   if (line === 0 && progress === 0) {
     return scrollToPosition(container, 0, animated);
   }
