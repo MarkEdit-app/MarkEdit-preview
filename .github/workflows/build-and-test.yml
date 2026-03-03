@@ -1,0 +1,30 @@
+name: Run tests
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+    types: [synchronize, opened, reopened, ready_for_review]
+
+jobs:
+  markedit-preview:
+    name: MarkEdit Preview
+    runs-on: macos-26
+    if: github.event.pull_request.draft == false
+    env:
+      node-version: '22.x'
+
+    steps:
+      - uses: actions/checkout@v5
+      - name: Use Node.js ${{ env.node-version }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.node-version }}
+          cache: 'npm'
+          cache-dependency-path: '**/yarn.lock'
+
+      - name: Run tests
+        run: |
+          yarn install
+          yarn test
