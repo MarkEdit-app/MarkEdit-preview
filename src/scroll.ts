@@ -7,15 +7,19 @@ export function startObserving(sourcePane: HTMLElement, targetPane: HTMLElement)
     return;
   }
 
-  sourcePane.addEventListener('scroll', () => {
-    if (states.scrollUpdater !== undefined) {
-      clearTimeout(states.scrollUpdater);
-    }
+  if ('onscrollend' in window) {
+    sourcePane.addEventListener('scrollend', () => syncScrollProgress(sourcePane, targetPane));
+  } else {
+    sourcePane.addEventListener('scroll', () => {
+      if (states.scrollUpdater !== undefined) {
+        clearTimeout(states.scrollUpdater);
+      }
 
-    states.scrollUpdater = setTimeout(() => {
-      syncScrollProgress(sourcePane, targetPane);
-    }, 100);
-  });
+      states.scrollUpdater = setTimeout(() => {
+        syncScrollProgress(sourcePane, targetPane);
+      }, 100);
+    });
+  }
 }
 
 export function syncScrollProgress(sourcePane: HTMLElement, targetPane: HTMLElement, animated = true) {
