@@ -2,7 +2,7 @@ import { MarkEdit } from 'markedit-api';
 import { appendStyle, getFileName, selectFullRange } from './utils';
 import { renderMarkdown, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './image';
-import { hidePreviewButtons, previewModes } from './settings';
+import { defaultMode, hidePreviewButtons, previewModes } from './settings';
 import { localized } from './strings';
 import { syncScrollProgress } from './scroll';
 
@@ -124,13 +124,7 @@ export function changeViewMode() {
   // Get the rotation of all modes, "edit" always goes first
   const rotation = [
     ViewMode.edit,
-    ...previewModes.map(mode => {
-      switch (mode) {
-        case 'side-by-side': return ViewMode.sideBySide;
-        case 'preview': return ViewMode.preview;
-        default: return undefined;
-      }
-    }).filter(mode => mode !== undefined),
+    ...previewModes.map(parseViewMode).filter(mode => mode !== undefined),
   ];
 
   // When current mode is not found in the rotation, start over from "edit"
@@ -140,9 +134,18 @@ export function changeViewMode() {
 }
 
 export function restoreViewMode() {
-  const initalMode = localStorage.getItem(Constants.viewModeCacheKey);
-  if (initalMode !== null) {
-    setViewMode(Number(initalMode), false);
+  const mode = parseViewMode(defaultMode);
+  if (mode !== undefined) {
+    setViewMode(mode, false);
+  }
+}
+
+function parseViewMode(mode: string): ViewMode | undefined {
+  switch (mode) {
+    case 'edit': return ViewMode.edit;
+    case 'side-by-side': return ViewMode.sideBySide;
+    case 'preview': return ViewMode.preview;
+    default: return undefined;
   }
 }
 

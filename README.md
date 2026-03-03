@@ -44,6 +44,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 ```json
 {
   "extension.markeditPreview": {
+    "defaultMode": "side-by-side",
     "autoUpdate": true,
     "syncScroll": true,
     "hidePreviewButtons": true,
@@ -67,6 +68,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 }
 ```
 
+- `defaultMode`: The view mode to always start in. Valid values: `edit`, `side-by-side` (default), `preview`.
 - `autoUpdate`: Whether to enable automatic update checks.
 - `syncScroll`: Whether to enable scroll synchronization.
 - `hidePreviewButtons`: Whether to hide the built-in preview buttons (not applicable for lite build).

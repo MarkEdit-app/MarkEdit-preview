@@ -25,6 +25,7 @@ export const styledHtmlColorScheme = (rootValue.styledHtmlColorScheme ?? rootVal
 export const mathDelimiters = rootValue.mathDelimiters;
 export const previewModes = (changeMode.modes ?? Constants.defaultModes) as string[];
 export const keyboardShortcut = toObject(changeMode.hotKey);
+export const defaultMode = (rootValue.defaultMode ?? 'side-by-side') as string;
 export const markdownItPreset = (markdownIt.preset ?? Constants.defaultPreset) as PresetName;
 export const markdownItOptions = toObject(markdownIt.options);
 

@@ -76,13 +76,6 @@ MarkEdit.onEditorReady(async() => {
     restoreViewMode();
   }
 
-  if (typeof MarkEdit.getFileInfo === 'function') {
-    const isDraft = (await MarkEdit.getFileInfo())?.filePath === undefined;
-    if (isDraft && MarkEdit.editorAPI.getText().length === 0) {
-      setViewMode(ViewMode.edit, false);
-    }
-  }
-
   renderHtmlPreview();
   startObserving(getEditPane(), getPreviewPane());
 
