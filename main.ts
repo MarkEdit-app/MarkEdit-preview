@@ -73,13 +73,12 @@ MarkEdit.onEditorReady(async() => {
 
   if (states.isInitiating) {
     states.isInitiating = false;
-    restoreViewMode();
-  }
 
-  if (typeof MarkEdit.getFileInfo === 'function') {
-    const isDraft = (await MarkEdit.getFileInfo())?.filePath === undefined;
-    if (isDraft && MarkEdit.editorAPI.getText().length === 0) {
-      setViewMode(ViewMode.edit, false);
+    if (!restoreViewMode() && typeof MarkEdit.getFileInfo === 'function') {
+      const isDraft = (await MarkEdit.getFileInfo())?.filePath === undefined;
+      if (isDraft && MarkEdit.editorAPI.getText().length === 0) {
+        setViewMode(ViewMode.edit, false);
+      }
     }
   }
 

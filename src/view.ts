@@ -139,11 +139,14 @@ export function changeViewMode() {
   setViewMode(rotation[nextIndex]);
 }
 
-export function restoreViewMode() {
+export function restoreViewMode(): boolean {
   const initalMode = localStorage.getItem(Constants.viewModeCacheKey);
   if (initalMode !== null) {
     setViewMode(Number(initalMode), false);
+    return true;
   }
+
+  return false;
 }
 
 export function currentViewMode() {
