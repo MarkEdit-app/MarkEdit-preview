@@ -53,7 +53,7 @@ describe('renderMarkdown', () => {
     it('should render as mermaid div', async () => {
       const md = '```mermaid\ngraph TD\n```';
       const html = await renderMarkdown(md);
-      expect(html).toContain('<div class="mermaid">');
+      expect(html).toContain('<div class="mermaid"');
     });
 
     it('should not apply hljs classes to mermaid blocks', async () => {
