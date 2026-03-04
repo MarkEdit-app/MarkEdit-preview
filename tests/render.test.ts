@@ -1,11 +1,5 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { renderMarkdown } from '../src/render';
-
-// Wait for async imports to complete (highlight.js, katex)
-beforeAll(async () => {
-  // Give time for dynamic imports to resolve
-  await new Promise(resolve => setTimeout(resolve, 500));
-});
 
 describe('renderMarkdown', () => {
   describe('code blocks without language specifier', () => {
