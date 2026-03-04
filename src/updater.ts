@@ -112,7 +112,7 @@ export function appendUpdateButton(visible: boolean) {
   });
 
   document.body.appendChild(button);
-  requestAnimationFrame(() => requestAnimationFrame(() => { button.style.opacity = '1'; }));
+  requestAnimationFrame(() => { button.style.opacity = '1'; });
 }
 
 export function setUpdateButtonVisible(visible: boolean) {
