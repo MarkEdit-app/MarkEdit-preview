@@ -60,6 +60,8 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
   user-select: none;
   -webkit-user-select: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .markdown-update-pill:hover {
