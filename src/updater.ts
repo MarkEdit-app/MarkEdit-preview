@@ -35,8 +35,7 @@ export async function checkForUpdates() {
     return;
   }
 
-  const skipped = new Set(JSON.parse(localStorage.getItem(Constants.skippedCacheKey) ?? '[]'));
-  if (skipped.has(release.name)) {
+  if (skippedVersions().has(release.name)) {
     return;
   }
 
@@ -67,8 +66,7 @@ export async function checkForUpdates() {
   }
 
   if (result === buttons.indexOf(localized('skipThisVersion'))) {
-    skipped.add(release.name);
-    localStorage.setItem(Constants.skippedCacheKey, JSON.stringify([...skipped]));
+    skipVersionWithName(release.name);
   }
 }
 
@@ -103,9 +101,7 @@ export function appendUpdateButton(container: HTMLElement) {
       {
         title: localized('skipThisVersion'),
         action: () => {
-          const skipped = new Set(JSON.parse(localStorage.getItem(Constants.skippedCacheKey) ?? '[]'));
-          skipped.add(release.name);
-          localStorage.setItem(Constants.skippedCacheKey, JSON.stringify([...skipped]));
+          skipVersionWithName(release.name);
           dismissUpdate(button);
         },
       },
@@ -118,6 +114,20 @@ export function appendUpdateButton(container: HTMLElement) {
 function dismissUpdate(button: HTMLElement) {
   states.pendingRelease = undefined;
   button.remove();
+}
+
+function skippedVersions(): Set<string> {
+  return new Set(JSON.parse(localStorage.getItem(Constants.skippedCacheKey) ?? '[]'));
+}
+
+function skipVersionWithName(name: string) {
+  const skipped = skippedVersions();
+  skipped.add(name);
+
+  localStorage.setItem(
+    Constants.skippedCacheKey,
+    JSON.stringify([...skipped]),
+  );
 }
 
 const Constants = {
