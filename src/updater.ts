@@ -82,6 +82,7 @@ export function appendUpdateButton(visible: boolean) {
     button.style.display = 'none';
   }
 
+  button.addEventListener('webkitmouseforcedown', e => e.preventDefault());
   button.addEventListener('click', () => {
     const rect = button.getBoundingClientRect();
     MarkEdit.showContextMenu([
