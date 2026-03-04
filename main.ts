@@ -21,7 +21,7 @@ import {
 
 import { enableHoverPreview } from './src/image';
 import { startObserving } from './src/scroll';
-import { checkForUpdates } from './src/updater';
+import { checkForUpdates, renderUpdatePill } from './src/updater';
 import { imageHoverPreview, keyboardShortcut, updateBehavior } from './src/settings';
 import { localized } from './src/strings';
 import { macOSTahoe } from './src/utils';
@@ -30,7 +30,8 @@ setUp();
 setTimeout(checkForUpdates, 4000);
 
 if (updateBehavior === 'quiet') {
-  setInterval(checkForUpdates, 604800000); // 7 days
+  // Checks for updates every 7 days when in quiet mode
+  setInterval(checkForUpdates, 604800000);
 }
 
 MarkEdit.addMainMenuItem({
@@ -39,7 +40,10 @@ MarkEdit.addMainMenuItem({
   children: [
     {
       title: localized('changeMode'),
-      action: changeViewMode,
+      action: () => {
+        changeViewMode();
+        renderDecorationViews();
+      },
       key: (keyboardShortcut['key'] ?? 'V') as string,
       modifiers: (keyboardShortcut['modifiers'] ?? ['Command']) as MenuItem['modifiers'],
     },
@@ -88,6 +92,7 @@ MarkEdit.onEditorReady(async() => {
   }
 
   renderHtmlPreview();
+  renderDecorationViews();
   startObserving(getEditPane(), getPreviewPane());
 
   if (states.keyDownListener !== undefined) {
@@ -101,7 +106,10 @@ MarkEdit.onEditorReady(async() => {
 function createModeItem(title: string, mode: ViewMode): MenuItem {
   return {
     title,
-    action: () => setViewMode(mode),
+    action: () => {
+      setViewMode(mode);
+      renderDecorationViews();
+    },
     // state requires MarkEdit 1.24.0+
     state: () => ({ isSelected: currentViewMode() === mode }),
   };
@@ -135,6 +143,13 @@ function createHtmlItems(): MenuItem[] {
     },
     ...copyItems,
   ];
+}
+
+function renderDecorationViews() {
+  const updatePill = renderUpdatePill();
+  if (updatePill !== undefined) {
+    updatePill.style.display = currentViewMode() === ViewMode.edit ? 'none' : '';
+  }
 }
 
 const states: {

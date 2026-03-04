@@ -1,7 +1,17 @@
 import { MarkEdit } from 'markedit-api';
 import { updateBehavior } from './settings';
 import { localized } from './strings';
-import { appendUpdateButton } from './view';
+import { currentViewMode, ViewMode } from './view';
+import { ClassNames } from './const';
+
+/**
+ * Based on GitHub Releases API.
+ */
+interface Release {
+  name: string;
+  body: string;
+  html_url: string;
+}
 
 export async function checkForUpdates() {
   if (updateBehavior === 'never') {
@@ -11,6 +21,7 @@ export async function checkForUpdates() {
   const currentTime = Date.now();
   const lastCheckTime = Number(localStorage.getItem(Constants.lastCheckCacheKey) ?? '0');
   if (currentTime - lastCheckTime < 259200000) {
+    // Checked within the last 3 days
     return;
   }
 
@@ -22,66 +33,109 @@ export async function checkForUpdates() {
   const response = await fetch(Constants.latestReleaseURL);
   const release = await response.json() as Release;
   if (release.name === __PKG_VERSION__) {
+    // Up to date
     return;
   }
 
   if (skippedVersions().has(release.name)) {
+    // Explicitly skipped
     return;
   }
 
   if (updateBehavior === 'quiet') {
     states.pendingRelease = release;
-    appendUpdateButton();
-    return;
+    renderUpdatePill(release);
+  } else {
+    presentUpdateAlert(release);
+  }
+}
+
+export function renderUpdatePill(release = states.pendingRelease): HTMLButtonElement | undefined {
+  if (release === undefined) {
+    return undefined;
   }
 
-  const buttons = [
-    localized('viewReleasePage'),
-    localized('remindMeLater'),
-    localized('skipThisVersion'),
-  ];
+  const existingPill = document.querySelector<HTMLButtonElement>(`.${ClassNames.updatePillClass}`);
+  if (existingPill !== null) {
+    if (existingPill.dataset.releaseName === release.name) {
+      return existingPill;
+    } else {
+      existingPill.remove();
+    }
+  }
 
-  const result = await MarkEdit.showAlert({
-    title: `MarkEdit-preview ${release.name} ${localized('newVersionAvailable')}`,
-    message: release.body,
-    buttons,
+  const newPill = document.createElement('button');
+  newPill.dataset.releaseName = release.name;
+  newPill.className = ClassNames.updatePillClass;
+  newPill.textContent = localized('update');
+  newPill.style.display = currentViewMode() === ViewMode.edit ? 'none' : '';
+
+  newPill.addEventListener('webkitmouseforcedown', event => {
+    event.preventDefault();
   });
 
-  if (result === buttons.indexOf(localized('viewReleasePage'))) {
-    open(release.html_url);
-  }
+  newPill.addEventListener('click', () => {
+    const { title, actions } = updateUserInfo(release, () => {
+      states.pendingRelease = undefined;
+      newPill.remove();
+    });
 
-  if (result === buttons.indexOf(localized('skipThisVersion'))) {
-    skipVersionWithName(release.name);
-  }
+    const rect = newPill.getBoundingClientRect();
+    const location = { x: rect.left, y: rect.bottom + 10 };
+
+    MarkEdit.showContextMenu([
+      { title },
+      { separator: true },
+      ...actions,
+    ], location);
+  });
+
+  document.body.appendChild(newPill);
+  return newPill;
 }
 
-export function getPendingRelease() {
-  return states.pendingRelease;
+async function presentUpdateAlert(release: Release) {
+  const { title, actions } = updateUserInfo(release);
+  const result = await MarkEdit.showAlert({
+    title,
+    message: release.body,
+    buttons: actions.map(action => action.title),
+  });
+
+  actions[result]?.action?.();
 }
 
-export function clearPendingRelease() {
-  states.pendingRelease = undefined;
-}
+function updateUserInfo(release: Release, onDismiss = () => {}) {
+  const title = `MarkEdit-preview ${release.name} ${localized('newVersionAvailable')}`;
+  const actions = [
+    {
+      title: localized('viewReleasePage'),
+      action: () => {
+        open(release.html_url);
+        onDismiss();
+      },
+    },
+    {
+      title: localized('remindMeLater'),
+      action: onDismiss,
+    },
+    {
+      title: localized('skipThisVersion'),
+      action: () => {
+        const skipped = skippedVersions();
+        skipped.add(release.name);
+        localStorage.setItem(Constants.skippedCacheKey, JSON.stringify([...skipped]));
+        onDismiss();
+      },
+    },
+  ];
 
-export function skipVersionWithName(name: string) {
-  const skipped = skippedVersions();
-  skipped.add(name);
-
-  localStorage.setItem(
-    Constants.skippedCacheKey,
-    JSON.stringify([...skipped]),
-  );
+  return { title, actions };
 }
 
 function skippedVersions(): Set<string> {
-  return new Set(JSON.parse(localStorage.getItem(Constants.skippedCacheKey) ?? '[]'));
-}
-
-interface Release {
-  name: string;
-  body: string;
-  html_url: string;
+  const cachedData = localStorage.getItem(Constants.skippedCacheKey);
+  return new Set(JSON.parse(cachedData ?? '[]'));
 }
 
 const Constants = {

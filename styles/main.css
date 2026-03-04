@@ -46,10 +46,10 @@
 
 .markdown-update-pill {
   position: fixed;
-  top: 8px;
-  right: 8px;
+  top: 12px;
+  right: 12px;
   z-index: 10000;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border: none;
   border-radius: 999px;
   background-color: #0088ff;
@@ -60,8 +60,6 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
   user-select: none;
   -webkit-user-select: none;
-  opacity: 0;
-  transition: opacity 0.2s ease;
 }
 
 .markdown-update-pill:hover {

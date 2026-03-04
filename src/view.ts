@@ -5,7 +5,7 @@ import { replaceImageURLs } from './image';
 import { hidePreviewButtons, previewModes } from './settings';
 import { localized } from './strings';
 import { syncScrollProgress } from './scroll';
-import { getPendingRelease, clearPendingRelease, skipVersionWithName } from './updater';
+import { ClassNames, CacheKeys } from './const';
 
 import Split from 'split-grid';
 import type { SplitInstance as Splitter } from 'split-grid';
@@ -47,13 +47,13 @@ export function setUp() {
   }
 
   const dividerView = document.createElement('div');
-  dividerView.className = Constants.dividerViewClass;
+  dividerView.className = ClassNames.dividerViewClass;
   gutterView.appendChild(dividerView);
 
-  gutterView.className = Constants.gutterViewClass;
+  gutterView.className = ClassNames.gutterViewClass;
   containerView.appendChild(gutterView);
 
-  previewPane.className = Constants.previewPaneClass;
+  previewPane.className = ClassNames.previewPaneClass;
   containerView.appendChild(previewPane);
 
   document.addEventListener('keydown', event => {
@@ -78,12 +78,12 @@ export function setUp() {
 }
 
 export function setViewMode(mode: ViewMode, needsDisplay = true) {
-  const oldMode = states.viewMode;
+  const oldMode = currentViewMode();
   states.viewMode = mode;
 
   if (mode !== oldMode) {
     localStorage.setItem(
-      Constants.viewModeCacheKey,
+      CacheKeys.viewModeCacheKey,
       String(mode),
     );
   }
@@ -98,7 +98,7 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
   }
 
   if (mode === ViewMode.sideBySide) {
-    containerView.classList.add(Constants.containerClass);
+    containerView.classList.add(ClassNames.containerClass);
     states.splitter = Split({
       columnGutters: [{ track: 1, element: gutterView }],
       minSize: 150,
@@ -106,7 +106,7 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
       onDragEnd: () => draggingStyle.disabled = true,
     });
   } else {
-    containerView.classList.remove(Constants.containerClass);
+    containerView.classList.remove(ClassNames.containerClass);
     states.splitter?.destroy();
   }
 
@@ -115,8 +115,6 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
   } else {
     previewPane.classList.remove('overlay');
   }
-
-  setUpdateButtonVisible();
 
   if (needsDisplay) {
     renderHtmlPreview();
@@ -137,15 +135,15 @@ export function changeViewMode() {
   ];
 
   // When current mode is not found in the rotation, start over from "edit"
-  const currentIndex = rotation.indexOf(states.viewMode);
+  const currentIndex = rotation.indexOf(currentViewMode());
   const nextIndex = currentIndex === -1 ? 0 : ((currentIndex + 1) % rotation.length);
   setViewMode(rotation[nextIndex]);
 }
 
 export function restoreViewMode() {
-  const initalMode = localStorage.getItem(Constants.viewModeCacheKey);
-  if (initalMode !== null) {
-    setViewMode(Number(initalMode), false);
+  const initialMode = localStorage.getItem(CacheKeys.viewModeCacheKey);
+  if (initialMode !== null) {
+    setViewMode(Number(initialMode), false);
   }
 }
 
@@ -154,13 +152,12 @@ export function currentViewMode() {
 }
 
 export async function renderHtmlPreview() {
-  if (states.viewMode === ViewMode.edit) {
+  if (currentViewMode() === ViewMode.edit) {
     return;
   }
 
   const html = replaceImageURLs(await getRenderedHtml());
   previewPane.innerHTML = html;
-  appendUpdateButton();
 
   handlePostRender(() => {
     syncScrollProgress(
@@ -169,7 +166,7 @@ export async function renderHtmlPreview() {
       false,
     );
 
-    const pageZoom = localStorage.getItem(Constants.previewPageZoomKey);
+    const pageZoom = localStorage.getItem(CacheKeys.previewPageZoomKey);
     if (pageZoom !== null) {
       previewPane.style.zoom = pageZoom;
     }
@@ -177,7 +174,7 @@ export async function renderHtmlPreview() {
 }
 
 export function handlePageZoom(event: KeyboardEvent) {
-  if (states.viewMode === ViewMode.edit || (states.viewMode === ViewMode.sideBySide && MarkEdit.editorView.hasFocus)) {
+  if (currentViewMode() === ViewMode.edit || (currentViewMode() === ViewMode.sideBySide && MarkEdit.editorView.hasFocus)) {
     return;
   }
 
@@ -196,7 +193,7 @@ export function handlePageZoom(event: KeyboardEvent) {
   }
 
   localStorage.setItem(
-    Constants.previewPageZoomKey,
+    CacheKeys.previewPageZoomKey,
     previewPane.style.zoom,
   );
 
@@ -265,79 +262,6 @@ async function saveGeneratedHtml(styled: boolean) {
     string: fileContent,
   });
 }
-
-export function appendUpdateButton() {
-  const release = getPendingRelease();
-  if (!release || document.body.querySelector('.markdown-update-pill')) {
-    return;
-  }
-
-  const button = document.createElement('button');
-  button.className = 'markdown-update-pill';
-  button.textContent = localized('update');
-
-  if (states.viewMode === ViewMode.edit) {
-    button.style.display = 'none';
-  }
-
-  button.addEventListener('webkitmouseforcedown', e => e.preventDefault());
-  button.addEventListener('click', () => {
-    const rect = button.getBoundingClientRect();
-    MarkEdit.showContextMenu([
-      {
-        title: `${release.name} ${localized('newVersionAvailable')}`,
-      },
-      { separator: true },
-      {
-        title: localized('viewReleasePage'),
-        action: () => {
-          open(release.html_url);
-          dismissUpdate(button);
-        },
-      },
-      {
-        title: localized('remindMeLater'),
-        action: () => dismissUpdate(button),
-      },
-      {
-        title: localized('skipThisVersion'),
-        action: () => {
-          skipVersionWithName(release.name);
-          dismissUpdate(button);
-        },
-      },
-    ], { x: rect.left, y: rect.bottom + 10 });
-  });
-
-  document.body.appendChild(button);
-  requestAnimationFrame(() => { button.style.opacity = '1'; });
-}
-
-function setUpdateButtonVisible() {
-  const button = document.body.querySelector<HTMLElement>('.markdown-update-pill');
-  if (button) {
-    button.style.display = states.viewMode !== ViewMode.edit ? '' : 'none';
-  }
-}
-
-function dismissUpdate(button: HTMLElement) {
-  clearPendingRelease();
-  button.style.opacity = '0';
-  button.addEventListener('transitionend', event => {
-    if (event.propertyName === 'opacity') {
-      button.remove();
-    }
-  }, { once: true });
-}
-
-const Constants = {
-  containerClass: 'markdown-container',
-  gutterViewClass: 'markdown-gutter',
-  dividerViewClass: 'markdown-divider',
-  previewPaneClass: 'markdown-body',
-  viewModeCacheKey: 'ui.view-mode',
-  previewPageZoomKey: 'ui.preview-page-zoom',
-};
 
 const states: {
   viewMode: ViewMode;
