@@ -9,9 +9,9 @@ interface Release {
 }
 
 const states: {
-  pendingRelease: Release | null;
+  pendingRelease: Release | undefined;
 } = {
-  pendingRelease: null,
+  pendingRelease: undefined,
 };
 
 export async function checkForUpdates() {
@@ -42,6 +42,10 @@ export async function checkForUpdates() {
 
   if (updateBehavior === 'quiet') {
     states.pendingRelease = release;
+    const container = document.querySelector<HTMLElement>('.markdown-body');
+    if (container) {
+      appendUpdateButton(container);
+    }
     return;
   }
 
@@ -104,14 +108,14 @@ export function appendUpdateButton(container: HTMLElement) {
           dismissUpdate(button);
         },
       },
-    ], { x: rect.left, y: rect.bottom });
+    ], { x: rect.left, y: rect.bottom + 4 });
   });
 
   container.prepend(button);
 }
 
 function dismissUpdate(button: HTMLElement) {
-  states.pendingRelease = null;
+  states.pendingRelease = undefined;
   button.remove();
 }
 
