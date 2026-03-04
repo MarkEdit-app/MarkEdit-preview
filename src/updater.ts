@@ -18,7 +18,7 @@ export async function checkForUpdates() {
   if (updateBehavior === 'notify') {
     const currentTime = Date.now();
     const lastCheckTime = Number(localStorage.getItem(Constants.lastCheckCacheKey) ?? '0');
-    if (currentTime - lastCheckTime < 259200000) {
+    if (currentTime - lastCheckTime < Constants.checkInterval) {
       return;
     }
 
@@ -119,4 +119,5 @@ const Constants = {
   latestReleaseURL: 'https://api.github.com/repos/MarkEdit-app/MarkEdit-preview/releases/latest',
   lastCheckCacheKey: 'updater.last-check-time',
   skippedCacheKey: 'updater.skipped-versions',
+  checkInterval: 259200000, // 3 days
 };
