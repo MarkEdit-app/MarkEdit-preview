@@ -112,7 +112,7 @@ export function appendUpdateButton(visible: boolean) {
   });
 
   document.body.appendChild(button);
-  requestAnimationFrame(() => { button.style.opacity = '1'; });
+  requestAnimationFrame(() => requestAnimationFrame(() => { button.style.opacity = '1'; }));
 }
 
 export function setUpdateButtonVisible(visible: boolean) {
@@ -125,7 +125,11 @@ export function setUpdateButtonVisible(visible: boolean) {
 function dismissUpdate(button: HTMLElement) {
   states.pendingRelease = undefined;
   button.style.opacity = '0';
-  button.addEventListener('transitionend', () => button.remove(), { once: true });
+  button.addEventListener('transitionend', e => {
+    if (e.propertyName === 'opacity') {
+      button.remove();
+    }
+  }, { once: true });
 }
 
 function skippedVersions(): Set<string> {
