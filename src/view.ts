@@ -5,7 +5,7 @@ import { replaceImageURLs } from './image';
 import { hidePreviewButtons, previewModes } from './settings';
 import { localized } from './strings';
 import { syncScrollProgress } from './scroll';
-import { appendUpdateButton } from './updater';
+import { appendUpdateButton, setUpdateButtonVisible } from './updater';
 
 import Split from 'split-grid';
 import type { SplitInstance as Splitter } from 'split-grid';
@@ -116,6 +116,8 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
     previewPane.classList.remove('overlay');
   }
 
+  setUpdateButtonVisible(mode !== ViewMode.edit);
+
   if (needsDisplay) {
     renderHtmlPreview();
   }
@@ -158,7 +160,7 @@ export async function renderHtmlPreview() {
 
   const html = replaceImageURLs(await getRenderedHtml());
   previewPane.innerHTML = html;
-  appendUpdateButton(previewPane);
+  appendUpdateButton(true);
 
   handlePostRender(() => {
     syncScrollProgress(

@@ -41,11 +41,9 @@ export async function checkForUpdates() {
 
   if (updateBehavior === 'quiet') {
     states.pendingRelease = release;
-    const container = document.querySelector<HTMLElement>('.markdown-body');
-    if (container) {
-      appendUpdateButton(container);
-    }
-
+    const previewPane = document.querySelector<HTMLElement>('.markdown-body');
+    const hasPreview = previewPane !== null && getComputedStyle(previewPane).display !== 'none';
+    appendUpdateButton(hasPreview);
     return;
   }
 
@@ -70,8 +68,8 @@ export async function checkForUpdates() {
   }
 }
 
-export function appendUpdateButton(container: HTMLElement) {
-  if (!states.pendingRelease || container.querySelector('.markdown-update-pill')) {
+export function appendUpdateButton(visible: boolean) {
+  if (!states.pendingRelease || document.body.querySelector('.markdown-update-pill')) {
     return;
   }
 
@@ -79,6 +77,10 @@ export function appendUpdateButton(container: HTMLElement) {
   const button = document.createElement('button');
   button.className = 'markdown-update-pill';
   button.textContent = localized('update');
+
+  if (!visible) {
+    button.style.display = 'none';
+  }
 
   button.addEventListener('click', () => {
     const rect = button.getBoundingClientRect();
@@ -108,7 +110,14 @@ export function appendUpdateButton(container: HTMLElement) {
     ], { x: rect.left, y: rect.bottom + 10 });
   });
 
-  container.prepend(button);
+  document.body.appendChild(button);
+}
+
+export function setUpdateButtonVisible(visible: boolean) {
+  const button = document.body.querySelector<HTMLElement>('.markdown-update-pill');
+  if (button) {
+    button.style.display = visible ? '' : 'none';
+  }
 }
 
 function dismissUpdate(button: HTMLElement) {
