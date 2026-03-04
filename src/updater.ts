@@ -1,6 +1,7 @@
 import { MarkEdit } from 'markedit-api';
 import { updateBehavior } from './settings';
 import { localized } from './strings';
+import { ViewMode, currentViewMode } from './view';
 
 export async function checkForUpdates() {
   if (updateBehavior === 'never') {
@@ -30,9 +31,7 @@ export async function checkForUpdates() {
 
   if (updateBehavior === 'quiet') {
     states.pendingRelease = release;
-    const previewPane = document.querySelector<HTMLElement>('.markdown-body');
-    const hasPreview = previewPane !== null && getComputedStyle(previewPane).display !== 'none';
-    appendUpdateButton(hasPreview);
+    appendUpdateButton(currentViewMode() !== ViewMode.edit);
     return;
   }
 
