@@ -67,7 +67,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 }
 ```
 
-- `updateBehavior`: Control how update notifications are shown. Valid values are `"quiet"` (show a non-intrusive button in the preview pane), `"notify"` (show an alert dialog), and `"never"` (disable update checks). For backward compatibility, `autoUpdate: true` is treated as `"quiet"`.
+- `updateBehavior`: Control how update notifications are shown. Valid values are `"quiet"` (show a non-intrusive button in the preview pane), `"notify"` (show an alert dialog), and `"never"` (disable update checks).
 - `syncScroll`: Whether to enable scroll synchronization.
 - `hidePreviewButtons`: Whether to hide the built-in preview buttons (not applicable for lite build).
 - `syntaxAutoDetect`: Whether to enable automatic language detection for syntax highlighting in code blocks (not applicable for lite build).

@@ -24,6 +24,7 @@ export const updateBehavior: UpdateBehavior = (() => {
   }
   return toBoolean(rootValue.autoUpdate) ? 'quiet' : 'never';
 })();
+
 export const syncScroll = toBoolean(rootValue.syncScroll);
 export const hidePreviewButtons = toBoolean(rootValue.hidePreviewButtons);
 export const syntaxAutoDetect = toBoolean(rootValue.syntaxAutoDetect, false);

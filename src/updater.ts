@@ -8,7 +8,11 @@ interface Release {
   html_url: string;
 }
 
-let pendingRelease: Release | null = null;
+const states: {
+  pendingRelease: Release | null;
+} = {
+  pendingRelease: null,
+};
 
 export async function checkForUpdates() {
   if (updateBehavior === 'never') {
@@ -18,7 +22,7 @@ export async function checkForUpdates() {
   if (updateBehavior === 'notify') {
     const currentTime = Date.now();
     const lastCheckTime = Number(localStorage.getItem(Constants.lastCheckCacheKey) ?? '0');
-    if (currentTime - lastCheckTime < Constants.checkInterval) {
+    if (currentTime - lastCheckTime < 259200000) {
       return;
     }
 
@@ -37,11 +41,7 @@ export async function checkForUpdates() {
   }
 
   if (updateBehavior === 'quiet') {
-    pendingRelease = release;
-    const container = document.querySelector<HTMLElement>('.markdown-body');
-    if (container) {
-      appendUpdateButton(container);
-    }
+    states.pendingRelease = release;
     return;
   }
 
@@ -68,11 +68,11 @@ export async function checkForUpdates() {
 }
 
 export function appendUpdateButton(container: HTMLElement) {
-  if (!pendingRelease || container.querySelector('.update-pill')) {
+  if (!states.pendingRelease || container.querySelector('.update-pill')) {
     return;
   }
 
-  const release = pendingRelease;
+  const release = states.pendingRelease;
   const button = document.createElement('button');
   button.className = 'update-pill';
   button.textContent = localized('update');
@@ -111,7 +111,7 @@ export function appendUpdateButton(container: HTMLElement) {
 }
 
 function dismissUpdate(button: HTMLElement) {
-  pendingRelease = null;
+  states.pendingRelease = null;
   button.remove();
 }
 
@@ -119,5 +119,4 @@ const Constants = {
   latestReleaseURL: 'https://api.github.com/repos/MarkEdit-app/MarkEdit-preview/releases/latest',
   lastCheckCacheKey: 'updater.last-check-time',
   skippedCacheKey: 'updater.skipped-versions',
-  checkInterval: 259200000, // 3 days
 };
