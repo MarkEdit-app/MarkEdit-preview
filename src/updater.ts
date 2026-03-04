@@ -2,35 +2,24 @@ import { MarkEdit } from 'markedit-api';
 import { updateBehavior } from './settings';
 import { localized } from './strings';
 
-interface Release {
-  name: string;
-  body: string;
-  html_url: string;
-}
-
-const states: {
-  pendingRelease: Release | undefined;
-} = {
-  pendingRelease: undefined,
-};
-
 export async function checkForUpdates() {
   if (updateBehavior === 'never') {
     return;
   }
 
-  if (updateBehavior === 'notify') {
-    const currentTime = Date.now();
-    const lastCheckTime = Number(localStorage.getItem(Constants.lastCheckCacheKey) ?? '0');
-    if (currentTime - lastCheckTime < 259200000) {
-      return;
-    }
-
-    localStorage.setItem(Constants.lastCheckCacheKey, String(currentTime));
+  const currentTime = Date.now();
+  const lastCheckTime = Number(localStorage.getItem(Constants.lastCheckCacheKey) ?? '0');
+  if (currentTime - lastCheckTime < 259200000) {
+    return;
   }
 
+  localStorage.setItem(
+    Constants.lastCheckCacheKey,
+    String(currentTime),
+  );
+
   const response = await fetch(Constants.latestReleaseURL);
-  const release: Release = await response.json();
+  const release = await response.json() as Release;
   if (release.name === __PKG_VERSION__) {
     return;
   }
@@ -125,8 +114,8 @@ export function setUpdateButtonVisible(visible: boolean) {
 function dismissUpdate(button: HTMLElement) {
   states.pendingRelease = undefined;
   button.style.opacity = '0';
-  button.addEventListener('transitionend', e => {
-    if (e.propertyName === 'opacity') {
+  button.addEventListener('transitionend', event => {
+    if (event.propertyName === 'opacity') {
       button.remove();
     }
   }, { once: true });
@@ -146,8 +135,20 @@ function skipVersionWithName(name: string) {
   );
 }
 
+interface Release {
+  name: string;
+  body: string;
+  html_url: string;
+}
+
 const Constants = {
   latestReleaseURL: 'https://api.github.com/repos/MarkEdit-app/MarkEdit-preview/releases/latest',
   lastCheckCacheKey: 'updater.last-check-time',
   skippedCacheKey: 'updater.skipped-versions',
+};
+
+const states: {
+  pendingRelease: Release | undefined;
+} = {
+  pendingRelease: undefined,
 };

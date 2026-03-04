@@ -10,13 +10,13 @@ type LocalizableKeys = {
   copyRichText: string;
   copyCode: string;
   untitled: string;
+  update: string;
   version: string;
   checkReleases: string;
   newVersionAvailable: string;
   viewReleasePage: string;
   remindMeLater: string;
   skipThisVersion: string;
-  update: string;
 };
 
 const strings: Record<Locale, Localizable> = {
@@ -32,13 +32,13 @@ const strings: Record<Locale, Localizable> = {
     copyRichText: 'Copy Rich Text',
     copyCode: 'Copy Code',
     untitled: 'Untitled',
+    update: 'Update',
     version: 'Version',
     checkReleases: 'Check Releases',
     newVersionAvailable: 'is available!',
     viewReleasePage: 'View Release Page',
     remindMeLater: 'Remind Me Later',
     skipThisVersion: 'Skip This Version',
-    update: 'Update',
   },
   'zh-CN': {
     viewMode: '视图模式',
@@ -52,13 +52,13 @@ const strings: Record<Locale, Localizable> = {
     copyRichText: '复制富文本',
     copyCode: '复制代码',
     untitled: '未命名',
+    update: '更新',
     version: '版本',
     checkReleases: '查看版本',
     newVersionAvailable: '已发布！',
     viewReleasePage: '查看发布页面',
     remindMeLater: '稍后提醒我',
     skipThisVersion: '跳过这个版本',
-    update: '更新',
   },
   'zh-TW': {
     viewMode: '視圖模式',
@@ -72,13 +72,13 @@ const strings: Record<Locale, Localizable> = {
     sideBySideMode: '並排模式',
     previewMode: '預覽模式',
     untitled: '未命名',
+    update: '更新',
     version: '版本',
     checkReleases: '檢視版本',
     newVersionAvailable: '已釋出！',
     viewReleasePage: '檢視釋出頁面',
     remindMeLater: '稍後提醒我',
     skipThisVersion: '跳過這個版本',
-    update: '更新',
   },
 };
 

@@ -61,7 +61,7 @@
   user-select: none;
   -webkit-user-select: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
 .markdown-update-pill:hover {

@@ -116,7 +116,8 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
     previewPane.classList.remove('overlay');
   }
 
-  setUpdateButtonVisible(mode !== ViewMode.edit);
+  const updateButtonVisible = mode !== ViewMode.edit;
+  setUpdateButtonVisible(updateButtonVisible);
 
   if (needsDisplay) {
     renderHtmlPreview();

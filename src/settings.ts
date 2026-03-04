@@ -15,12 +15,13 @@ const rootValue = toObject(userSettings[Constants.rootValueKey]);
 const changeMode = toObject(rootValue.changeMode);
 const markdownIt = toObject(rootValue.markdownIt);
 
-export type UpdateBehavior = 'quiet' | 'notify' | 'never';
+const updateBehaviors = ['quiet', 'notify', 'never'] as const;
+export type UpdateBehavior = (typeof updateBehaviors)[number];
 
 export const updateBehavior: UpdateBehavior = (() => {
   const behavior = rootValue.updateBehavior as string | undefined;
-  if (behavior === 'quiet' || behavior === 'notify' || behavior === 'never') {
-    return behavior;
+  if (behavior && (updateBehaviors as readonly string[]).includes(behavior)) {
+    return behavior as UpdateBehavior;
   }
 
   return toBoolean(rootValue.autoUpdate) ? 'quiet' : 'never';
