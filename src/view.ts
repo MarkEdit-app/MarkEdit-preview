@@ -5,7 +5,7 @@ import { replaceImageURLs } from './image';
 import { hidePreviewButtons, previewModes } from './settings';
 import { localized } from './strings';
 import { syncScrollProgress } from './scroll';
-import { appendUpdateButton, setUpdateButtonVisible } from './updater';
+import { getPendingRelease, clearPendingRelease, skipVersionWithName } from './updater';
 
 import Split from 'split-grid';
 import type { SplitInstance as Splitter } from 'split-grid';
@@ -116,8 +116,7 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
     previewPane.classList.remove('overlay');
   }
 
-  const updateButtonVisible = mode !== ViewMode.edit;
-  setUpdateButtonVisible(updateButtonVisible);
+  setUpdateButtonVisible();
 
   if (needsDisplay) {
     renderHtmlPreview();
@@ -161,7 +160,7 @@ export async function renderHtmlPreview() {
 
   const html = replaceImageURLs(await getRenderedHtml());
   previewPane.innerHTML = html;
-  appendUpdateButton(true);
+  appendUpdateButton();
 
   handlePostRender(() => {
     syncScrollProgress(
@@ -265,6 +264,70 @@ async function saveGeneratedHtml(styled: boolean) {
     fileName,
     string: fileContent,
   });
+}
+
+export function appendUpdateButton() {
+  const release = getPendingRelease();
+  if (!release || document.body.querySelector('.markdown-update-pill')) {
+    return;
+  }
+
+  const button = document.createElement('button');
+  button.className = 'markdown-update-pill';
+  button.textContent = localized('update');
+
+  if (states.viewMode === ViewMode.edit) {
+    button.style.display = 'none';
+  }
+
+  button.addEventListener('webkitmouseforcedown', e => e.preventDefault());
+  button.addEventListener('click', () => {
+    const rect = button.getBoundingClientRect();
+    MarkEdit.showContextMenu([
+      {
+        title: `${release.name} ${localized('newVersionAvailable')}`,
+      },
+      { separator: true },
+      {
+        title: localized('viewReleasePage'),
+        action: () => {
+          open(release.html_url);
+          dismissUpdate(button);
+        },
+      },
+      {
+        title: localized('remindMeLater'),
+        action: () => dismissUpdate(button),
+      },
+      {
+        title: localized('skipThisVersion'),
+        action: () => {
+          skipVersionWithName(release.name);
+          dismissUpdate(button);
+        },
+      },
+    ], { x: rect.left, y: rect.bottom + 10 });
+  });
+
+  document.body.appendChild(button);
+  requestAnimationFrame(() => { button.style.opacity = '1'; });
+}
+
+function setUpdateButtonVisible() {
+  const button = document.body.querySelector<HTMLElement>('.markdown-update-pill');
+  if (button) {
+    button.style.display = states.viewMode !== ViewMode.edit ? '' : 'none';
+  }
+}
+
+function dismissUpdate(button: HTMLElement) {
+  clearPendingRelease();
+  button.style.opacity = '0';
+  button.addEventListener('transitionend', event => {
+    if (event.propertyName === 'opacity') {
+      button.remove();
+    }
+  }, { once: true });
 }
 
 const Constants = {

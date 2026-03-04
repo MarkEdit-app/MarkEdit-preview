@@ -1,7 +1,7 @@
 import { MarkEdit } from 'markedit-api';
 import { updateBehavior } from './settings';
 import { localized } from './strings';
-import { ViewMode, currentViewMode } from './view';
+import { appendUpdateButton } from './view';
 
 export async function checkForUpdates() {
   if (updateBehavior === 'never') {
@@ -31,7 +31,7 @@ export async function checkForUpdates() {
 
   if (updateBehavior === 'quiet') {
     states.pendingRelease = release;
-    appendUpdateButton(currentViewMode() !== ViewMode.edit);
+    appendUpdateButton();
     return;
   }
 
@@ -56,75 +56,15 @@ export async function checkForUpdates() {
   }
 }
 
-export function appendUpdateButton(visible: boolean) {
-  if (!states.pendingRelease || document.body.querySelector('.markdown-update-pill')) {
-    return;
-  }
-
-  const release = states.pendingRelease;
-  const button = document.createElement('button');
-  button.className = 'markdown-update-pill';
-  button.textContent = localized('update');
-
-  if (!visible) {
-    button.style.display = 'none';
-  }
-
-  button.addEventListener('webkitmouseforcedown', e => e.preventDefault());
-  button.addEventListener('click', () => {
-    const rect = button.getBoundingClientRect();
-    MarkEdit.showContextMenu([
-      {
-        title: `${release.name} ${localized('newVersionAvailable')}`,
-      },
-      { separator: true },
-      {
-        title: localized('viewReleasePage'),
-        action: () => {
-          open(release.html_url);
-          dismissUpdate(button);
-        },
-      },
-      {
-        title: localized('remindMeLater'),
-        action: () => dismissUpdate(button),
-      },
-      {
-        title: localized('skipThisVersion'),
-        action: () => {
-          skipVersionWithName(release.name);
-          dismissUpdate(button);
-        },
-      },
-    ], { x: rect.left, y: rect.bottom + 10 });
-  });
-
-  document.body.appendChild(button);
-  requestAnimationFrame(() => { button.style.opacity = '1'; });
+export function getPendingRelease() {
+  return states.pendingRelease;
 }
 
-export function setUpdateButtonVisible(visible: boolean) {
-  const button = document.body.querySelector<HTMLElement>('.markdown-update-pill');
-  if (button) {
-    button.style.display = visible ? '' : 'none';
-  }
-}
-
-function dismissUpdate(button: HTMLElement) {
+export function clearPendingRelease() {
   states.pendingRelease = undefined;
-  button.style.opacity = '0';
-  button.addEventListener('transitionend', event => {
-    if (event.propertyName === 'opacity') {
-      button.remove();
-    }
-  }, { once: true });
 }
 
-function skippedVersions(): Set<string> {
-  return new Set(JSON.parse(localStorage.getItem(Constants.skippedCacheKey) ?? '[]'));
-}
-
-function skipVersionWithName(name: string) {
+export function skipVersionWithName(name: string) {
   const skipped = skippedVersions();
   skipped.add(name);
 
@@ -132,6 +72,10 @@ function skipVersionWithName(name: string) {
     Constants.skippedCacheKey,
     JSON.stringify([...skipped]),
   );
+}
+
+function skippedVersions(): Set<string> {
+  return new Set(JSON.parse(localStorage.getItem(Constants.skippedCacheKey) ?? '[]'));
 }
 
 interface Release {
