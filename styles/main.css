@@ -44,10 +44,10 @@
   display: block;
 }
 
-.update-pill {
+.markdown-update-pill {
   float: right;
   z-index: 10000;
-  margin: 0 0;
+  margin: 0;
   padding: 4px 12px;
   border: none;
   border-radius: 999px;
@@ -59,11 +59,11 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  .update-pill {
-    background-color: #0091ff;
-  }
-
   .markdown-divider {
     background: #2a2a2a;
+  }
+
+  .markdown-update-pill {
+    background-color: #0091ff;
   }
 }

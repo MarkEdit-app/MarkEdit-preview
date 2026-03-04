@@ -46,6 +46,7 @@ export async function checkForUpdates() {
     if (container) {
       appendUpdateButton(container);
     }
+
     return;
   }
 
@@ -72,13 +73,13 @@ export async function checkForUpdates() {
 }
 
 export function appendUpdateButton(container: HTMLElement) {
-  if (!states.pendingRelease || container.querySelector('.update-pill')) {
+  if (!states.pendingRelease || container.querySelector('.markdown-update-pill')) {
     return;
   }
 
   const release = states.pendingRelease;
   const button = document.createElement('button');
-  button.className = 'update-pill';
+  button.className = 'markdown-update-pill';
   button.textContent = localized('update');
 
   button.addEventListener('click', () => {
@@ -108,7 +109,7 @@ export function appendUpdateButton(container: HTMLElement) {
           dismissUpdate(button);
         },
       },
-    ], { x: rect.left, y: rect.bottom + 4 });
+    ], { x: rect.left, y: rect.bottom + 10 });
   });
 
   container.prepend(button);

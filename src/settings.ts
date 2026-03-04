@@ -22,6 +22,7 @@ export const updateBehavior: UpdateBehavior = (() => {
   if (behavior === 'quiet' || behavior === 'notify' || behavior === 'never') {
     return behavior;
   }
+
   return toBoolean(rootValue.autoUpdate) ? 'quiet' : 'never';
 })();
 
