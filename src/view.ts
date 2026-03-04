@@ -5,6 +5,7 @@ import { replaceImageURLs } from './image';
 import { hidePreviewButtons, previewModes } from './settings';
 import { localized } from './strings';
 import { syncScrollProgress } from './scroll';
+import { appendUpdateButton } from './updater';
 
 import Split from 'split-grid';
 import type { SplitInstance as Splitter } from 'split-grid';
@@ -157,6 +158,7 @@ export async function renderHtmlPreview() {
 
   const html = replaceImageURLs(await getRenderedHtml());
   previewPane.innerHTML = html;
+  appendUpdateButton(previewPane);
 
   handlePostRender(() => {
     syncScrollProgress(

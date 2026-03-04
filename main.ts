@@ -22,12 +22,16 @@ import {
 import { enableHoverPreview } from './src/image';
 import { startObserving } from './src/scroll';
 import { checkForUpdates } from './src/updater';
-import { imageHoverPreview, keyboardShortcut } from './src/settings';
+import { imageHoverPreview, keyboardShortcut, updateBehavior } from './src/settings';
 import { localized } from './src/strings';
 import { macOSTahoe } from './src/utils';
 
 setUp();
 setTimeout(checkForUpdates, 4000);
+
+if (updateBehavior === 'quiet') {
+  setInterval(checkForUpdates, 604800000); // 7 days
+}
 
 MarkEdit.addMainMenuItem({
   title: localized('viewMode'),

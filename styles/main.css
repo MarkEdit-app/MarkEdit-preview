@@ -44,6 +44,23 @@
   display: block;
 }
 
+.update-pill {
+  position: sticky;
+  top: 0;
+  float: right;
+  z-index: 1;
+  margin: -5px -5px 0 0;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 999px;
+  background-color: #007AFF;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
 @media (prefers-color-scheme: dark) {
   .markdown-divider {
     background: #2a2a2a;
