@@ -98,10 +98,10 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
 
   if (mode === ViewMode.sideBySide) {
     containerView.classList.add(Constants.containerClass);
-    // Reset any stale inline grid-template-columns left by a previous split-grid drag session,
-    // split-grid's destroy() does not clean up the inline style it writes during drags.
-    containerView.style.removeProperty('grid-template-columns');
+    // split-grid's destroy() does not clean up the inline grid-template-columns it writes
+    // during drags, so stale or corrupted values can persist across mode switches.
     states.splitter?.destroy();
+    containerView.style.removeProperty('grid-template-columns');
     states.splitter = Split({
       columnGutters: [{ track: 1, element: gutterView }],
       minSize: 150,
