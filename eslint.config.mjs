@@ -25,7 +25,6 @@ export default [
 
       // --- Safety ---
       'no-implicit-coercion': 'error',
-      'no-console': 'error',
       'eqeqeq': ['error', 'always'],
       'curly': 'error',
       'no-fallthrough': 'error',

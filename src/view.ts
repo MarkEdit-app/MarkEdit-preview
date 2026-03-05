@@ -46,6 +46,9 @@ export function setUp() {
     }
   }
 
+  const primaryClasses = `.${Constants.gutterViewClass}, .${Constants.previewPaneClass}`;
+  containerView.querySelectorAll(primaryClasses).forEach(element => element.remove());
+
   const dividerView = document.createElement('div');
   dividerView.className = ClassNames.dividerViewClass;
   gutterView.appendChild(dividerView);
