@@ -29,9 +29,6 @@ export enum ViewMode {
 }
 
 export function setUp() {
-  // Remove elements from a previous setup to handle extension reloads gracefully
-  containerView.querySelectorAll(`.${Constants.gutterViewClass}, .${Constants.previewPaneClass}`).forEach(el => el.remove());
-
   appendStyle(mainCss);
   appendStyle(previewThemeCss());
   appendStyle(codeCopyCss());
@@ -101,6 +98,10 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
 
   if (mode === ViewMode.sideBySide) {
     containerView.classList.add(Constants.containerClass);
+    // Reset any stale inline grid-template-columns left by a previous split-grid drag session,
+    // split-grid's destroy() does not clean up the inline style it writes during drags.
+    containerView.style.removeProperty('grid-template-columns');
+    states.splitter?.destroy();
     states.splitter = Split({
       columnGutters: [{ track: 1, element: gutterView }],
       minSize: 150,
@@ -110,6 +111,7 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
   } else {
     containerView.classList.remove(Constants.containerClass);
     states.splitter?.destroy();
+    containerView.style.removeProperty('grid-template-columns');
   }
 
   if (mode === ViewMode.preview) {
