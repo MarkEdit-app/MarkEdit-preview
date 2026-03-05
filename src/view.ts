@@ -30,8 +30,7 @@ export enum ViewMode {
 
 export function setUp() {
   // Remove elements from a previous setup to handle extension reloads gracefully
-  containerView.querySelectorAll(`.${Constants.gutterViewClass}`).forEach(el => el.remove());
-  containerView.querySelectorAll(`.${Constants.previewPaneClass}`).forEach(el => el.remove());
+  containerView.querySelectorAll(`.${Constants.gutterViewClass}, .${Constants.previewPaneClass}`).forEach(el => el.remove());
 
   appendStyle(mainCss);
   appendStyle(previewThemeCss());
