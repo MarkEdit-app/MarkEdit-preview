@@ -6,7 +6,7 @@
   width: 100%;
   height: 100vh;
   display: grid;
-  grid-template-columns: 1fr 5px 1fr;
+  grid-template-columns: minmax(0, 1fr) 5px minmax(0, 1fr);
 }
 
 .markdown-gutter {
