@@ -44,8 +44,38 @@
   display: block;
 }
 
+.markdown-update-pill {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 10000;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 999px;
+  background-color: #0088ff;
+  color: white;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.markdown-update-pill:hover {
+  filter: brightness(1.08);
+}
+
+.markdown-update-pill:active {
+  filter: brightness(0.92);
+}
+
 @media (prefers-color-scheme: dark) {
   .markdown-divider {
     background: #2a2a2a;
+  }
+
+  .markdown-update-pill {
+    background-color: #0091ff;
   }
 }

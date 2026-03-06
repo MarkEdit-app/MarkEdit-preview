@@ -1,4 +1,4 @@
-name: Run tests
+name: Run lint and test
 
 on:
   push:
@@ -24,7 +24,8 @@ jobs:
           cache: 'npm'
           cache-dependency-path: '**/yarn.lock'
 
-      - name: Run tests
+      - name: Run lint and test
         run: |
           yarn install
+          yarn lint
           yarn test

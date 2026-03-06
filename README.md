@@ -44,7 +44,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 ```json
 {
   "extension.markeditPreview": {
-    "autoUpdate": true,
+    "updateBehavior": "quiet",
     "syncScroll": true,
     "hidePreviewButtons": true,
     "syntaxAutoDetect": false,
@@ -67,7 +67,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 }
 ```
 
-- `autoUpdate`: Whether to enable automatic update checks.
+- `updateBehavior`: `"quiet"` shows a button, `"notify"` shows an alert, `"never"` disables update checks.
 - `syncScroll`: Whether to enable scroll synchronization.
 - `hidePreviewButtons`: Whether to hide the built-in preview buttons (not applicable for lite build).
 - `syntaxAutoDetect`: Whether to enable automatic language detection for syntax highlighting in code blocks (not applicable for lite build).

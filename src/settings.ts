@@ -15,7 +15,18 @@ const rootValue = toObject(userSettings[Constants.rootValueKey]);
 const changeMode = toObject(rootValue.changeMode);
 const markdownIt = toObject(rootValue.markdownIt);
 
-export const autoUpdate = toBoolean(rootValue.autoUpdate);
+const updateBehaviors = ['quiet', 'notify', 'never'] as const;
+export type UpdateBehavior = (typeof updateBehaviors)[number];
+
+export const updateBehavior: UpdateBehavior = (() => {
+  const behavior = rootValue.updateBehavior as string | undefined;
+  if (behavior && (updateBehaviors as readonly string[]).includes(behavior)) {
+    return behavior as UpdateBehavior;
+  }
+
+  return toBoolean(rootValue.autoUpdate) ? 'quiet' : 'never';
+})();
+
 export const syncScroll = toBoolean(rootValue.syncScroll);
 export const hidePreviewButtons = toBoolean(rootValue.hidePreviewButtons);
 export const syntaxAutoDetect = toBoolean(rootValue.syntaxAutoDetect, false);
