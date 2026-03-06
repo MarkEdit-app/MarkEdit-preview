@@ -26,12 +26,19 @@ import { imageHoverPreview, keyboardShortcut, updateBehavior } from './src/setti
 import { localized } from './src/strings';
 import { macOSTahoe } from './src/utils';
 
-setUp();
-setTimeout(checkForUpdates, 4000);
+if (window.__markeditPreviewInitialized__) {
+  console.error('MarkEdit Preview has already been initialized. Multiple initializations may cause unexpected behavior.');
+} else {
+  setUp();
+  setTimeout(checkForUpdates, 4000);
 
-if (updateBehavior === 'quiet') {
-  // Checks for updates every 7 days when in quiet mode
-  setInterval(checkForUpdates, 604800000);
+  if (updateBehavior === 'quiet') {
+    // Checks for updates every 7 days when in quiet mode
+    setInterval(checkForUpdates, 604800000);
+  }
+
+  // Global flag to prevent multiple initializations
+  window.__markeditPreviewInitialized__ = true;
 }
 
 MarkEdit.addMainMenuItem({
