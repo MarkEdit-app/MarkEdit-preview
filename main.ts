@@ -61,7 +61,10 @@ MarkEdit.addMainMenuItem({
     { separator: true },
     ...createHtmlItems(),
     { separator: true },
-    { title: `${localized('version')} ${__PKG_VERSION__}` },
+    {
+      title: `${localized('version')} ${__PKG_VERSION__}`,
+      action: () => open(`https://github.com/MarkEdit-app/MarkEdit-preview/releases/tag/v${__PKG_VERSION__}`),
+    },
     {
       title: `${localized('checkReleases')} (GitHub)`,
       action: () => open('https://github.com/MarkEdit-app/MarkEdit-preview/releases/latest'),
