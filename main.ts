@@ -89,17 +89,7 @@ MarkEdit.onEditorReady(async() => {
     enableHoverPreview(MarkEdit.editorView.scrollDOM);
   }
 
-  if (states.isInitiating) {
-    states.isInitiating = false;
-    restoreViewMode();
-  }
-
-  if (document.visibilityState === 'visible' && typeof MarkEdit.getFileInfo === 'function') {
-    const isDraft = (await MarkEdit.getFileInfo())?.filePath === undefined;
-    if (isDraft && MarkEdit.editorAPI.getText().length === 0) {
-      setViewMode(ViewMode.edit, false);
-    }
-  }
+  restoreViewMode();
 
   renderHtmlPreview();
   renderDecorationViews();
@@ -163,11 +153,9 @@ function renderDecorationViews() {
 }
 
 const states: {
-  isInitiating: boolean;
   renderUpdater: ReturnType<typeof setTimeout> | undefined;
   keyDownListener: ((event: KeyboardEvent) => void) | undefined;
 } = {
-  isInitiating: true,
   renderUpdater: undefined,
   keyDownListener: undefined,
 };

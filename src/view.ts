@@ -80,8 +80,9 @@ export function setUp() {
 export function setViewMode(mode: ViewMode, needsDisplay = true) {
   const oldMode = currentViewMode();
   states.viewMode = mode;
+  const modeChanged = mode !== oldMode;
 
-  if (mode !== oldMode) {
+  if (modeChanged) {
     localStorage.setItem(
       CacheKeys.viewModeCacheKey,
       String(mode),
@@ -99,15 +100,19 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
 
   if (mode === ViewMode.sideBySide) {
     containerView.classList.add(ClassNames.containerClass);
-    states.splitter = Split({
-      columnGutters: [{ track: 1, element: gutterView }],
-      minSize: 150,
-      onDragStart: () => draggingStyle.disabled = false,
-      onDragEnd: () => draggingStyle.disabled = true,
-    });
+    if (modeChanged || states.splitter === undefined) {
+      states.splitter?.destroy();
+      states.splitter = Split({
+        columnGutters: [{ track: 1, element: gutterView }],
+        minSize: 150,
+        onDragStart: () => draggingStyle.disabled = false,
+        onDragEnd: () => draggingStyle.disabled = true,
+      });
+    }
   } else {
     containerView.classList.remove(ClassNames.containerClass);
     states.splitter?.destroy();
+    states.splitter = undefined;
   }
 
   if (mode === ViewMode.preview) {
