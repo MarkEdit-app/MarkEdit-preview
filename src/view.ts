@@ -99,7 +99,7 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
 
   if (mode === ViewMode.sideBySide) {
     containerView.classList.add(ClassNames.containerClass);
-    states.splitter = Split({
+    states.splitter ??= Split({
       columnGutters: [{ track: 1, element: gutterView }],
       minSize: 150,
       onDragStart: () => draggingStyle.disabled = false,
@@ -108,6 +108,7 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
   } else {
     containerView.classList.remove(ClassNames.containerClass);
     states.splitter?.destroy();
+    states.splitter = undefined;
   }
 
   if (mode === ViewMode.preview) {
