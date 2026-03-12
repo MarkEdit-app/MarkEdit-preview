@@ -240,6 +240,11 @@ export function getPreviewPane() {
   return previewPane;
 }
 
+export async function generateStaticHtml(styled: boolean) {
+  const html = await getRenderedHtml(false);
+  return styled ? (await applyStyles(html)) : html;
+}
+
 async function getRenderedHtml(lineInfo = true) {
   const markdown = MarkEdit.editorAPI.getText();
   return await renderMarkdown(markdown, lineInfo);
@@ -260,15 +265,8 @@ async function saveGeneratedHtml(styled: boolean) {
     return `${getFileName(info.filePath)}.html`;
   })();
 
-  const fileContent = await (async() => {
-    const html = await getRenderedHtml(false);
-    return styled ? (await applyStyles(html)) : html;
-  })();
-
-  MarkEdit.showSavePanel({
-    fileName,
-    string: fileContent,
-  });
+  const string = await generateStaticHtml(styled);
+  MarkEdit.showSavePanel({ fileName, string });
 }
 
 const states: {
