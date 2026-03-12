@@ -31,6 +31,8 @@ Access it from the `Extensions` menu in the menu bar, or use the keyboard shortc
 
 To display local images, please ensure you're using MarkEdit 1.24.0 or later and follow [the guide](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#grant-folder-access) to grant file access.
 
+This extension also exposes a global function, `MarkEditGetHtml(styled: boolean) => Promise<string>`, allowing other extensions or scripts to easily generate the rendered HTML.
+
 ## Styling
 
 This extension applies the [github-markdown](https://github.com/sindresorhus/github-markdown-css) styling. You can customize the appearance by following the [customization](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization) guidelines.
