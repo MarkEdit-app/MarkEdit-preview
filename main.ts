@@ -17,6 +17,7 @@ import {
   copyRichText,
   getEditPane,
   getPreviewPane,
+  generateStaticHtml,
 } from './src/view';
 
 import { enableHoverPreview } from './src/image';
@@ -39,6 +40,7 @@ if (window.__markeditPreviewInitialized__) {
 
   // Global flag to prevent multiple initializations
   window.__markeditPreviewInitialized__ = true;
+  window.MarkEditGetHtml = generateStaticHtml;
 }
 
 MarkEdit.addMainMenuItem({
