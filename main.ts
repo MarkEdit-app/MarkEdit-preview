@@ -84,22 +84,23 @@ MarkEdit.addExtension(EditorView.updateListener.of(update => {
   states.renderUpdater = setTimeout(renderHtmlPreview, 500);
 }));
 
-MarkEdit.onEditorReady(async() => {
+MarkEdit.onEditorReady(() => {
   if (imageHoverPreview) {
     enableHoverPreview(MarkEdit.editorView.scrollDOM);
   }
 
-  if (states.isInitiating) {
-    states.isInitiating = false;
-    restoreViewMode();
-  }
+  // Restore to the last view mode, if available
+  restoreViewMode();
 
-  if (document.visibilityState === 'visible' && typeof MarkEdit.getFileInfo === 'function') {
-    const isDraft = (await MarkEdit.getFileInfo())?.filePath === undefined;
-    if (isDraft && MarkEdit.editorAPI.getText().length === 0) {
-      setViewMode(ViewMode.edit, false);
+  // For empty new drafts only, avoid using preview because it looks confusing
+  requestAnimationFrame(async() => {
+    if (document.visibilityState === 'visible' && currentViewMode() === ViewMode.preview && typeof MarkEdit.getFileInfo === 'function') {
+      const isDraft = (await MarkEdit.getFileInfo())?.filePath === undefined;
+      if (isDraft && MarkEdit.editorAPI.getText().length === 0) {
+        setViewMode(ViewMode.edit, false);
+      }
     }
-  }
+  });
 
   renderHtmlPreview();
   renderDecorationViews();
@@ -163,11 +164,9 @@ function renderDecorationViews() {
 }
 
 const states: {
-  isInitiating: boolean;
   renderUpdater: ReturnType<typeof setTimeout> | undefined;
   keyDownListener: ((event: KeyboardEvent) => void) | undefined;
 } = {
-  isInitiating: true,
   renderUpdater: undefined,
   keyDownListener: undefined,
 };

@@ -142,10 +142,17 @@ export function changeViewMode() {
 }
 
 export function restoreViewMode() {
-  const initialMode = localStorage.getItem(CacheKeys.viewModeCacheKey);
-  if (initialMode !== null) {
-    setViewMode(Number(initialMode), false);
+  const cachedValue = localStorage.getItem(CacheKeys.viewModeCacheKey);
+  if (cachedValue === null) {
+    return;
   }
+
+  const newMode = Number(cachedValue);
+  if (currentViewMode() === newMode) {
+    return;
+  }
+
+  setViewMode(newMode, true);
 }
 
 export function currentViewMode() {
