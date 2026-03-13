@@ -83,3 +83,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `markdownIt.options`: Customize [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) options.
 
 > Extension settings require MarkEdit 1.24.0 or later.
+
+## Contribution
+
+Pull requests are welcome, but please discuss the proposal before making changes. This helps avoid misunderstandings and saves effort on both sides.
