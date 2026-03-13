@@ -25,7 +25,7 @@ import { startObserving } from './src/scroll';
 import { checkForUpdates, renderUpdatePill } from './src/updater';
 import { imageHoverPreview, keyboardShortcut, updateBehavior } from './src/settings';
 import { localized } from './src/strings';
-import { macOSTahoe } from './src/utils';
+import { appendStyle, macOSTahoe } from './src/utils';
 
 if (window.__markeditPreviewInitialized__) {
   console.error('MarkEdit Preview has already been initialized. Multiple initializations may cause unexpected behavior.');
@@ -89,6 +89,31 @@ MarkEdit.addExtension(EditorView.updateListener.of(update => {
 }));
 
 MarkEdit.onEditorReady(() => {
+  // Inherit font settings from the editor and sync on changes
+  const fontStyle = appendStyle('');
+  let lastFontFamily = '';
+  let lastFontSize = '';
+
+  const updateEditorFont = () => {
+    const editorStyle = getComputedStyle(MarkEdit.editorView.contentDOM);
+    if (editorStyle.fontFamily !== lastFontFamily || editorStyle.fontSize !== lastFontSize) {
+      lastFontFamily = editorStyle.fontFamily;
+      lastFontSize = editorStyle.fontSize;
+      fontStyle.textContent = `.markdown-body {
+        font-family: ${lastFontFamily};
+        font-size: ${lastFontSize};
+      }`;
+    }
+  };
+
+  updateEditorFont();
+
+  const fontObserver = new MutationObserver(updateEditorFont);
+  fontObserver.observe(MarkEdit.editorView.contentDOM, {
+    attributes: true,
+    attributeFilter: ['style', 'class'],
+  });
+
   if (imageHoverPreview) {
     enableHoverPreview(MarkEdit.editorView.scrollDOM);
   }
