@@ -248,7 +248,7 @@ export async function generateStaticHtml(styled: boolean) {
 async function getRenderedHtml(lineInfo = true) {
   const markdown = MarkEdit.editorAPI.getText();
 
-  if (__FULL_BUILD__ && await isMermaidFile()) {
+  if (__FULL_BUILD__ && renderFileAsMermaid && await isMermaidFile()) {
     return await renderMermaid(markdown, lineInfo);
   }
 
@@ -256,7 +256,7 @@ async function getRenderedHtml(lineInfo = true) {
 }
 
 async function isMermaidFile() {
-  if (!renderFileAsMermaid || typeof MarkEdit.getFileInfo !== 'function') {
+  if (typeof MarkEdit.getFileInfo !== 'function') {
     return false;
   }
 
