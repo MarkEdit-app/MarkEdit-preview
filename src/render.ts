@@ -5,6 +5,7 @@ import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
 
+import { MarkEdit } from 'markedit-api';
 import { createFrontMatterPlugin } from './frontMatter';
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
@@ -29,6 +30,7 @@ export function renderMermaid(content: string, lineInfo = false) {
     const lastLine = MarkEdit.editorView.state.doc.lines - 1;
     return `<div class="mermaid" data-line-from="0" data-line-to="${lastLine}">${escaped}</div>`;
   }
+
   return `<div class="mermaid">${escaped}</div>`;
 }
 
