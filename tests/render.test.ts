@@ -59,7 +59,14 @@ describe('renderMarkdown', () => {
 });
 
 describe('renderMermaid', () => {
+  function mockDocLines(lines: number) {
+    (globalThis as Record<string, unknown>).MarkEdit = {
+      editorView: { state: { doc: { lines } } },
+    };
+  }
+
   it('should wrap content in a mermaid div', () => {
+    mockDocLines(2);
     const content = 'graph TD\n    A --> B';
     const html = renderMermaid(content);
     expect(html).toContain('<div class="mermaid">');
@@ -68,6 +75,7 @@ describe('renderMermaid', () => {
   });
 
   it('should escape HTML in mermaid content', () => {
+    mockDocLines(1);
     const content = '<script>alert("xss")</script>';
     const html = renderMermaid(content);
     expect(html).not.toContain('<script>');
@@ -75,28 +83,32 @@ describe('renderMermaid', () => {
   });
 
   it('should trim whitespace from content', () => {
+    mockDocLines(2);
     const content = '  graph TD\n    A --> B  \n';
     const html = renderMermaid(content);
     expect(html).toBe('<div class="mermaid">graph TD\n    A --&gt; B</div>');
   });
 
-  it('should include line info attributes when lastLine is provided', () => {
+  it('should include line info attributes when lineInfo is true', () => {
+    mockDocLines(3);
     const content = 'graph TD\n    A --> B\n    B --> C';
-    const html = renderMermaid(content, 2);
+    const html = renderMermaid(content, true);
     expect(html).toContain('data-line-from="0"');
     expect(html).toContain('data-line-to="2"');
   });
 
   it('should not include line info attributes by default', () => {
+    mockDocLines(2);
     const content = 'graph TD\n    A --> B';
     const html = renderMermaid(content);
     expect(html).not.toContain('data-line-from');
     expect(html).not.toContain('data-line-to');
   });
 
-  it('should handle single-line content with lastLine 0', () => {
+  it('should handle single-line content with lineInfo', () => {
+    mockDocLines(1);
     const content = 'graph TD';
-    const html = renderMermaid(content, 0);
+    const html = renderMermaid(content, true);
     expect(html).toContain('data-line-from="0"');
     expect(html).toContain('data-line-to="0"');
   });

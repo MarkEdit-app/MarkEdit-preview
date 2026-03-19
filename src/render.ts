@@ -21,11 +21,12 @@ export async function renderMarkdown(markdown: string, lineInfo = true) {
 /**
  * Render raw Mermaid content as a standalone diagram, used for `.mmd` files.
  *
- * @param lastLine The last line index for scroll sync attributes; omit or pass undefined to disable line info.
+ * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
  */
-export function renderMermaid(content: string, lastLine?: number) {
+export function renderMermaid(content: string, lineInfo = false) {
   const escaped = mdit.utils.escapeHtml(content.trim());
-  const lineAttrs = lastLine !== undefined ? ` data-line-from="0" data-line-to="${lastLine}"` : '';
+  const lastLine = MarkEdit.editorView.state.doc.lines - 1;
+  const lineAttrs = lineInfo ? ` data-line-from="0" data-line-to="${lastLine}"` : '';
   return `<div class="mermaid"${lineAttrs}>${escaped}</div>`;
 }
 
