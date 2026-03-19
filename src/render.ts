@@ -20,10 +20,14 @@ export async function renderMarkdown(markdown: string, lineInfo = true) {
 
 /**
  * Render raw Mermaid content as a standalone diagram, used for `.mmd` files.
+ *
+ * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
  */
-export function renderMermaid(content: string) {
-  const escaped = mdit.utils.escapeHtml(content.trim());
-  return `<div class="mermaid">${escaped}</div>`;
+export function renderMermaid(content: string, lineInfo = false) {
+  const trimmed = content.trim();
+  const escaped = mdit.utils.escapeHtml(trimmed);
+  const lineAttrs = lineInfo ? ` data-line-from="0" data-line-to="${Math.max(0, trimmed.split('\n').length - 1)}"` : '';
+  return `<div class="mermaid"${lineAttrs}>${escaped}</div>`;
 }
 
 export function handlePostRender(process: () => void) {

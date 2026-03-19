@@ -80,6 +80,27 @@ describe('renderMermaid', () => {
     expect(html).toBe('<div class="mermaid">graph TD\n    A --&gt; B</div>');
   });
 
+  it('should include line info attributes when lineInfo is true', () => {
+    const content = 'graph TD\n    A --> B\n    B --> C';
+    const html = renderMermaid(content, true);
+    expect(html).toContain('data-line-from="0"');
+    expect(html).toContain('data-line-to="2"');
+  });
+
+  it('should not include line info attributes by default', () => {
+    const content = 'graph TD\n    A --> B';
+    const html = renderMermaid(content);
+    expect(html).not.toContain('data-line-from');
+    expect(html).not.toContain('data-line-to');
+  });
+
+  it('should handle single-line content with lineInfo', () => {
+    const content = 'graph TD';
+    const html = renderMermaid(content, true);
+    expect(html).toContain('data-line-from="0"');
+    expect(html).toContain('data-line-to="0"');
+  });
+
   it('should not affect markdown mermaid rendering', async () => {
     const md = '```mermaid\ngraph TD\n```';
     const html = await renderMarkdown(md);
