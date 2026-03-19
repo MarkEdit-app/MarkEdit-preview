@@ -24,7 +24,8 @@ export async function renderMarkdown(markdown: string, lineInfo = true) {
  *
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
  */
-export function renderMermaid(content: string, lineInfo = false) {
+export async function renderMermaid(content: string, lineInfo = false) {
+  await pluginsReady;
   const escaped = mdit.utils.escapeHtml(content.trim());
   if (lineInfo) {
     const lastLine = MarkEdit.editorView.state.doc.lines - 1;

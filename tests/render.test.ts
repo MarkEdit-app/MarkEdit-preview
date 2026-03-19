@@ -1,5 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { renderMarkdown, renderMermaid } from '../src/render';
+
+vi.mock('markedit-api', () => {
+  const markEdit: Record<string, unknown> = {};
+  return { MarkEdit: markEdit };
+});
+
+// Access the mocked MarkEdit to configure editorView per test
+async function mockDocLines(lines: number) {
+  const { MarkEdit } = await import('markedit-api');
+  (MarkEdit as Record<string, unknown>).editorView = { state: { doc: { lines } } };
+}
 
 describe('renderMarkdown', () => {
   describe('code blocks without language specifier', () => {
@@ -59,56 +70,50 @@ describe('renderMarkdown', () => {
 });
 
 describe('renderMermaid', () => {
-  function mockDocLines(lines: number) {
-    (globalThis as Record<string, unknown>).MarkEdit = {
-      editorView: { state: { doc: { lines } } },
-    };
-  }
-
-  it('should wrap content in a mermaid div', () => {
-    mockDocLines(2);
+  it('should wrap content in a mermaid div', async () => {
+    await mockDocLines(2);
     const content = 'graph TD\n    A --> B';
-    const html = renderMermaid(content);
+    const html = await renderMermaid(content);
     expect(html).toContain('<div class="mermaid">');
     expect(html).toContain('</div>');
     expect(html).toContain('graph TD');
   });
 
-  it('should escape HTML in mermaid content', () => {
-    mockDocLines(1);
+  it('should escape HTML in mermaid content', async () => {
+    await mockDocLines(1);
     const content = '<script>alert("xss")</script>';
-    const html = renderMermaid(content);
+    const html = await renderMermaid(content);
     expect(html).not.toContain('<script>');
     expect(html).toContain('&lt;script&gt;');
   });
 
-  it('should trim whitespace from content', () => {
-    mockDocLines(2);
+  it('should trim whitespace from content', async () => {
+    await mockDocLines(2);
     const content = '  graph TD\n    A --> B  \n';
-    const html = renderMermaid(content);
+    const html = await renderMermaid(content);
     expect(html).toBe('<div class="mermaid">graph TD\n    A --&gt; B</div>');
   });
 
-  it('should include line info attributes when lineInfo is true', () => {
-    mockDocLines(3);
+  it('should include line info attributes when lineInfo is true', async () => {
+    await mockDocLines(3);
     const content = 'graph TD\n    A --> B\n    B --> C';
-    const html = renderMermaid(content, true);
+    const html = await renderMermaid(content, true);
     expect(html).toContain('data-line-from="0"');
     expect(html).toContain('data-line-to="2"');
   });
 
-  it('should not include line info attributes by default', () => {
-    mockDocLines(2);
+  it('should not include line info attributes by default', async () => {
+    await mockDocLines(2);
     const content = 'graph TD\n    A --> B';
-    const html = renderMermaid(content);
+    const html = await renderMermaid(content);
     expect(html).not.toContain('data-line-from');
     expect(html).not.toContain('data-line-to');
   });
 
-  it('should handle single-line content with lineInfo', () => {
-    mockDocLines(1);
+  it('should handle single-line content with lineInfo', async () => {
+    await mockDocLines(1);
     const content = 'graph TD';
-    const html = renderMermaid(content, true);
+    const html = await renderMermaid(content, true);
     expect(html).toContain('data-line-from="0"');
     expect(html).toContain('data-line-to="0"');
   });

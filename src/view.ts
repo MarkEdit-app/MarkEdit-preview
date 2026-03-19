@@ -2,7 +2,7 @@ import { MarkEdit } from 'markedit-api';
 import { appendStyle, getFileName, selectFullRange } from './utils';
 import { renderMarkdown, renderMermaid, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './image';
-import { hidePreviewButtons, previewModes, renderMermaidDiagram } from './settings';
+import { hidePreviewButtons, previewModes, renderFileAsMermaid } from './settings';
 import { localized } from './strings';
 import { syncScrollProgress } from './scroll';
 import { ClassNames, CacheKeys } from './const';
@@ -249,14 +249,14 @@ async function getRenderedHtml(lineInfo = true) {
   const markdown = MarkEdit.editorAPI.getText();
 
   if (__FULL_BUILD__ && await isMermaidFile()) {
-    return renderMermaid(markdown, lineInfo);
+    return await renderMermaid(markdown, lineInfo);
   }
 
   return await renderMarkdown(markdown, lineInfo);
 }
 
 async function isMermaidFile() {
-  if (!renderMermaidDiagram || typeof MarkEdit.getFileInfo !== 'function') {
+  if (!renderFileAsMermaid || typeof MarkEdit.getFileInfo !== 'function') {
     return false;
   }
 
