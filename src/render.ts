@@ -25,9 +25,11 @@ export async function renderMarkdown(markdown: string, lineInfo = true) {
  */
 export function renderMermaid(content: string, lineInfo = false) {
   const escaped = mdit.utils.escapeHtml(content.trim());
-  const lastLine = MarkEdit.editorView.state.doc.lines - 1;
-  const lineAttrs = lineInfo ? ` data-line-from="0" data-line-to="${lastLine}"` : '';
-  return `<div class="mermaid"${lineAttrs}>${escaped}</div>`;
+  if (lineInfo) {
+    const lastLine = MarkEdit.editorView.state.doc.lines - 1;
+    return `<div class="mermaid" data-line-from="0" data-line-to="${lastLine}">${escaped}</div>`;
+  }
+  return `<div class="mermaid">${escaped}</div>`;
 }
 
 export function handlePostRender(process: () => void) {
