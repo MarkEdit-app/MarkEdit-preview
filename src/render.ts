@@ -18,6 +18,14 @@ export async function renderMarkdown(markdown: string, lineInfo = true) {
   return mdit.render(markdown, { lineInfo });
 }
 
+/**
+ * Render raw Mermaid content as a standalone diagram, used for `.mmd` files.
+ */
+export function renderMermaid(content: string) {
+  const escaped = mdit.utils.escapeHtml(content.trim());
+  return `<div class="mermaid">${escaped}</div>`;
+}
+
 export function handlePostRender(process: () => void) {
   if (__FULL_BUILD__) {
     import('mermaid').then(({ default: mermaid }) => {

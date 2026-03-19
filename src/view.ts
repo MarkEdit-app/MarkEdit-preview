@@ -1,6 +1,6 @@
 import { MarkEdit } from 'markedit-api';
 import { appendStyle, getFileName, selectFullRange } from './utils';
-import { renderMarkdown, handlePostRender, applyStyles } from './render';
+import { renderMarkdown, renderMermaid, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './image';
 import { hidePreviewButtons, previewModes } from './settings';
 import { localized } from './strings';
@@ -247,7 +247,21 @@ export async function generateStaticHtml(styled: boolean) {
 
 async function getRenderedHtml(lineInfo = true) {
   const markdown = MarkEdit.editorAPI.getText();
+
+  if (__FULL_BUILD__ && await isMermaidFile()) {
+    return renderMermaid(markdown);
+  }
+
   return await renderMarkdown(markdown, lineInfo);
+}
+
+async function isMermaidFile() {
+  if (typeof MarkEdit.getFileInfo !== 'function') {
+    return false;
+  }
+
+  const info = await MarkEdit.getFileInfo();
+  return info?.filePath?.endsWith('.mmd') ?? false;
 }
 
 function updateGutterStyle() {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { renderMarkdown } from '../src/render';
+import { renderMarkdown, renderMermaid } from '../src/render';
 
 describe('renderMarkdown', () => {
   describe('code blocks without language specifier', () => {
@@ -55,5 +55,34 @@ describe('renderMarkdown', () => {
       const html = await renderMarkdown(md);
       expect(html).not.toMatch(/class="[^"]*hljs/);
     });
+  });
+});
+
+describe('renderMermaid', () => {
+  it('should wrap content in a mermaid div', () => {
+    const content = 'graph TD\n    A --> B';
+    const html = renderMermaid(content);
+    expect(html).toContain('<div class="mermaid">');
+    expect(html).toContain('</div>');
+    expect(html).toContain('graph TD');
+  });
+
+  it('should escape HTML in mermaid content', () => {
+    const content = '<script>alert("xss")</script>';
+    const html = renderMermaid(content);
+    expect(html).not.toContain('<script>');
+    expect(html).toContain('&lt;script&gt;');
+  });
+
+  it('should trim whitespace from content', () => {
+    const content = '  graph TD\n    A --> B  \n';
+    const html = renderMermaid(content);
+    expect(html).toBe('<div class="mermaid">graph TD\n    A --&gt; B</div>');
+  });
+
+  it('should not affect markdown mermaid rendering', async () => {
+    const md = '```mermaid\ngraph TD\n```';
+    const html = await renderMarkdown(md);
+    expect(html).toContain('<div class="mermaid"');
   });
 });
