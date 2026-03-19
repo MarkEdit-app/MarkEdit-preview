@@ -261,7 +261,7 @@ async function isMermaidFile() {
   }
 
   const info = await MarkEdit.getFileInfo();
-  return info?.filePath?.endsWith('.mmd') ?? false;
+  return info?.filePath?.toLowerCase().endsWith('.mmd') ?? false;
 }
 
 function updateGutterStyle() {
