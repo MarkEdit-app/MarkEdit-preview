@@ -249,7 +249,8 @@ async function getRenderedHtml(lineInfo = true) {
   const markdown = MarkEdit.editorAPI.getText();
 
   if (__FULL_BUILD__ && await isMermaidFile()) {
-    return renderMermaid(markdown, lineInfo);
+    const lastLine = lineInfo ? MarkEdit.editorView.state.doc.lines - 1 : undefined;
+    return renderMermaid(markdown, lastLine);
   }
 
   return await renderMarkdown(markdown, lineInfo);

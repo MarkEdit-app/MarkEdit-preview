@@ -80,9 +80,9 @@ describe('renderMermaid', () => {
     expect(html).toBe('<div class="mermaid">graph TD\n    A --&gt; B</div>');
   });
 
-  it('should include line info attributes when lineInfo is true', () => {
+  it('should include line info attributes when lastLine is provided', () => {
     const content = 'graph TD\n    A --> B\n    B --> C';
-    const html = renderMermaid(content, true);
+    const html = renderMermaid(content, 2);
     expect(html).toContain('data-line-from="0"');
     expect(html).toContain('data-line-to="2"');
   });
@@ -94,9 +94,9 @@ describe('renderMermaid', () => {
     expect(html).not.toContain('data-line-to');
   });
 
-  it('should handle single-line content with lineInfo', () => {
+  it('should handle single-line content with lastLine 0', () => {
     const content = 'graph TD';
-    const html = renderMermaid(content, true);
+    const html = renderMermaid(content, 0);
     expect(html).toContain('data-line-from="0"');
     expect(html).toContain('data-line-to="0"');
   });
