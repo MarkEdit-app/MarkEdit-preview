@@ -1,8 +1,8 @@
 import { MarkEdit } from 'markedit-api';
 import { appendStyle, getFileName, selectFullRange } from './utils';
-import { renderMarkdown, renderMermaid, handlePostRender, applyStyles } from './render';
+import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './image';
-import { hidePreviewButtons, previewModes, renderFileAsMermaid } from './settings';
+import { hidePreviewButtons, previewModes } from './settings';
 import { localized } from './strings';
 import { syncScrollProgress } from './scroll';
 import { ClassNames, CacheKeys } from './const';
@@ -248,21 +248,38 @@ export async function generateStaticHtml(styled: boolean) {
 async function getRenderedHtml(lineInfo = true) {
   const markdown = MarkEdit.editorAPI.getText();
 
-  if (__FULL_BUILD__ && renderFileAsMermaid && await isMermaidFile()) {
-    return await renderMermaid(markdown, lineInfo);
+  if (__FULL_BUILD__) {
+    if (await isMermaidFile()) {
+      return await renderMermaid(markdown, lineInfo);
+    }
+
+    if (await isKatexFile()) {
+      return await renderKatex(markdown, lineInfo);
+    }
   }
 
   return await renderMarkdown(markdown, lineInfo);
 }
 
 async function isMermaidFile() {
+  const ext = await getFileExtension();
+  return ext === '.mmd' || ext === '.mermaid';
+}
+
+async function isKatexFile() {
+  const ext = await getFileExtension();
+  return ext === '.tex';
+}
+
+async function getFileExtension() {
   if (typeof MarkEdit.getFileInfo !== 'function') {
-    return false;
+    return '';
   }
 
   const info = await MarkEdit.getFileInfo();
-  const path = info?.filePath?.toLowerCase() ?? '';
-  return path.endsWith('.mmd') || path.endsWith('.mermaid');
+  const path = info?.filePath ?? '';
+  const dotIndex = path.lastIndexOf('.');
+  return dotIndex === -1 ? '' : path.slice(dotIndex).toLowerCase();
 }
 
 function updateGutterStyle() {

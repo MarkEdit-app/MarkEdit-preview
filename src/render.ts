@@ -20,7 +20,7 @@ export async function renderMarkdown(markdown: string, lineInfo = true) {
 }
 
 /**
- * Render raw Mermaid content as a standalone diagram, used for `.mmd` files.
+ * Render raw Mermaid content as a standalone diagram, used for `.mmd` and `.mermaid` files.
  *
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
  */
@@ -33,6 +33,23 @@ export async function renderMermaid(content: string, lineInfo = false) {
   }
 
   return `<div class="mermaid">${escaped}</div>`;
+}
+
+/**
+ * Render raw LaTeX content as standalone KaTeX math, used for `.tex` files.
+ *
+ * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
+ */
+export async function renderKatex(content: string, lineInfo = false) {
+  await pluginsReady;
+  const katex = (await import('katex')).default;
+  const rendered = katex.renderToString(content.trim(), { displayMode: true, throwOnError: false });
+  if (lineInfo) {
+    const lastLine = MarkEdit.editorView.state.doc.lines - 1;
+    return `<div class="katex-block" data-line-from="0" data-line-to="${lastLine}">${rendered}</div>`;
+  }
+
+  return `<div class="katex-block">${rendered}</div>`;
 }
 
 export function handlePostRender(process: () => void) {

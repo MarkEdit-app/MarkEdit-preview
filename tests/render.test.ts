@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { renderMarkdown, renderMermaid } from '../src/render';
+import { renderMarkdown, renderMermaid, renderKatex } from '../src/render';
 
 vi.mock('markedit-api', () => {
   const markEdit: Record<string, unknown> = {};
@@ -122,5 +122,68 @@ describe('renderMermaid', () => {
     const md = '```mermaid\ngraph TD\n```';
     const html = await renderMarkdown(md);
     expect(html).toContain('<div class="mermaid"');
+  });
+});
+
+describe('renderKatex', () => {
+  it('should wrap content in a katex-block div', async () => {
+    await mockDocLines(1);
+    const content = 'E = mc^2';
+    const html = await renderKatex(content);
+    expect(html).toContain('<div class="katex-block">');
+    expect(html).toContain('</div>');
+  });
+
+  it('should render KaTeX HTML output', async () => {
+    await mockDocLines(1);
+    const content = 'x^2 + y^2 = z^2';
+    const html = await renderKatex(content);
+    expect(html).toContain('class="katex');
+  });
+
+  it('should handle invalid LaTeX gracefully', async () => {
+    await mockDocLines(1);
+    const content = '\\invalid{command}';
+    const html = await renderKatex(content);
+    expect(html).toContain('<div class="katex-block">');
+    // With throwOnError: false, KaTeX renders error spans instead of throwing
+    expect(html).toBeDefined();
+  });
+
+  it('should trim whitespace from content', async () => {
+    await mockDocLines(1);
+    const content = '  E = mc^2  \n';
+    const html = await renderKatex(content);
+    expect(html).toContain('class="katex');
+  });
+
+  it('should include line info attributes when lineInfo is true', async () => {
+    await mockDocLines(3);
+    const content = 'a + b = c';
+    const html = await renderKatex(content, true);
+    expect(html).toContain('data-line-from="0"');
+    expect(html).toContain('data-line-to="2"');
+  });
+
+  it('should not include line info attributes by default', async () => {
+    await mockDocLines(1);
+    const content = 'E = mc^2';
+    const html = await renderKatex(content);
+    expect(html).not.toContain('data-line-from');
+    expect(html).not.toContain('data-line-to');
+  });
+
+  it('should handle single-line content with lineInfo', async () => {
+    await mockDocLines(1);
+    const content = 'E = mc^2';
+    const html = await renderKatex(content, true);
+    expect(html).toContain('data-line-from="0"');
+    expect(html).toContain('data-line-to="0"');
+  });
+
+  it('should not affect markdown katex rendering', async () => {
+    const md = '$E = mc^2$';
+    const html = await renderMarkdown(md);
+    expect(html).toContain('class="katex');
   });
 });

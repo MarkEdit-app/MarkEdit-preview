@@ -51,7 +51,6 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
     "hidePreviewButtons": true,
     "syntaxAutoDetect": false,
     "imageHoverPreview": false,
-    "renderFileAsMermaid": true,
     "themeName": "github",
     "styledHtmlColorScheme": "auto",
     "mathDelimiters": [],
@@ -75,7 +74,6 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `hidePreviewButtons`: Whether to hide the built-in preview buttons (not applicable for lite build).
 - `syntaxAutoDetect`: Whether to enable automatic language detection for syntax highlighting in code blocks (not applicable for lite build).
 - `imageHoverPreview`: Whether to enable image preview on hover.
-- `renderFileAsMermaid`: Whether to render `.mmd` and `.mermaid` files as standalone Mermaid diagrams (not applicable for lite build). Set to `false` to treat them as regular Markdown (e.g., for MultiMarkdown `.mmd` files).
 - `themeName`: Set the preview color theme, available themes can be found in the [`styles/themes`](styles/themes) folder.
 - `styledHtmlColorScheme`: Determine the color scheme of saving styled html files, valid values are `light`, `dark`, and `auto`.
 - `mathDelimiters`: Customize math delimiters for KaTeX rendering (not applicable for lite build), each delimiter object has `left`, `right`, and `display` properties, defaults to `$...$`, `$$...$$`, `\(...\)`, and `\[...\]`.
