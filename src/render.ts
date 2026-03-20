@@ -5,6 +5,7 @@ import footnote from 'markdown-it-footnote';
 import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
 
+import { MarkEdit } from 'markedit-api';
 import { createFrontMatterPlugin } from './frontMatter';
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './strings';
@@ -16,6 +17,27 @@ import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPres
 export async function renderMarkdown(markdown: string, lineInfo = true) {
   await pluginsReady;
   return mdit.render(markdown, { lineInfo });
+}
+
+/**
+ * Render raw Mermaid content as a standalone diagram, used for `.mmd` and `.mermaid` files.
+ *
+ * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
+ */
+export async function renderMermaid(content: string, lineInfo = false) {
+  const html = mdit.utils.escapeHtml(content.trim());
+  return renderStandalone('mermaid', html, lineInfo);
+}
+
+/**
+ * Render raw LaTeX content as standalone KaTeX math, used for `.tex` files.
+ *
+ * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
+ */
+export async function renderKatex(content: string, lineInfo = false) {
+  const katex = (await import('katex')).default;
+  const html = katex.renderToString(content.trim(), { displayMode: true, throwOnError: false });
+  return renderStandalone('katex', html, lineInfo);
 }
 
 export function handlePostRender(process: () => void) {
@@ -75,6 +97,14 @@ export async function applyStyles(html: string) {
 
   return components.join('\n');
 }
+
+// Render the entire content as a standalone block
+const renderStandalone = async (className: string, innerHtml: string, lineInfo: boolean) => {
+  await pluginsReady;
+  const lineTo = () => MarkEdit.editorView.state.doc.lines - 1;
+  const lineAttrs = lineInfo ? ` data-line-from="0" data-line-to="${lineTo()}"` : '';
+  return `<div class="${className}"${lineAttrs}>${innerHtml}</div>`;
+};
 
 // Create the markdown-it instance
 const mdit = markdownit(markdownItPreset, {

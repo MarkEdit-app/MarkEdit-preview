@@ -1,5 +1,16 @@
-import { describe, it, expect } from 'vitest';
-import { renderMarkdown } from '../src/render';
+import { describe, it, expect, vi } from 'vitest';
+import { renderMarkdown, renderMermaid, renderKatex } from '../src/render';
+
+vi.mock('markedit-api', () => {
+  const markEdit: Record<string, unknown> = {};
+  return { MarkEdit: markEdit };
+});
+
+// Access the mocked MarkEdit to configure editorView per test
+async function mockDocLines(lines: number) {
+  const { MarkEdit } = await import('markedit-api');
+  (MarkEdit as Record<string, unknown>).editorView = { state: { doc: { lines } } };
+}
 
 describe('renderMarkdown', () => {
   describe('code blocks without language specifier', () => {
@@ -55,5 +66,124 @@ describe('renderMarkdown', () => {
       const html = await renderMarkdown(md);
       expect(html).not.toMatch(/class="[^"]*hljs/);
     });
+  });
+});
+
+describe('renderMermaid', () => {
+  it('should wrap content in a mermaid div', async () => {
+    await mockDocLines(2);
+    const content = 'graph TD\n    A --> B';
+    const html = await renderMermaid(content);
+    expect(html).toContain('<div class="mermaid">');
+    expect(html).toContain('</div>');
+    expect(html).toContain('graph TD');
+  });
+
+  it('should escape HTML in mermaid content', async () => {
+    await mockDocLines(1);
+    const content = '<script>alert("xss")</script>';
+    const html = await renderMermaid(content);
+    expect(html).not.toContain('<script>');
+    expect(html).toContain('&lt;script&gt;');
+  });
+
+  it('should trim whitespace from content', async () => {
+    await mockDocLines(2);
+    const content = '  graph TD\n    A --> B  \n';
+    const html = await renderMermaid(content);
+    expect(html).toBe('<div class="mermaid">graph TD\n    A --&gt; B</div>');
+  });
+
+  it('should include line info attributes when lineInfo is true', async () => {
+    await mockDocLines(3);
+    const content = 'graph TD\n    A --> B\n    B --> C';
+    const html = await renderMermaid(content, true);
+    expect(html).toContain('data-line-from="0"');
+    expect(html).toContain('data-line-to="2"');
+  });
+
+  it('should not include line info attributes by default', async () => {
+    await mockDocLines(2);
+    const content = 'graph TD\n    A --> B';
+    const html = await renderMermaid(content);
+    expect(html).not.toContain('data-line-from');
+    expect(html).not.toContain('data-line-to');
+  });
+
+  it('should handle single-line content with lineInfo', async () => {
+    await mockDocLines(1);
+    const content = 'graph TD';
+    const html = await renderMermaid(content, true);
+    expect(html).toContain('data-line-from="0"');
+    expect(html).toContain('data-line-to="0"');
+  });
+
+  it('should not affect markdown mermaid rendering', async () => {
+    const md = '```mermaid\ngraph TD\n```';
+    const html = await renderMarkdown(md);
+    expect(html).toContain('<div class="mermaid"');
+  });
+});
+
+describe('renderKatex', () => {
+  it('should wrap content in a katex div', async () => {
+    await mockDocLines(1);
+    const content = 'E = mc^2';
+    const html = await renderKatex(content);
+    expect(html).toContain('<div class="katex">');
+    expect(html).toContain('</div>');
+  });
+
+  it('should render KaTeX HTML output', async () => {
+    await mockDocLines(1);
+    const content = 'x^2 + y^2 = z^2';
+    const html = await renderKatex(content);
+    expect(html).toContain('class="katex');
+  });
+
+  it('should handle invalid LaTeX gracefully', async () => {
+    await mockDocLines(1);
+    const content = '\\invalid{command}';
+    const html = await renderKatex(content);
+    expect(html).toContain('<div class="katex">');
+    // With throwOnError: false, KaTeX renders error spans instead of throwing
+    expect(html).toBeDefined();
+  });
+
+  it('should trim whitespace from content', async () => {
+    await mockDocLines(1);
+    const content = '  E = mc^2  \n';
+    const html = await renderKatex(content);
+    expect(html).toContain('class="katex');
+  });
+
+  it('should include line info attributes when lineInfo is true', async () => {
+    await mockDocLines(3);
+    const content = 'a + b = c';
+    const html = await renderKatex(content, true);
+    expect(html).toContain('data-line-from="0"');
+    expect(html).toContain('data-line-to="2"');
+  });
+
+  it('should not include line info attributes by default', async () => {
+    await mockDocLines(1);
+    const content = 'E = mc^2';
+    const html = await renderKatex(content);
+    expect(html).not.toContain('data-line-from');
+    expect(html).not.toContain('data-line-to');
+  });
+
+  it('should handle single-line content with lineInfo', async () => {
+    await mockDocLines(1);
+    const content = 'E = mc^2';
+    const html = await renderKatex(content, true);
+    expect(html).toContain('data-line-from="0"');
+    expect(html).toContain('data-line-to="0"');
+  });
+
+  it('should not affect markdown katex rendering', async () => {
+    const md = '$E = mc^2$';
+    const html = await renderMarkdown(md);
+    expect(html).toContain('class="katex');
   });
 });

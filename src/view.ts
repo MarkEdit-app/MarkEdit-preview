@@ -1,6 +1,6 @@
 import { MarkEdit } from 'markedit-api';
-import { appendStyle, getFileName, selectFullRange } from './utils';
-import { renderMarkdown, handlePostRender, applyStyles } from './render';
+import { appendStyle, getFileExtension, getFileName, selectFullRange } from './utils';
+import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './image';
 import { hidePreviewButtons, previewModes } from './settings';
 import { localized } from './strings';
@@ -247,6 +247,28 @@ export async function generateStaticHtml(styled: boolean) {
 
 async function getRenderedHtml(lineInfo = true) {
   const markdown = MarkEdit.editorAPI.getText();
+
+  if (__FULL_BUILD__) {
+    const fileType = await (async () => {
+      if (typeof MarkEdit.getFileInfo !== 'function') {
+        return undefined;
+      }
+
+      const fileInfo = await MarkEdit.getFileInfo();
+      return getFileExtension(fileInfo?.filePath);
+    })();
+
+    // The entire file is mermaid
+    if (fileType === '.mmd' || fileType === '.mermaid') {
+      return await renderMermaid(markdown, lineInfo);
+    }
+
+    // The entire file is KaTeX
+    if (fileType === '.tex') {
+      return await renderKatex(markdown, lineInfo);
+    }
+  }
+
   return await renderMarkdown(markdown, lineInfo);
 }
 
