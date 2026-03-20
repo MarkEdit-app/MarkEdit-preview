@@ -25,6 +25,11 @@ export function getFileName(filePath: string) {
   return fileName.split('.').slice(0, -1).join('.');
 }
 
+export function getFileExtension(filePath?: string) {
+  const index = filePath?.lastIndexOf('.');
+  return index === -1 ? '' : filePath?.slice(index).toLowerCase();
+}
+
 export function getClosestLine(node: Node) {
   return (node instanceof HTMLElement ? node : node.parentElement)?.closest('.cm-line') as HTMLElement | null;
 }

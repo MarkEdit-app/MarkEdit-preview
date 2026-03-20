@@ -25,7 +25,8 @@ export async function renderMarkdown(markdown: string, lineInfo = true) {
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
  */
 export async function renderMermaid(content: string, lineInfo = false) {
-  return renderStandalone('mermaid', mdit.utils.escapeHtml(content.trim()), lineInfo);
+  const html = mdit.utils.escapeHtml(content.trim());
+  return renderStandalone('mermaid', html, lineInfo);
 }
 
 /**
@@ -35,13 +36,8 @@ export async function renderMermaid(content: string, lineInfo = false) {
  */
 export async function renderKatex(content: string, lineInfo = false) {
   const katex = (await import('katex')).default;
-  const rendered = katex.renderToString(content.trim(), { displayMode: true, throwOnError: false });
-  return renderStandalone('katex', rendered, lineInfo);
-}
-
-async function renderStandalone(className: string, innerHtml: string, lineInfo: boolean) {
-  await pluginsReady;
-  return `<div class="${className}"${lineInfo ? ` data-line-from="0" data-line-to="${MarkEdit.editorView.state.doc.lines - 1}"` : ''}>${innerHtml}</div>`;
+  const html = katex.renderToString(content.trim(), { displayMode: true, throwOnError: false });
+  return renderStandalone('katex', html, lineInfo);
 }
 
 export function handlePostRender(process: () => void) {
@@ -101,6 +97,14 @@ export async function applyStyles(html: string) {
 
   return components.join('\n');
 }
+
+// Render the entire content as a standalone block
+const renderStandalone = async (className: string, innerHtml: string, lineInfo: boolean) => {
+  await pluginsReady;
+  const lineTo = () => MarkEdit.editorView.state.doc.lines - 1;
+  const lineAttrs = lineInfo ? ` data-line-from="0" data-line-to="${lineTo()}"` : '';
+  return `<div class="${className}"${lineAttrs}>${innerHtml}</div>`;
+};
 
 // Create the markdown-it instance
 const mdit = markdownit(markdownItPreset, {
