@@ -71,7 +71,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 
 - `updateBehavior`: `"quiet"` shows a button, `"notify"` shows an alert, `"never"` disables update checks.
 - `syncScroll`: Whether to enable scroll synchronization.
-- `hidePreviewButtons`: Whether to hide the built-in preview buttons in side-by-side mode (for lite build, hides table preview buttons only).
+- `hidePreviewButtons`: Whether to hide the built-in preview buttons in side-by-side mode (not applicable for lite build).
 - `syntaxAutoDetect`: Whether to enable automatic language detection for syntax highlighting in code blocks (not applicable for lite build).
 - `imageHoverPreview`: Whether to enable image preview on hover.
 - `themeName`: Set the preview color theme, available themes can be found in the [`styles/themes`](styles/themes) folder.

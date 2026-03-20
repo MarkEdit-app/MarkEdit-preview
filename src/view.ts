@@ -44,13 +44,6 @@ export function setUp() {
         display: none !important;
       }`);
     }
-  } else {
-    // For lite build, hide preview buttons under table wrapper in side-by-side mode
-    if (hidePreviewButtons) {
-      appendStyle(`.markdown-container .cm-md-tableWrapper .cm-md-previewWrapper {
-        display: none !important;
-      }`);
-    }
   }
 
   const dividerView = document.createElement('div');
