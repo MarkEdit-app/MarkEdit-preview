@@ -262,13 +262,13 @@ async function getRenderedHtml(lineInfo = true) {
 }
 
 async function isMermaidFile() {
-  const ext = await getFileExtension();
-  return ext === '.mmd' || ext === '.mermaid';
+  const extension = await getFileExtension();
+  return extension === '.mmd' || extension === '.mermaid';
 }
 
 async function isKatexFile() {
-  const ext = await getFileExtension();
-  return ext === '.tex';
+  const extension = await getFileExtension();
+  return extension === '.tex';
 }
 
 async function getFileExtension() {

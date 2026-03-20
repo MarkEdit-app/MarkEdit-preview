@@ -126,11 +126,11 @@ describe('renderMermaid', () => {
 });
 
 describe('renderKatex', () => {
-  it('should wrap content in a katex-block div', async () => {
+  it('should wrap content in a katex div', async () => {
     await mockDocLines(1);
     const content = 'E = mc^2';
     const html = await renderKatex(content);
-    expect(html).toContain('<div class="katex-block">');
+    expect(html).toContain('<div class="katex">');
     expect(html).toContain('</div>');
   });
 
@@ -145,7 +145,7 @@ describe('renderKatex', () => {
     await mockDocLines(1);
     const content = '\\invalid{command}';
     const html = await renderKatex(content);
-    expect(html).toContain('<div class="katex-block">');
+    expect(html).toContain('<div class="katex">');
     // With throwOnError: false, KaTeX renders error spans instead of throwing
     expect(html).toBeDefined();
   });
