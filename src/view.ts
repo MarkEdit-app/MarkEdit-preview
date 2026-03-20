@@ -38,9 +38,16 @@ export function setUp() {
     import('../styles/katex.css?raw').then(mod => appendStyle(mod.default));
     appendStyle(hljsCss());
 
-    // Hide the built-in preview button since we have a better preview with all features
+    // Hide the built-in preview buttons in side-by-side mode
     if (hidePreviewButtons) {
-      appendStyle(`.cm-md-previewWrapper {
+      appendStyle(`.markdown-container .cm-md-previewWrapper {
+        display: none !important;
+      }`);
+    }
+  } else {
+    // For lite build, hide preview buttons under table wrapper in side-by-side mode
+    if (hidePreviewButtons) {
+      appendStyle(`.markdown-container .cm-md-tableWrapper .cm-md-previewWrapper {
         display: none !important;
       }`);
     }
