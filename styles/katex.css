@@ -143,6 +143,7 @@
 .katex {
   font: normal 1.21em KaTeX_Main, Times New Roman, serif;
   line-height: 1.2;
+  position: relative;
   text-indent: 0;
   text-rendering: auto;
 }
@@ -153,7 +154,7 @@
   border-color: currentColor;
 }
 .katex .katex-version::after {
-  content: "0.16.33";
+  content: "0.16.40";
 }
 .katex .katex-mathml {
   /* Accessibility hack to only show to screen readers
@@ -335,6 +336,10 @@
 }
 .katex .mspace {
   display: inline-block;
+}
+.katex .smash {
+  display: inline;
+  line-height: 0;
 }
 .katex .llap,
 .katex .rlap,
