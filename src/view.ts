@@ -93,7 +93,7 @@ export function setUp() {
     event.preventDefault();
     event.stopPropagation();
 
-    const absolutePath = joinPaths(basePath, href);
+    const absolutePath = joinPaths(basePath, decodeURIComponent(href));
     await MarkEdit.openFile(absolutePath);
   });
 
