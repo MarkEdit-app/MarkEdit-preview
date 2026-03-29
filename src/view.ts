@@ -86,6 +86,7 @@ export function setUp() {
     }
 
     event.preventDefault();
+    event.stopPropagation();
 
     const basePath = (await MarkEdit.getFileInfo())?.parentPath;
     if (basePath === undefined) {
