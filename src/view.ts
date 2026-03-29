@@ -1,5 +1,5 @@
 import { MarkEdit } from 'markedit-api';
-import { appendStyle, getFileExtension, getFileName, selectFullRange } from './utils';
+import { appendStyle, getFileExtension, getFileName, isRelativePath, joinPaths, selectFullRange } from './utils';
 import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './image';
 import { hidePreviewButtons, previewModes } from './settings';
@@ -61,6 +61,39 @@ export function setUp() {
     if (event.metaKey && event.key === 'a' && document.activeElement !== MarkEdit.editorView.contentDOM) {
       selectFullRange(previewPane);
     }
+  });
+
+  // Delegate relative links to native file opening
+  previewPane.addEventListener('click', async event => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) {
+      return;
+    }
+
+    const anchor = target.closest('a');
+    if (anchor === null) {
+      return;
+    }
+
+    // Use getAttribute to get the raw href, not the resolved absolute URL
+    const href = anchor.getAttribute('href');
+    if (href === null || href === '' || !isRelativePath(href)) {
+      return;
+    }
+
+    if (typeof MarkEdit.getFileInfo !== 'function') {
+      return;
+    }
+
+    event.preventDefault();
+
+    const basePath = (await MarkEdit.getFileInfo())?.parentPath;
+    if (basePath === undefined) {
+      return;
+    }
+
+    const absolutePath = joinPaths(basePath, href);
+    await MarkEdit.openFile(absolutePath);
   });
 
   const mutationObserver = new MutationObserver(updateGutterStyle);
