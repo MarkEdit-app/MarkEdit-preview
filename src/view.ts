@@ -1,5 +1,5 @@
 import { MarkEdit } from 'markedit-api';
-import { appendStyle, getFileExtension, getFileName, selectFullRange } from './utils';
+import { appendStyle, getFileExtension, getFileName, joinPaths, selectFullRange } from './utils';
 import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './image';
 import { hidePreviewButtons, previewModes } from './settings';
@@ -75,6 +75,11 @@ export function setUp() {
       renderHtmlPreview();
     }
   });
+
+  // Delegate external links ("../link") to native file opening
+  if (typeof MarkEdit.getFileInfo === 'function') {
+    previewPane.addEventListener('click', handleExternalFiles);
+  }
 }
 
 export function setViewMode(mode: ViewMode, needsDisplay = true) {
@@ -289,6 +294,38 @@ async function saveGeneratedHtml(styled: boolean) {
 
   const string = await generateStaticHtml(styled);
   MarkEdit.showSavePanel({ fileName, string });
+}
+
+async function handleExternalFiles(event: MouseEvent) {
+  if (!(event.target instanceof Element)) {
+    return;
+  }
+
+  const anchor = event.target.closest('a');
+  if (anchor === null) {
+    return;
+  }
+
+  // We need to handle this because it is outside of the webpage root
+  const href = anchor.getAttribute('href');
+  if (!href?.startsWith('../')) {
+    return;
+  }
+
+  const basePath = (await MarkEdit.getFileInfo())?.parentPath;
+  if (basePath === undefined) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  try {
+    const absolutePath = joinPaths(basePath, decodeURIComponent(href));
+    await MarkEdit.openFile(absolutePath);
+  } catch (error) {
+    console.error('Failed to open file:', error);
+  }
 }
 
 const states: {
