@@ -85,13 +85,13 @@ export function setUp() {
       return;
     }
 
-    event.preventDefault();
-    event.stopPropagation();
-
     const basePath = (await MarkEdit.getFileInfo())?.parentPath;
     if (basePath === undefined) {
       return;
     }
+
+    event.preventDefault();
+    event.stopPropagation();
 
     const absolutePath = joinPaths(basePath, href);
     await MarkEdit.openFile(absolutePath);
