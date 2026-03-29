@@ -1,5 +1,5 @@
 import { MarkEdit } from 'markedit-api';
-import { appendStyle, getFileExtension, getFileName, isRelativePath, joinPaths, selectFullRange } from './utils';
+import { appendStyle, getFileExtension, getFileName, joinPaths, selectFullRange } from './utils';
 import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './image';
 import { hidePreviewButtons, previewModes } from './settings';
@@ -77,7 +77,7 @@ export function setUp() {
 
     // Use getAttribute to get the raw href, not the resolved absolute URL
     const href = anchor.getAttribute('href');
-    if (href === null || href === '' || !isRelativePath(href)) {
+    if (!href?.startsWith('../')) {
       return;
     }
 

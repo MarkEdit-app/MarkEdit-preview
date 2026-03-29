@@ -90,20 +90,6 @@ export function joinPaths(path1: string, path2: string) {
   return path1 + '/' + path2;
 }
 
-export function isRelativePath(href: string) {
-  // Anchor links
-  if (href.startsWith('#')) {
-    return false;
-  }
-
-  // Absolute URLs (http:, https:, mailto:, data:, etc.) or protocol-relative URLs
-  if (/^([a-z][a-z0-9+.-]*:|\/\/)/i.test(href)) {
-    return false;
-  }
-
-  return true;
-}
-
 export function stripQuotes(input: string) {
   if ((input.startsWith('"') && input.endsWith('"')) || (input.startsWith("'") && input.endsWith("'"))) {
     return input.slice(1, -1);
