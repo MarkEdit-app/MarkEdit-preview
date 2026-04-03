@@ -24,6 +24,7 @@
     "@typescript-eslint/parser": "^8.32.1",
     "cross-env": "^7.0.3",
     "eslint": "^9.27.0",
+    "happy-dom": "^20.8.9",
     "markedit-api": "https://github.com/MarkEdit-app/MarkEdit-api#v0.21.0",
     "markedit-vite": "https://github.com/MarkEdit-app/MarkEdit-vite#v0.4.0",
     "typescript": "^5.0.0",
@@ -33,6 +34,7 @@
   },
   "dependencies": {
     "katex": "^0.16.40",
+    "mark.js": "^8.11.1",
     "markdown-it": "^14.1.1",
     "markdown-it-anchor": "^9.2.0",
     "markdown-it-footnote": "^4.0.0",

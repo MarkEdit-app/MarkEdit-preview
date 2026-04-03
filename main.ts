@@ -27,6 +27,13 @@ import { imageHoverPreview, keyboardShortcut, updateBehavior } from './src/setti
 import { localized } from './src/strings';
 import { macOSTahoe } from './src/utils';
 
+import {
+  performSearch,
+  setSearchMatchIndex,
+  clearSearch,
+  searchCounterInfo,
+} from './src/search';
+
 if (window.__markeditPreviewInitialized__) {
   console.error('MarkEdit Preview has already been initialized. Multiple initializations may cause unexpected behavior.');
 } else {
@@ -44,6 +51,14 @@ if (window.__markeditPreviewInitialized__) {
 
 // Allow other extensions or scripts to generate the HTML
 window.MarkEditGetHtml ??= generateStaticHtml;
+
+// Expose bridge API for CoreEditor to call functions in the preview
+window.__markeditPreviewSPI__ = {
+  performSearch,
+  setSearchMatchIndex,
+  clearSearch,
+  searchCounterInfo,
+};
 
 MarkEdit.addMainMenuItem({
   title: localized('viewMode'),
