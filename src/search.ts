@@ -171,7 +171,7 @@ function updateStyles() {
   const { light, dark } = searchMatchColors[themeName] ?? searchMatchColors['github'];
   markStyleSheet.textContent = [
     `.${MARK_MATCH_CLASS} { background: ${light} !important; color: inherit !important; }`,
-    `.${MARK_HIGHLIGHTED_CLASS} { background: #ffff00 !important; color: #000000 !important; box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2); }`,
+    `.${MARK_HIGHLIGHTED_CLASS} { background: #ffff00 !important; color: #000000 !important; border-radius: 2px; box-shadow: 0px 0px 0px 2px #ffff00, 0px 0px 3px 2px rgba(0, 0, 0, 0.4); }`,
     '@media (prefers-color-scheme: dark) {',
     `  .${MARK_MATCH_CLASS} { background: ${dark} !important; }`,
     '}',
