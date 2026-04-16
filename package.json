@@ -33,7 +33,7 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
-    "katex": "^0.16.44",
+    "katex": "^0.16.45",
     "mark.js": "^8.11.1",
     "markdown-it": "^14.1.1",
     "markdown-it-anchor": "^9.2.0",
