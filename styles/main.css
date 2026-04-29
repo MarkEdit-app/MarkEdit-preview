@@ -31,10 +31,7 @@
 
 .markdown-body.overlay {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: var(--markedit-content-inset-left, 0);
+  inset: var(--markedit-content-inset, 0);
   display: block;
   z-index: 10000;
 }
