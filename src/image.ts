@@ -138,7 +138,7 @@ function removePreviewPanel(animated = true) {
   }
 
   states.focusedElement = undefined;
-  document.querySelectorAll(`.${previewClass}`).forEach((element: HTMLElement) => {
+  document.querySelectorAll<HTMLElement>(`.${previewClass}`).forEach((element: HTMLElement) => {
     if (animated) {
       element.style.opacity = '0';
       element.addEventListener(
