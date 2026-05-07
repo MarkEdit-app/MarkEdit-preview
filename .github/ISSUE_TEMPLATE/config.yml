@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: MarkEdit Main Repository
+    url: https://github.com/MarkEdit-app/MarkEdit
+    about: Find more information about MarkEdit on our GitHub repository.
+  - name: Mastodon
+    url: https://mastodon.social/@MarkEditApp
+    about: Follow our Mastodon account for the latest updates.
