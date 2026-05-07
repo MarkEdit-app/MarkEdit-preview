@@ -1,0 +1,50 @@
+name: Bug report
+description: Create a report to help us improve.
+title: '[Bug] '
+
+body:
+  - type: textarea
+    attributes:
+      label: Description
+      description: >-
+        Describe the issue clearly to help us investigate.
+      value: |
+        <!--
+
+        Before filing a new issue, please search the wiki at https://github.com/MarkEdit-app/MarkEdit/wiki and review existing issues at https://github.com/MarkEdit-app/MarkEdit-preview/issues?q=is%3Aissue first.
+
+        Please open issues in English so that more people can understand them and contribute effectively.
+
+        Please make sure you are using the latest builds of both MarkEdit and MarkEdit Preview.
+
+        Screenshots or screen recordings are highly helpful for rendering issues.
+
+        -->
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Sample Markdown
+      description: >-
+        Provide a sample Markdown content that reproduces the issue. This helps us identify and fix the problem more efficiently.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: MarkEdit Version
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: MarkEdit Preview Version
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: macOS Version
+    validations:
+      required: true
