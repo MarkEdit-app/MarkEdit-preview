@@ -134,7 +134,7 @@ mdit.use(mila, {
 
 // Extended syntaxes
 mdit.use(footnote);
-mdit.use(tasklist);
+mdit.use(tasklist, { enabled: true, label: true });
 mdit.use(githubAlerts);
 
 // Highlight.js and KaTeX, for full builds only

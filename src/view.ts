@@ -1,10 +1,12 @@
+import { Annotation } from '@codemirror/state';
 import { MarkEdit } from 'markedit-api';
-import { appendStyle, getFileExtension, getFileName, joinPaths, selectFullRange } from './utils';
+import { appendStyle, getBlockRange, getFileExtension, getFileName, joinPaths, selectFullRange } from './utils';
 import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './image';
 import { hidePreviewButtons, previewModes } from './settings';
 import { localized } from './strings';
 import { syncScrollProgress } from './scroll';
+import { resolveTaskToggle } from './task';
 import { ClassNames, CacheKeys } from './const';
 
 import Split from 'split-grid';
@@ -22,6 +24,9 @@ const draggingStyle = appendStyle(
   '* { cursor: col-resize }',
   false, // Enabled only when we drag, see onDragStart
 );
+
+// Transaction annotation for edits that should not trigger a preview re-render
+export const silentChange = Annotation.define<boolean>();
 
 export enum ViewMode {
   edit,
@@ -80,6 +85,8 @@ export function setUp() {
   if (typeof MarkEdit.getFileInfo === 'function') {
     previewPane.addEventListener('click', handleExternalFiles);
   }
+
+  previewPane.addEventListener('click', handleTaskItemToggle);
 }
 
 export function setViewMode(mode: ViewMode, needsDisplay = true) {
@@ -326,6 +333,37 @@ async function handleExternalFiles(event: MouseEvent) {
   } catch (error) {
     console.error('Failed to open file:', error);
   }
+}
+
+function handleTaskItemToggle(event: MouseEvent) {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement) || !target.classList.contains('task-list-item-checkbox')) {
+    return;
+  }
+
+  const block = target.closest<HTMLElement>('[data-line-from]');
+  if (block === null) {
+    console.error('Failed to find task item block');
+    return;
+  }
+
+  const editorAPI = MarkEdit.editorAPI;
+  const lineRange = editorAPI.getLineRange(getBlockRange(block).from);
+  const toggle = resolveTaskToggle(editorAPI.getText(lineRange));
+
+  // Source no longer matches; revert the native toggle to stay in sync
+  if (toggle === null) {
+    target.checked = !target.checked;
+    console.error('Failed to resolve task toggle');
+    return;
+  }
+
+  // Let the native toggle stand for instant feedback; just sync the source
+  const from = lineRange.from + toggle.offset;
+  MarkEdit.editorView.dispatch({
+    changes: { from, to: from + 1, insert: toggle.replacement },
+    annotations: silentChange.of(true),
+  });
 }
 
 const states: {
