@@ -44,6 +44,12 @@
   display: block;
 }
 
+.markdown-body .task-list-item-checkbox {
+  cursor: pointer;
+  width: 1.1em;
+  height: 1.1em;
+}
+
 .markdown-update-pill {
   position: fixed;
   top: 12px;

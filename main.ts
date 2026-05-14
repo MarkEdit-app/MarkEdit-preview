@@ -4,6 +4,7 @@ import type { MenuItem } from 'markedit-api';
 
 import {
   setUp,
+  silentChange,
   ViewMode,
   setViewMode,
   changeViewMode,
@@ -93,6 +94,10 @@ MarkEdit.addMainMenuItem({
 
 MarkEdit.addExtension(EditorView.updateListener.of(update => {
   if (!update.docChanged) {
+    return;
+  }
+
+  if (update.transactions.every(tr => tr.annotation(silentChange))) {
     return;
   }
 
