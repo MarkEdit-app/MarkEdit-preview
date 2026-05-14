@@ -1,5 +1,5 @@
 import { extractBackgroundColor } from './utils';
-import { themeName } from './settings';
+import { themeName, showRawHtml } from './settings';
 
 import githubBase from '../styles/themes/github/base.css?raw';
 import githubLight from '../styles/themes/github/light.css?raw';
@@ -63,6 +63,10 @@ const previewThemes: Record<string, ThemeVariants> = {
 };
 
 export function coreCss(colorScheme: ColorScheme = 'auto') {
+  if (showRawHtml) {
+    return '';
+  }
+
   const variants = previewThemes[themeName] ?? previewThemes['github'];
   const lightVariant = variants.light ?? variants.dark;
   const darkVariant = variants.dark ?? variants.light;
@@ -78,6 +82,15 @@ export function coreCss(colorScheme: ColorScheme = 'auto') {
 }
 
 export function previewThemeCss(colorScheme: ColorScheme = 'auto') {
+  if (showRawHtml) {
+    // System colors that follow color-scheme; needed because the WebView root is transparent.
+    const scheme = colorScheme === 'auto' ? 'light dark' : colorScheme;
+    return [
+      `:root { color-scheme: ${scheme}; }`,
+      'body, .markdown-body { background: Canvas; color: CanvasText; }',
+    ].join('\n');
+  }
+
   const variants = previewThemes[themeName] ?? previewThemes['github'];
   const light = (variants.light ?? variants.dark) as string;
   const dark = (variants.dark ?? variants.light) as string;

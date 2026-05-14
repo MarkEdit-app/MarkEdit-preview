@@ -32,6 +32,7 @@ export const hidePreviewButtons = toBoolean(rootValue.hidePreviewButtons);
 export const syntaxAutoDetect = toBoolean(rootValue.syntaxAutoDetect, false);
 export const imageHoverPreview = toBoolean(rootValue.imageHoverPreview, false);
 export const themeName = (rootValue.themeName ?? 'github') as string;
+export const showRawHtml = themeName === 'none';
 export const styledHtmlColorScheme = (rootValue.styledHtmlColorScheme ?? rootValue.styledHtmlTheme ?? 'auto') as ColorScheme; // styledHtmlTheme for backward compatibility
 export const mathDelimiters = rootValue.mathDelimiters;
 export const previewModes = (changeMode.modes ?? Constants.defaultModes) as string[];
