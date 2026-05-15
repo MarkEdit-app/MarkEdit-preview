@@ -1,24 +1,16 @@
-import type MarkdownIt from 'markdown-it';
+import { load as parseYaml, CORE_SCHEMA as schema } from 'js-yaml';
 import extractFrontMatter from 'markdown-it-front-matter';
-import { parseFrontMatter, parseYamlLite } from './parser';
+import type MarkdownIt from 'markdown-it';
 
 /**
- * Self-contained markdown-it plugin that extracts YAML frontMatter
- * and renders it as an HTML table.
+ * Markdown-it plugin that extracts YAML frontMatter and renders it as an HTML table.
  */
-export async function createFrontMatterPlugin(): Promise<MarkdownIt.PluginSimple> {
-  let parseYaml = parseYamlLite;
-  if (__FULL_BUILD__) {
-    // Additional 100 KB bundle size increase
-    parseYaml = (await import('yaml')).parse;
-  }
-
+export function createFrontMatterPlugin(): MarkdownIt.PluginSimple {
   return (mdit) => {
-    // The extractFrontMatter callback runs during tokenization, before the renderer
-    // rule fires, so passing state via this closure is safe per-render.
+    // Closure state is safe: the extract callback and the renderer rule fire in the same synchronous pass.
     let renderedHtml = '';
     mdit.use(extractFrontMatter, (raw: string) => {
-      const metadata = parseFrontMatter(raw, parseYaml);
+      const metadata = parseFrontMatter(raw);
       if (metadata !== undefined) {
         renderedHtml = renderMappingRows(metadata, mdit.utils.escapeHtml);
       } else {
@@ -35,6 +27,24 @@ export async function createFrontMatterPlugin(): Promise<MarkdownIt.PluginSimple
       return `<table class="markdown-frontMatter"${attrs}>\n${renderedHtml}\n</table>\n`;
     };
   };
+}
+
+/**
+ * Parse a YAML frontMatter block.
+ *
+ * Returns undefined for malformed YAML, non-mapping roots, and empty mappings.
+ */
+export function parseFrontMatter(raw: string): Record<string, unknown> | undefined {
+  try {
+    const parsed: unknown = parseYaml(raw, { schema });
+    if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed) && Object.keys(parsed).length > 0) {
+      return parsed as Record<string, unknown>;
+    }
+  } catch {
+    // Silently ignore malformed YAML
+  }
+
+  return undefined;
 }
 
 function renderMappingRows(mapping: Record<string, unknown>, escape: EscapeHtmlFn): string {
@@ -76,6 +86,15 @@ function formatValue(value: unknown, escape: EscapeHtmlFn): string {
   return escape(String(value));
 }
 
+function formatDate(date: Date): string {
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const iso = date.toISOString();
+  return iso.endsWith('T00:00:00.000Z') ? iso.slice(0, 10) : iso;
+}
+
 function isPrimitiveLike(value: unknown): boolean {
   if (value === null || value === undefined || value instanceof Date) {
     return true;
@@ -83,16 +102,6 @@ function isPrimitiveLike(value: unknown): boolean {
 
   const type = typeof value;
   return type === 'string' || type === 'number' || type === 'boolean' || type === 'bigint';
-}
-
-/** Format a Date for display. Returns '' for invalid Date instances. */
-export function formatDate(date: Date): string {
-  if (Number.isNaN(date.getTime())) {
-    return '';
-  }
-
-  const iso = date.toISOString();
-  return iso.endsWith('T00:00:00.000Z') ? iso.slice(0, 10) : iso;
 }
 
 type EscapeHtmlFn = (input: string) => string;

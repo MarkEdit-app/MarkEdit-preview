@@ -118,9 +118,7 @@ const mdit = markdownit(markdownItPreset, {
 const pluginInits: Promise<void>[] = [];
 
 // Front matter
-pluginInits.push(
-  createFrontMatterPlugin().then(mod => { mdit.use(mod); }),
-);
+mdit.use(createFrontMatterPlugin());
 
 // Link attributes
 mdit.use(anchor);
