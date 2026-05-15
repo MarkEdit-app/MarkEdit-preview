@@ -119,7 +119,7 @@ const pluginInits: Promise<void>[] = [];
 
 // Front matter
 pluginInits.push(
-  createFrontMatterPlugin(mdit).then(mod => { mdit.use(mod); }),
+  createFrontMatterPlugin().then(mod => { mdit.use(mod); }),
 );
 
 // Link attributes
