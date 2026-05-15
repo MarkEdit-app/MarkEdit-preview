@@ -21,19 +21,19 @@ import {
   generateStaticHtml,
 } from './src/view';
 
-import { enableHoverPreview } from './src/image';
+import { enableHoverPreview } from './src/features/image';
 import { startObserving } from './src/scroll';
-import { checkForUpdates, renderUpdatePill } from './src/updater';
-import { imageHoverPreview, keyboardShortcut, updateBehavior } from './src/settings';
-import { localized } from './src/strings';
-import { macOSTahoe } from './src/utils';
+import { checkForUpdates, renderUpdatePill } from './src/support/updater';
+import { imageHoverPreview, keyboardShortcut, updateBehavior } from './src/support/settings';
+import { localized } from './src/shared/strings';
+import { macOSTahoe } from './src/shared/utils';
 
 import {
   performSearch,
   setSearchMatchIndex,
   clearSearch,
   searchCounterInfo,
-} from './src/search';
+} from './src/features/search';
 
 if (window.__markeditPreviewInitialized__) {
   console.error('MarkEdit Preview has already been initialized. Multiple initializations may cause unexpected behavior.');

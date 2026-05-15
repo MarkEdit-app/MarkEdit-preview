@@ -1,13 +1,13 @@
 import { Annotation } from '@codemirror/state';
 import { MarkEdit } from 'markedit-api';
-import { appendStyle, getBlockRange, getFileExtension, getFileName, joinPaths, selectFullRange } from './utils';
+import { appendStyle, getBlockRange, getFileExtension, getFileName, joinPaths, selectFullRange } from './shared/utils';
 import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles } from './render';
-import { replaceImageURLs } from './image';
-import { hidePreviewButtons, previewModes } from './settings';
-import { localized } from './strings';
+import { replaceImageURLs } from './features/image';
+import { hidePreviewButtons, previewModes } from './support/settings';
+import { localized } from './shared/strings';
 import { syncScrollProgress } from './scroll';
-import { resolveTaskToggle } from './task';
-import { ClassNames, CacheKeys } from './const';
+import { resolveTaskToggle } from './features/task';
+import { ClassNames, CacheKeys } from './shared/const';
 
 import Split from 'split-grid';
 import type { SplitInstance as Splitter } from 'split-grid';

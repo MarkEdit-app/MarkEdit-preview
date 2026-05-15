@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { parse as yamlParse } from 'yaml';
-import { parseFrontMatter, parseYamlLite } from '../src/frontMatter/parser';
-import { formatDate } from '../src/frontMatter';
+import { parseFrontMatter, parseYamlLite } from '../src/features/frontMatter/parser';
+import { formatDate } from '../src/features/frontMatter';
 
 describe('parseFrontMatter (validation)', () => {
   it('returns the parsed mapping for an object root', () => {

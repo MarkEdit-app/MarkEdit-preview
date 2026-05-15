@@ -1,6 +1,6 @@
 import Mark from 'mark.js';
-import { currentViewMode, getPreviewPane, ViewMode } from './view';
-import { themeName } from './settings';
+import { currentViewMode, getPreviewPane, ViewMode } from '../view';
+import { themeName } from '../support/settings';
 
 const MARK_MATCH_CLASS = 'markedit-preview-mark';
 const MARK_HIGHLIGHTED_CLASS = 'markedit-preview-mark-highlighted';

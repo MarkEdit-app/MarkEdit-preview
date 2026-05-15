@@ -1,7 +1,7 @@
 import { MarkEdit } from 'markedit-api';
 import type { JSONObject, JSONValue } from 'markedit-api';
 import type { PresetName } from 'markdown-it';
-import type { ColorScheme } from './styling';
+import type { ColorScheme } from '../shared/types';
 
 const Constants = {
   rootValueKey: 'extension.markeditPreview',
