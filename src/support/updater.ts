@@ -1,8 +1,8 @@
 import { MarkEdit } from 'markedit-api';
 import { updateBehavior } from './settings';
-import { localized } from './strings';
-import { currentViewMode, ViewMode } from './view';
-import { ClassNames } from './const';
+import { localized } from '../shared/strings';
+import { currentViewMode, ViewMode } from '../view';
+import { ClassNames } from '../shared/const';
 
 /**
  * Based on GitHub Releases API.

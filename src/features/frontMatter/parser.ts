@@ -1,4 +1,4 @@
-import { stripQuotes } from '../utils';
+import { stripQuotes } from '../../shared/utils';
 
 export type ParseYamlFn = (raw: string) => unknown;
 

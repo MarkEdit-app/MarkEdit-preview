@@ -1,6 +1,6 @@
 import { MarkEdit } from 'markedit-api';
-import { getClosestLine, getBlockRange, getElementTop, scrollToElement, scrollToPosition } from './utils';
-import { syncScroll } from './settings';
+import { getClosestLine, getBlockRange, getElementTop, scrollToElement, scrollToPosition } from './shared/utils';
+import { syncScroll } from './support/settings';
 
 export function startObserving(sourcePane: HTMLElement, targetPane: HTMLElement) {
   if (!syncScroll) {

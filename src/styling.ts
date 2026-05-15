@@ -1,5 +1,6 @@
-import { extractBackgroundColor } from './utils';
-import { themeName, showRawHtml } from './settings';
+import { extractBackgroundColor } from './shared/utils';
+import { themeName, showRawHtml } from './support/settings';
+import type { ColorScheme } from './shared/types';
 
 import githubBase from '../styles/themes/github/base.css?raw';
 import githubLight from '../styles/themes/github/light.css?raw';
@@ -31,7 +32,6 @@ import codeCopyBase from '../styles/code-copy/base.css?raw';
 import codeCopyLight from '../styles/code-copy/light.css?raw';
 import codeCopyDark from '../styles/code-copy/dark.css?raw';
 
-export type ColorScheme = 'light' | 'dark' | 'auto';
 export type PreviewTheme = typeof previewThemeNames[number];
 
 export const previewThemeNames = [

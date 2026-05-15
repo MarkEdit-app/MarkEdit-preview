@@ -6,10 +6,10 @@ import tasklist from 'markdown-it-task-lists';
 import githubAlerts from 'markdown-it-github-alerts';
 
 import { MarkEdit } from 'markedit-api';
-import { createFrontMatterPlugin } from './frontMatter';
+import { createFrontMatterPlugin } from './features/frontMatter';
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
-import { localized } from './strings';
-import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPreset, markdownItOptions } from './settings';
+import { localized } from './shared/strings';
+import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPreset, markdownItOptions } from './support/settings';
 
 /**
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.

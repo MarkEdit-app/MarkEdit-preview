@@ -1,5 +1,5 @@
 import { MarkEdit } from 'markedit-api';
-import { isLocalImagePath, joinPaths } from './utils';
+import { isLocalImagePath, joinPaths } from '../shared/utils';
 
 const parser = new DOMParser();
 const scheme = 'image-loader';

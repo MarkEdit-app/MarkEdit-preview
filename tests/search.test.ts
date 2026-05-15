@@ -37,7 +37,7 @@ vi.mock('mark.js', () => ({
   },
 }));
 
-vi.mock('../src/settings', () => ({ themeName: 'github' }));
+vi.mock('../src/support/settings', () => ({ themeName: 'github' }));
 
 vi.mock('../src/view', () => ({
   ViewMode: { edit: 'edit', sideBySide: 'side-by-side', preview: 'preview' },
@@ -45,7 +45,7 @@ vi.mock('../src/view', () => ({
   getPreviewPane: vi.fn(() => mockViewState.pane),
 }));
 
-import { performSearch, setSearchMatchIndex, clearSearch, searchCounterInfo } from '../src/search';
+import { performSearch, setSearchMatchIndex, clearSearch, searchCounterInfo } from '../src/features/search';
 
 const baseOptions = {
   search: 'hello',

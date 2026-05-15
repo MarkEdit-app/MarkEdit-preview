@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderMarkdown } from '../src/render';
-import { resolveTaskToggle } from '../src/task';
+import { resolveTaskToggle } from '../src/features/task';
 
 vi.mock('markedit-api', () => ({ MarkEdit: {} }));
 

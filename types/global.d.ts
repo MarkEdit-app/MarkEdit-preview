@@ -1,4 +1,4 @@
-import type { SearchOptions, SearchCounterInfo } from '../src/search';
+import type { SearchOptions, SearchCounterInfo } from '../src/features/search';
 
 declare global {
   interface Window {
