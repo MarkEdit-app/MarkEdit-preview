@@ -254,7 +254,7 @@ export function getPreviewPane() {
 
 export async function generateStaticHtml(styled: boolean) {
   const html = await getRenderedHtml(false);
-  return styled ? (await applyStyles(html)) : html;
+  return styled ? (await applyStyles(html)) : `<meta charset="UTF-8">\n${html}`;
 }
 
 async function getRenderedHtml(lineInfo = true) {
