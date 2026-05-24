@@ -257,6 +257,15 @@ export async function generateStaticHtml(styled: boolean) {
   return styled ? (await applyStyles(html)) : `<meta charset="UTF-8">\n${html}`;
 }
 
+/**
+ * Render arbitrary markdown to HTML, mirroring `generateStaticHtml`
+ * but using the provided input instead of the current document.
+ */
+export async function renderStaticHtml(markdown: string, styled: boolean) {
+  const html = await renderMarkdown(markdown, false);
+  return styled ? (await applyStyles(html)) : `<meta charset="UTF-8">\n${html}`;
+}
+
 async function getRenderedHtml(lineInfo = true) {
   const markdown = MarkEdit.editorAPI.getText();
 

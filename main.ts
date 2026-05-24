@@ -19,6 +19,7 @@ import {
   getEditPane,
   getPreviewPane,
   generateStaticHtml,
+  renderStaticHtml,
 } from './src/view';
 
 import { enableHoverPreview } from './src/features/image';
@@ -52,6 +53,7 @@ if (window.__markeditPreviewInitialized__) {
 
 // Allow other extensions or scripts to generate the HTML
 window.MarkEditGetHtml ??= generateStaticHtml;
+window.MarkEditRenderHtml ??= renderStaticHtml;
 
 // Expose bridge API for CoreEditor to call functions in the preview
 window.__markeditPreviewSPI__ = {
