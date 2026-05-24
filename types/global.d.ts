@@ -10,6 +10,7 @@ declare global {
       searchCounterInfo(): SearchCounterInfo | undefined;
     };
     MarkEditGetHtml: (styled: boolean) => Promise<string>;
+    MarkEditRenderHtml: (markdown: string, styled: boolean) => Promise<string>;
   }
 }
 
