@@ -62,8 +62,14 @@ export function setUp() {
   containerView.appendChild(previewPane);
 
   document.addEventListener('keydown', event => {
-    // Cmd-a to select the preview pane, if the editor is not focused
-    if (event.metaKey && event.key === 'a' && document.activeElement !== MarkEdit.editorView.contentDOM) {
+    if (!event.metaKey || event.key !== 'a') {
+      return;
+    }
+
+    // Cmd-a to select the preview pane, if the editor is not focused.
+    // Fall back to `.cm-content` for lite hosts where `editorView` is absent.
+    const contentDOM = MarkEdit.editorView?.contentDOM ?? document.querySelector<HTMLElement>('.cm-content');
+    if (document.activeElement !== contentDOM) {
       selectFullRange(previewPane);
     }
   });

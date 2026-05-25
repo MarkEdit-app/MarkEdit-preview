@@ -17,6 +17,8 @@ type LocalizableKeys = {
   viewReleasePage: string;
   remindMeLater: string;
   skipThisVersion: string;
+  source: string;
+  preview: string;
 };
 
 const strings: Record<Locale, Localizable> = {
@@ -39,6 +41,8 @@ const strings: Record<Locale, Localizable> = {
     viewReleasePage: 'View Release Page',
     remindMeLater: 'Remind Me Later',
     skipThisVersion: 'Skip This Version',
+    source: 'Source',
+    preview: 'Preview',
   },
   'zh-CN': {
     viewMode: '视图模式',
@@ -59,6 +63,8 @@ const strings: Record<Locale, Localizable> = {
     viewReleasePage: '查看发布页面',
     remindMeLater: '稍后提醒我',
     skipThisVersion: '跳过这个版本',
+    source: '源码',
+    preview: '预览',
   },
   'zh-TW': {
     viewMode: '視圖模式',
@@ -79,6 +85,8 @@ const strings: Record<Locale, Localizable> = {
     viewReleasePage: '檢視釋出頁面',
     remindMeLater: '稍後提醒我',
     skipThisVersion: '跳過這個版本',
+    source: '原始碼',
+    preview: '預覽',
   },
 };
 

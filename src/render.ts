@@ -9,6 +9,7 @@ import { MarkEdit } from 'markedit-api';
 import { createFrontMatterPlugin } from './features/frontMatter';
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './shared/strings';
+import { hasFullHost } from './support/host';
 import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPreset, markdownItOptions } from './support/settings';
 
 /**
@@ -132,7 +133,7 @@ mdit.use(mila, {
 
 // Extended syntaxes
 mdit.use(footnote);
-mdit.use(tasklist, { enabled: true, label: true });
+mdit.use(tasklist, { enabled: hasFullHost(), label: true });
 mdit.use(githubAlerts);
 
 // Highlight.js and KaTeX, for full builds only
