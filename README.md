@@ -1,6 +1,6 @@
 # MarkEdit-preview
 
-Markdown preview for MarkEdit that leverages [markedit-api](https://github.com/MarkEdit-app/MarkEdit-api).
+Markdown preview for [MarkEdit](https://github.com/MarkEdit-app/MarkEdit) that leverages [markedit-api](https://github.com/MarkEdit-app/MarkEdit-api).
 
 ## Installation
 
