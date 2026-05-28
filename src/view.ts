@@ -82,7 +82,7 @@ export function setUp() {
   });
 
   // Delegate external links ("../link") to native file opening
-  if (typeof MarkEdit.getFileInfo === 'function') {
+  if (typeof MarkEdit.getFileInfo === 'function' && typeof MarkEdit.openFile === 'function') {
     previewPane.addEventListener('click', handleExternalFiles);
   }
 
