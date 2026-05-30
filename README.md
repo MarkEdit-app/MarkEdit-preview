@@ -69,7 +69,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 }
 ```
 
-- `updateBehavior`: `"quiet"` shows a button, `"notify"` shows an alert, `"never"` disables update checks.
+- `updateBehavior`: `"automatic"` downloads and installs the latest build in place, `"quiet"` shows a button, `"notify"` shows an alert, `"never"` disables update checks.
 - `syncScroll`: Whether to enable scroll synchronization.
 - `hidePreviewButtons`: Whether to hide the built-in preview buttons in side-by-side mode (not applicable for lite build).
 - `syntaxAutoDetect`: Whether to enable automatic language detection for syntax highlighting in code blocks (not applicable for lite build).
@@ -83,7 +83,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `markdownIt.options`: Customize [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) options.
 
 > [!TIP]
-> 
+>
 > Extension settings require MarkEdit 1.24.0 or later.
 >
 > To add menu items to the toolbar, see MarkEdit [Customization](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#editorcustomtoolbaritems) wiki.

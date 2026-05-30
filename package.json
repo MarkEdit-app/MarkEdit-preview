@@ -5,7 +5,7 @@
   "scripts": {
     "test": "vitest run",
     "lint": "eslint . --config eslint.config.mjs",
-    "build": "yarn lint && vite build",
+    "build": "yarn lint && vite build && rm -f ~/Library/Group\\ Containers/group.app.cyan.markedit/Shared/scripts/$(node -p \"require('./package.json').name\").js",
     "build:lite": "cross-env LITE_BUILD=true vite build",
     "reload": "osascript -e 'quit app \"MarkEdit\"' -e 'delay 1' -e 'launch app \"MarkEdit\"'",
     "uninstall": "rm ~/Library/Containers/app.cyan.markedit/Data/Documents/scripts/$(node -p \"require('./package.json').name\").js"

@@ -8,8 +8,7 @@ describe('shouldCopy', () => {
   it('copies when dest is missing', () => {
     expect(shouldCopy({
       destExists: false,
-      bundleInfo: { version: VERSION, size: 1000 },
-      sourceFileSize: 1000,
+      bundleInfo: { version: VERSION, fullBuild: true },
       currentVersion: VERSION,
     })).toBe(true);
   });
@@ -18,7 +17,6 @@ describe('shouldCopy', () => {
     expect(shouldCopy({
       destExists: true,
       bundleInfo: undefined,
-      sourceFileSize: 1000,
       currentVersion: VERSION,
     })).toBe(true);
   });
@@ -26,35 +24,31 @@ describe('shouldCopy', () => {
   it('copies when versions differ', () => {
     expect(shouldCopy({
       destExists: true,
-      bundleInfo: { version: '0.9.0', size: 1000 },
-      sourceFileSize: 1000,
+      bundleInfo: { version: '0.9.0', fullBuild: true },
       currentVersion: VERSION,
     })).toBe(true);
   });
 
-  it('copies when size delta crosses the threshold (lite vs full swap)', () => {
+  it('copies when the build variant differs (lite vs full swap)', () => {
     expect(shouldCopy({
       destExists: true,
-      bundleInfo: { version: VERSION, size: 256_000 },
-      sourceFileSize: 4_960_000,
+      bundleInfo: { version: VERSION, fullBuild: false },
       currentVersion: VERSION,
     })).toBe(true);
   });
 
-  it('copies when stored size is missing', () => {
+  it('copies when stored variant is missing', () => {
     expect(shouldCopy({
       destExists: true,
       bundleInfo: { version: VERSION },
-      sourceFileSize: 1000,
       currentVersion: VERSION,
     })).toBe(true);
   });
 
-  it('skips when version matches and size delta is small', () => {
+  it('skips when version matches and variant is unchanged', () => {
     expect(shouldCopy({
       destExists: true,
-      bundleInfo: { version: VERSION, size: 1_000_000 },
-      sourceFileSize: 1_100_000,
+      bundleInfo: { version: VERSION, fullBuild: true },
       currentVersion: VERSION,
     })).toBe(false);
   });

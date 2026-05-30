@@ -24,12 +24,12 @@ import {
 
 import { enableHoverPreview } from './src/features/image';
 import { startObserving } from './src/scroll';
-import { checkForUpdates, renderUpdatePill } from './src/support/updater';
+import { checkForUpdates, checkForUpdatesThrottled, downloadLatestBuild, fetchLatestRelease, renderUpdatePill } from './src/support/updater';
 import { imageHoverPreview, keyboardShortcut, updateBehavior } from './src/support/settings';
 import { hasFullHost } from './src/support/host';
 import { copyToSharedContainer, setUpQuickLook } from './src/quicklook';
 import { localized } from './src/shared/strings';
-import { macOSTahoe } from './src/shared/utils';
+import { macOSTahoe, hasFilePathInfo } from './src/shared/utils';
 
 import {
   performSearch,
@@ -44,16 +44,20 @@ if (window.__markeditPreviewInitialized__) {
   setUp();
 
   if (hasFullHost()) {
-    setTimeout(checkForUpdates, 4000);
-
-    // Copy self to the shared container so extensions can use it
+    // onAppReady is ensured to be called once per app lifecycle
     if (typeof MarkEdit.onAppReady === 'function') {
-      MarkEdit.onAppReady(copyToSharedContainer);
+      MarkEdit.onAppReady(() => {
+        copyToSharedContainer();
+        setTimeout(() => void checkForUpdates(), 2000);
+      });
+    } else {
+      // No onAppReady: this runs on every document load, so throttle it
+      setTimeout(() => void checkForUpdatesThrottled(), 4000);
     }
 
-    if (updateBehavior === 'quiet') {
-      // Checks for updates every 7 days when in quiet mode
-      setInterval(checkForUpdates, 604800000);
+    if (updateBehavior === 'automatic' || updateBehavior === 'quiet') {
+      // Checks for updates every 7 days when in automatic or quiet mode
+      setInterval(() => void checkForUpdates(), 604800000);
     }
   } else {
     // Minimal UI for lite hosts, like the preview extension
@@ -105,6 +109,17 @@ if (hasFullHost()) {
         title: `${localized('checkReleases')} (GitHub)`,
         action: () => open('https://github.com/MarkEdit-app/MarkEdit-preview/releases/latest'),
       },
+      ...(hasFilePathInfo() ? [{
+        title: localized('updateAndRelaunch'),
+        action: async () => {
+          const release = await fetchLatestRelease();
+          if (await downloadLatestBuild(release.tag_name)) {
+            MarkEdit.relaunchApp();
+          } else {
+            MarkEdit.showAlert(localized('failedToUpdate'));
+          }
+        },
+      }] : []),
     ],
   });
 
@@ -133,7 +148,7 @@ if (hasFullHost()) {
     restoreViewMode();
 
     // For empty new drafts only, avoid using preview because it looks confusing
-    requestAnimationFrame(async() => {
+    requestAnimationFrame(async () => {
       if (document.visibilityState === 'visible' && currentViewMode() === ViewMode.preview && typeof MarkEdit.getFileInfo === 'function') {
         const isDraft = (await MarkEdit.getFileInfo())?.filePath === undefined;
         if (isDraft && MarkEdit.editorAPI.getText().length === 0) {
