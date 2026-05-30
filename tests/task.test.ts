@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { renderMarkdown } from '../src/render';
 import { resolveTaskToggle } from '../src/features/task';
 
-vi.mock('markedit-api', () => ({ MarkEdit: {} }));
+vi.mock('markedit-api', () => ({ MarkEdit: { addExtension: () => {} } }));
 
 describe('task list rendering', () => {
   it('renders enabled checkboxes (not disabled)', async () => {

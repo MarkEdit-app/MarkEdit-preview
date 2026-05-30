@@ -1,0 +1,193 @@
+body {
+  --editor-inset-top: 34px;
+}
+
+/* Force scrolling bounces */
+.cm-scroller > .cm-content {
+  min-height: calc(100% + 1px);
+}
+
+.quicklook .markdown-body.overlay > .quicklook-content {
+  display: flow-root;
+  zoom: 0.9;
+  min-height: calc(100% + 1px);
+}
+
+/* Links are not interactive in quicklook */
+.quicklook .markdown-body a,
+.quicklook .markdown-body a:hover {
+  text-decoration: none;
+  cursor: text;
+}
+
+.quicklook .markdown-body.overlay {
+  top: var(--editor-inset-top);
+  overscroll-behavior: contain;
+}
+
+.quicklook-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--editor-inset-top);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.15s ease;
+  z-index: 10001;
+}
+
+.quicklook-toolbar.scrolled {
+  backdrop-filter: saturate(200%) blur(20px);
+  background: rgba(248, 248, 250, 0.8);
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+.quicklook-segmented {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.07);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.quicklook-segment {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.85);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  min-width: 64px;
+}
+
+.quicklook-segment:hover:not(.active) {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.quicklook-segment.active {
+  background: #ffffff;
+  color: #000000;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+/* Compact layout: hide the toolbar and show floating buttons */
+@media (max-width: 580px) {
+  body {
+    --editor-inset-top: 0px;
+  }
+
+  .quicklook .markdown-body.overlay {
+    top: 0;
+    padding: 12px;
+  }
+
+  .quicklook .markdown-body.overlay > .quicklook-content {
+    zoom: 0.8;
+  }
+
+  .quicklook-toolbar {
+    top: 6px;
+    left: auto;
+    right: 8px;
+    height: auto;
+    background: transparent !important;
+    border-bottom: none !important;
+    backdrop-filter: none !important;
+    transition: none;
+    pointer-events: none;
+  }
+
+  /* Gradient behind the buttons, when content scrolls */
+  .quicklook-toolbar::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: linear-gradient(to bottom, rgba(250, 250, 252, 0.95), rgba(250, 250, 252, 0));
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .quicklook-toolbar.scrolled-far::before {
+    opacity: 1;
+  }
+
+  .quicklook-segmented {
+    pointer-events: auto;
+    padding: 0;
+    gap: 2px;
+    overflow: hidden;
+    background: rgba(242, 242, 245, 0.85);
+    backdrop-filter: saturate(180%) blur(12px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    border: 0.5px solid rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+  }
+
+  .quicklook-segment {
+    font-size: 11px;
+    padding: 2px 4px;
+    min-width: 0;
+    border-radius: 4px;
+  }
+
+  .quicklook-segment.active {
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .quicklook-toolbar.scrolled {
+    background: rgba(28, 28, 30, 0.6);
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .quicklook-segmented {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .quicklook-segment {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .quicklook-segment:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .quicklook-segment.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@media (prefers-color-scheme: dark) and (max-width: 580px) {
+  .quicklook-toolbar::before {
+    background: linear-gradient(to bottom, rgba(18, 22, 28, 0.95), rgba(18, 22, 28, 0));
+  }
+
+  .quicklook-segmented {
+    background: rgba(40, 40, 42, 0.85);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    border-color: rgba(128, 128, 128, 0.15);
+  }
+
+  .quicklook-segment.active {
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.45);
+  }
+}

@@ -1,3 +1,5 @@
+import { MarkEdit } from 'markedit-api';
+
 export function macOSTahoe() {
   const match = navigator.userAgent.match(/macOS\/(\d+)/);
   return match === null ? false : parseInt(match[1]) >= 26;
@@ -88,4 +90,19 @@ export function joinPaths(path1: string, path2: string) {
   }
 
   return path1 + '/' + path2;
+}
+
+export async function parseJSON(path: string): Promise<Record<string, unknown>> {
+  const raw = await MarkEdit.getFileContent(path);
+  if (raw === undefined) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return typeof parsed === 'object' && parsed !== null ? (parsed as Record<string, unknown>) : {};
+  } catch (error) {
+    console.error(`Failed to parse JSON from ${path}:`, error);
+    return {};
+  }
 }

@@ -41,7 +41,7 @@ function getScrollProgress(container: HTMLElement, paddingTop: number = 0) {
   const lineRect = element.getBoundingClientRect();
 
   const offset = containerRect.top - lineRect.top - paddingTop;
-  const progress = clampProgressValue(offset / lineRect.height);
+  const progress = lineRect.height > 0 ? clampProgressValue(offset / lineRect.height) : 0;
   return { line, progress };
 }
 

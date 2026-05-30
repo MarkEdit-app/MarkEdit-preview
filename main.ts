@@ -26,6 +26,8 @@ import { enableHoverPreview } from './src/features/image';
 import { startObserving } from './src/scroll';
 import { checkForUpdates, renderUpdatePill } from './src/support/updater';
 import { imageHoverPreview, keyboardShortcut, updateBehavior } from './src/support/settings';
+import { hasFullHost } from './src/support/host';
+import { copyToSharedContainer, setUpQuickLook } from './src/quicklook';
 import { localized } from './src/shared/strings';
 import { macOSTahoe } from './src/shared/utils';
 
@@ -40,11 +42,22 @@ if (window.__markeditPreviewInitialized__) {
   console.error('MarkEdit Preview has already been initialized. Multiple initializations may cause unexpected behavior.');
 } else {
   setUp();
-  setTimeout(checkForUpdates, 4000);
 
-  if (updateBehavior === 'quiet') {
-    // Checks for updates every 7 days when in quiet mode
-    setInterval(checkForUpdates, 604800000);
+  if (hasFullHost()) {
+    setTimeout(checkForUpdates, 4000);
+
+    // Copy self to the shared container so extensions can use it
+    if (typeof MarkEdit.onAppReady === 'function') {
+      MarkEdit.onAppReady(copyToSharedContainer);
+    }
+
+    if (updateBehavior === 'quiet') {
+      // Checks for updates every 7 days when in quiet mode
+      setInterval(checkForUpdates, 604800000);
+    }
+  } else {
+    // Minimal UI for lite hosts, like the preview extension
+    setUpQuickLook(getPreviewPane());
   }
 
   // Global flag to prevent multiple initializations
@@ -63,82 +76,84 @@ window.__markeditPreviewSPI__ = {
   searchCounterInfo,
 };
 
-MarkEdit.addMainMenuItem({
-  title: localized('viewMode'),
-  icon: macOSTahoe() ? 'eye' : undefined,
-  children: [
-    {
-      title: localized('changeMode'),
-      action: () => {
-        changeViewMode();
-        renderDecorationViews();
+if (hasFullHost()) {
+  MarkEdit.addMainMenuItem({
+    title: localized('viewMode'),
+    icon: macOSTahoe() ? 'eye' : undefined,
+    children: [
+      {
+        title: localized('changeMode'),
+        action: () => {
+          changeViewMode();
+          renderDecorationViews();
+        },
+        key: (keyboardShortcut['key'] ?? 'V') as string,
+        modifiers: (keyboardShortcut['modifiers'] ?? ['Command']) as MenuItem['modifiers'],
       },
-      key: (keyboardShortcut['key'] ?? 'V') as string,
-      modifiers: (keyboardShortcut['modifiers'] ?? ['Command']) as MenuItem['modifiers'],
-    },
-    { separator: true },
-    createModeItem(localized('editMode'), ViewMode.edit),
-    createModeItem(localized('sideBySideMode'), ViewMode.sideBySide),
-    createModeItem(localized('previewMode'), ViewMode.preview),
-    { separator: true },
-    ...createHtmlItems(),
-    { separator: true },
-    {
-      title: `${localized('version')} ${__PKG_VERSION__}`,
-      action: () => open(`https://github.com/MarkEdit-app/MarkEdit-preview/releases/tag/v${__PKG_VERSION__}`),
-    },
-    {
-      title: `${localized('checkReleases')} (GitHub)`,
-      action: () => open('https://github.com/MarkEdit-app/MarkEdit-preview/releases/latest'),
-    },
-  ],
-});
-
-MarkEdit.addExtension(EditorView.updateListener.of(update => {
-  if (!update.docChanged) {
-    return;
-  }
-
-  if (update.transactions.every(tr => tr.annotation(silentChange))) {
-    return;
-  }
-
-  if (states.renderUpdater !== undefined) {
-    clearTimeout(states.renderUpdater);
-  }
-
-  states.renderUpdater = setTimeout(renderHtmlPreview, 500);
-}));
-
-MarkEdit.onEditorReady(() => {
-  if (imageHoverPreview) {
-    enableHoverPreview(MarkEdit.editorView.scrollDOM);
-  }
-
-  // Restore to the last view mode, if available
-  restoreViewMode();
-
-  // For empty new drafts only, avoid using preview because it looks confusing
-  requestAnimationFrame(async() => {
-    if (document.visibilityState === 'visible' && currentViewMode() === ViewMode.preview && typeof MarkEdit.getFileInfo === 'function') {
-      const isDraft = (await MarkEdit.getFileInfo())?.filePath === undefined;
-      if (isDraft && MarkEdit.editorAPI.getText().length === 0) {
-        setViewMode(ViewMode.edit, false);
-      }
-    }
+      { separator: true },
+      createModeItem(localized('editMode'), ViewMode.edit),
+      createModeItem(localized('sideBySideMode'), ViewMode.sideBySide),
+      createModeItem(localized('previewMode'), ViewMode.preview),
+      { separator: true },
+      ...createHtmlItems(),
+      { separator: true },
+      {
+        title: `${localized('version')} ${__PKG_VERSION__}`,
+        action: () => open(`https://github.com/MarkEdit-app/MarkEdit-preview/releases/tag/v${__PKG_VERSION__}`),
+      },
+      {
+        title: `${localized('checkReleases')} (GitHub)`,
+        action: () => open('https://github.com/MarkEdit-app/MarkEdit-preview/releases/latest'),
+      },
+    ],
   });
 
-  renderHtmlPreview();
-  renderDecorationViews();
-  startObserving(getEditPane(), getPreviewPane());
+  MarkEdit.addExtension(EditorView.updateListener.of(update => {
+    if (!update.docChanged) {
+      return;
+    }
 
-  if (states.keyDownListener !== undefined) {
-    document.removeEventListener('keydown', states.keyDownListener);
-  }
+    if (update.transactions.every(tr => tr.annotation(silentChange))) {
+      return;
+    }
 
-  states.keyDownListener = event => handlePageZoom(event);
-  document.addEventListener('keydown', states.keyDownListener);
-});
+    if (states.renderUpdater !== undefined) {
+      clearTimeout(states.renderUpdater);
+    }
+
+    states.renderUpdater = setTimeout(renderHtmlPreview, 500);
+  }));
+
+  MarkEdit.onEditorReady(() => {
+    if (imageHoverPreview) {
+      enableHoverPreview(MarkEdit.editorView.scrollDOM);
+    }
+
+    // Restore to the last view mode, if available
+    restoreViewMode();
+
+    // For empty new drafts only, avoid using preview because it looks confusing
+    requestAnimationFrame(async() => {
+      if (document.visibilityState === 'visible' && currentViewMode() === ViewMode.preview && typeof MarkEdit.getFileInfo === 'function') {
+        const isDraft = (await MarkEdit.getFileInfo())?.filePath === undefined;
+        if (isDraft && MarkEdit.editorAPI.getText().length === 0) {
+          setViewMode(ViewMode.edit, false);
+        }
+      }
+    });
+
+    renderHtmlPreview();
+    renderDecorationViews();
+    startObserving(getEditPane(), getPreviewPane());
+
+    if (states.keyDownListener !== undefined) {
+      document.removeEventListener('keydown', states.keyDownListener);
+    }
+
+    states.keyDownListener = event => handlePageZoom(event);
+    document.addEventListener('keydown', states.keyDownListener);
+  });
+}
 
 function createModeItem(title: string, mode: ViewMode): MenuItem {
   return {
