@@ -82,7 +82,11 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `markdownIt.preset`: Override the default [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) preset.
 - `markdownIt.options`: Customize [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) options.
 
+> [!TIP]
+> 
 > Extension settings require MarkEdit 1.24.0 or later.
+>
+> To add menu items to the toolbar, see MarkEdit [Customization](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#editorcustomtoolbaritems) wiki.
 
 ## Contribution
 
