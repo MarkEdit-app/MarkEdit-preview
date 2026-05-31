@@ -5,7 +5,7 @@ import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyl
 import { replaceImageURLs } from './features/image';
 import { hidePreviewButtons, previewModes } from './support/settings';
 import { localized } from './shared/strings';
-import { syncScrollProgress } from './scroll';
+import { syncScrollProgress, invalidateBlockCache, warmBlockCache } from './scroll';
 import { resolveTaskToggle } from './features/task';
 import { ClassNames, CacheKeys } from './shared/const';
 
@@ -184,6 +184,11 @@ export async function renderHtmlPreview() {
 
   const html = replaceImageURLs(await getRenderedHtml());
   previewPane.innerHTML = html;
+  invalidateBlockCache();
+  requestAnimationFrame(() => {
+    warmBlockCache(previewPane);
+    syncScrollProgress(getEditPane(), previewPane, false);
+  });
 
   handlePostRender(() => {
     syncScrollProgress(
