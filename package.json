@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "js-yaml": "^4.1.1",
-    "katex": "^0.16.47",
+    "katex": "^0.17.0",
     "mark.js": "^8.11.1",
     "markdown-it": "^14.2.0",
     "markdown-it-anchor": "^9.2.0",
