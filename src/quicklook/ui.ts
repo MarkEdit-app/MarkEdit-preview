@@ -1,7 +1,7 @@
 import { createToolbar } from './toolbar';
 import { currentMode, saveMode } from './mode';
 import { getEditorText } from './editor';
-import { interceptPinchZoom, interceptDragging, interceptWheelEvent, trackToolbarSeparator } from './scroll';
+import { interceptForceTouch, interceptPinchZoom, interceptDragging, interceptWheelEvent, trackToolbarSeparator } from './interaction';
 import { renderMarkdown, handlePostRender } from '../render';
 import { replaceImageURLs } from '../features/image';
 import { appendStyle } from '../shared/utils';
@@ -54,6 +54,7 @@ export function setUpQuickLook(previewPane: HTMLElement) {
     }
   });
 
+  interceptForceTouch();
   interceptPinchZoom(currentMode, previewPane);
   interceptDragging(currentMode, previewPane);
   interceptWheelEvent(currentMode, previewPane, toolbar);
@@ -103,6 +104,14 @@ function createRenderer(previewPane: HTMLElement): {
       try {
         const innerHTML = replaceImageURLs(await renderMarkdown(getEditorText(), false));
         previewPane.innerHTML = `<div class="quicklook-content">${innerHTML}</div>`;
+
+        // Links aren't interactive in quicklook; drop href so WebKit treats them
+        // as selectable plain text.
+        previewPane.querySelectorAll('a[href]').forEach(anchor => {
+          anchor.removeAttribute('href');
+          anchor.removeAttribute('target');
+        });
+
         handlePostRender(() => {});
         rendered = true;
       } catch (error) {

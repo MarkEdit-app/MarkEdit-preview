@@ -15,9 +15,14 @@ body {
 
 /* Links are not interactive in quicklook */
 .quicklook .markdown-body a,
-.quicklook .markdown-body a:hover {
+.quicklook .markdown-body a:hover,
+.quicklook .markdown-body a:not([href]) {
+  color: var(--fgColor-accent);
   text-decoration: none;
   cursor: text;
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: none;
 }
 
 .quicklook .markdown-body.overlay {

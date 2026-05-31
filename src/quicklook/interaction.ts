@@ -1,6 +1,19 @@
 import type { Mode } from './mode';
 
 /**
+ * Disable the force-touch deep press (link preview / look up) on links, while
+ * keeping it available for normal text.
+ */
+export function interceptForceTouch() {
+  document.addEventListener('webkitmouseforcewillbegin', event => {
+    const target = event.target;
+    if (target instanceof Element && target.closest('a') !== null) {
+      event.preventDefault();
+    }
+  });
+}
+
+/**
  * Redirect pinch-zoom to the preview pane in preview mode by overriding the
  * `pinchZoomTarget` resolver from `@light`.
  */
