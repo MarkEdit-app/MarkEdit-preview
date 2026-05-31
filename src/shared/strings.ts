@@ -13,10 +13,12 @@ type LocalizableKeys = {
   update: string;
   version: string;
   checkReleases: string;
+  updateAndRelaunch: string;
   newVersionAvailable: string;
   viewReleasePage: string;
   remindMeLater: string;
   skipThisVersion: string;
+  failedToUpdate: string;
   source: string;
   preview: string;
 };
@@ -37,10 +39,12 @@ const strings: Record<Locale, Localizable> = {
     update: 'Update',
     version: 'Version',
     checkReleases: 'Check Releases',
+    updateAndRelaunch: 'Update and Relaunch',
     newVersionAvailable: 'is available!',
     viewReleasePage: 'View Release Page',
     remindMeLater: 'Remind Me Later',
     skipThisVersion: 'Skip This Version',
+    failedToUpdate: 'Failed to update. Please try again later.',
     source: 'Source',
     preview: 'Preview',
   },
@@ -59,10 +63,12 @@ const strings: Record<Locale, Localizable> = {
     update: '更新',
     version: '版本',
     checkReleases: '查看版本',
+    updateAndRelaunch: '更新并重新启动',
     newVersionAvailable: '已发布！',
     viewReleasePage: '查看发布页面',
     remindMeLater: '稍后提醒我',
     skipThisVersion: '跳过这个版本',
+    failedToUpdate: '更新失败，请稍后再试。',
     source: '源码',
     preview: '预览',
   },
@@ -81,10 +87,12 @@ const strings: Record<Locale, Localizable> = {
     update: '更新',
     version: '版本',
     checkReleases: '檢視版本',
+    updateAndRelaunch: '更新並重新啟動',
     newVersionAvailable: '已釋出！',
     viewReleasePage: '檢視釋出頁面',
     remindMeLater: '稍後提醒我',
     skipThisVersion: '跳過這個版本',
+    failedToUpdate: '更新失敗，請稍後再試。',
     source: '原始碼',
     preview: '預覽',
   },

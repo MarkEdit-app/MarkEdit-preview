@@ -3,23 +3,21 @@ import { joinPaths, parseJSON } from '../shared/utils';
 
 const METADATA_KEY = 'markedit-preview';
 const DEFAULT_FILE_NAME = `${METADATA_KEY}.js`;
-const BUNDLE_SIZE_THRESHOLD = 2_000_000;
 
 /**
  * Decide whether the source bundle needs to be (re)written into the shared
  * container — true when the dest is missing, the version changed, or the
- * deployed bundle size differs noticeably (catches lite vs full swaps).
+ * build variant (lite vs full) changed.
  */
 export function shouldCopy(params: {
   destExists: boolean;
-  bundleInfo: { version?: string; size?: number } | undefined;
-  sourceFileSize: number;
+  bundleInfo: { version?: string; fullBuild?: boolean } | undefined;
   currentVersion: string;
 }): boolean {
-  const { destExists, bundleInfo, sourceFileSize, currentVersion } = params;
+  const { destExists, bundleInfo, currentVersion } = params;
   const sameVersion = bundleInfo?.version === currentVersion;
-  const similarSize = typeof bundleInfo?.size === 'number' && Math.abs(bundleInfo.size - sourceFileSize) < BUNDLE_SIZE_THRESHOLD;
-  return !(destExists && sameVersion && similarSize);
+  const sameVariant = bundleInfo?.fullBuild === __FULL_BUILD__;
+  return !(destExists && sameVersion && sameVariant);
 }
 
 /**
@@ -27,7 +25,7 @@ export function shouldCopy(params: {
  * to the App Group shared container, so the Quick Look Extension can load it.
  *
  * Skipped when the stored version matches `__PKG_VERSION__` and the deployed
- * bundle size is close to what we last wrote (catches lite vs full swaps).
+ * build variant (lite vs full) is unchanged.
  */
 export async function copyToSharedContainer() {
   try {
@@ -58,12 +56,11 @@ export async function copyToSharedContainer() {
     // For metadata check
     const metadataPath = joinPaths(sharedContainerDir, 'Shared/metadata.json');
     const metadataJSON = await parseJSON(metadataPath);
-    const bundleInfo = metadataJSON[METADATA_KEY] as { version?: string; size?: number } | undefined;
+    const bundleInfo = metadataJSON[METADATA_KEY] as { version?: string; fullBuild?: boolean } | undefined;
 
     if (!shouldCopy({
       destExists,
       bundleInfo,
-      sourceFileSize: sourceInfo.fileSize,
       currentVersion: __PKG_VERSION__,
     })) {
       return;
@@ -95,7 +92,7 @@ export async function copyToSharedContainer() {
         ...metadataJSON,
         [METADATA_KEY]: {
           version: __PKG_VERSION__,
-          size: sourceInfo.fileSize,
+          fullBuild: __FULL_BUILD__,
         },
       }, null, 2),
       overwrites: true,

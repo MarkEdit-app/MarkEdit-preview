@@ -305,7 +305,7 @@ function updateGutterStyle() {
 }
 
 async function saveGeneratedHtml(styled: boolean) {
-  const fileName = await (async() => {
+  const fileName = await (async () => {
     const info = await MarkEdit.getFileInfo();
     if (info === undefined) {
       return `${localized('untitled')}.html`;

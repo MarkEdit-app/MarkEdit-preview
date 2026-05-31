@@ -2,6 +2,7 @@ import { MarkEdit } from 'markedit-api';
 import { updateBehavior } from './settings';
 import { localized } from '../shared/strings';
 import { currentViewMode, ViewMode } from '../view';
+import { hasFilePathInfo } from '../shared/utils';
 import { ClassNames } from '../shared/const';
 
 /**
@@ -10,6 +11,7 @@ import { ClassNames } from '../shared/const';
 interface Release {
   name: string;
   body: string;
+  tag_name: string;
   html_url: string;
 }
 
@@ -18,20 +20,12 @@ export async function checkForUpdates() {
     return;
   }
 
-  const currentTime = Date.now();
-  const lastCheckTime = Number(localStorage.getItem(Constants.lastCheckCacheKey) ?? '0');
-  if (currentTime - lastCheckTime < 259200000) {
-    // Checked within the last 3 days
+  const release = await fetchLatestRelease();
+  if (typeof release.tag_name !== 'string') {
+    // Invalid response
     return;
   }
 
-  localStorage.setItem(
-    Constants.lastCheckCacheKey,
-    String(currentTime),
-  );
-
-  const response = await fetch(Constants.latestReleaseURL);
-  const release = await response.json() as Release;
   if (release.name === __PKG_VERSION__) {
     // Up to date
     return;
@@ -42,11 +36,72 @@ export async function checkForUpdates() {
     return;
   }
 
-  if (updateBehavior === 'quiet') {
+  if (updateBehavior === 'automatic' && hasFilePathInfo()) {
+    await downloadLatestBuild(release.tag_name);
+  } else if (updateBehavior === 'quiet') {
     states.pendingRelease = release;
     renderUpdatePill(release);
   } else {
     presentUpdateAlert(release);
+  }
+}
+
+export async function checkForUpdatesThrottled() {
+  const currentTime = Date.now();
+  const lastCheckTime = Number(localStorage.getItem(Constants.lastCheckCacheKey) ?? '0');
+
+  // Checked within the last 3 days
+  if (currentTime - lastCheckTime < 259200000) {
+    return;
+  }
+
+  try {
+    await checkForUpdates();
+    localStorage.setItem(Constants.lastCheckCacheKey, String(currentTime));
+  } catch (error) {
+    console.error('Failed to check for updates:', error);
+  }
+}
+
+/**
+ * Fetches the latest release information from GitHub API.
+ */
+export async function fetchLatestRelease(): Promise<Release> {
+  const response = await fetch(Constants.latestReleaseURL);
+  return await response.json() as Release;
+}
+
+/**
+ * Download the build for the given release tag matching the current variant
+ * (lite or full) and overwrite the current script in place. Returns true on success.
+ */
+export async function downloadLatestBuild(tagName?: string): Promise<boolean> {
+  if (typeof __FILE_PATH__ !== 'string') {
+    console.error('Cannot download the latest build: unknown file path');
+    return false;
+  }
+
+  try {
+    const filePath = __FILE_PATH__;
+    const variantPath = __FULL_BUILD__ ? '' : 'lite/';
+    const branchPath = tagName === undefined ? 'main' : `refs/tags/${encodeURIComponent(tagName)}`;
+    const downloadURL = `${Constants.rawBaseURL}${branchPath}/dist/${variantPath}markedit-preview.js`;
+    const response = await fetch(downloadURL);
+
+    if (!response.ok) {
+      console.error(`Failed to download the latest build from ${downloadURL}`);
+      return false;
+    }
+
+    const content = await response.text();
+    return await MarkEdit.createFile({
+      path: filePath,
+      string: content,
+      overwrites: true,
+    });
+  } catch (error) {
+    console.error('Failed to download the latest build:', error);
+    return false;
   }
 }
 
@@ -80,13 +135,15 @@ export function renderUpdatePill(release = states.pendingRelease): HTMLButtonEle
       newPill.remove();
     });
 
+    const [primaryAction, ...otherActions] = actions;
     const rect = newPill.getBoundingClientRect();
     const location = { x: rect.left, y: rect.bottom + 10 };
 
     MarkEdit.showContextMenu([
       { title },
+      primaryAction,
       { separator: true },
-      ...actions,
+      ...otherActions,
     ], location);
   });
 
@@ -108,6 +165,18 @@ async function presentUpdateAlert(release: Release) {
 function updateUserInfo(release: Release, onDismiss = () => {}) {
   const title = `MarkEdit-preview ${release.name} ${localized('newVersionAvailable')}`;
   const actions = [
+    ...(hasFilePathInfo() ? [{
+      title: localized('updateAndRelaunch'),
+      action: async () => {
+        if (await downloadLatestBuild(release.tag_name)) {
+          MarkEdit.relaunchApp();
+        } else {
+          MarkEdit.showAlert(localized('failedToUpdate'));
+        }
+
+        onDismiss();
+      },
+    }] : []),
     {
       title: localized('viewReleasePage'),
       action: () => {
@@ -140,6 +209,7 @@ function skippedVersions(): Set<string> {
 
 const Constants = {
   latestReleaseURL: 'https://api.github.com/repos/MarkEdit-app/MarkEdit-preview/releases/latest',
+  rawBaseURL: 'https://raw.githubusercontent.com/MarkEdit-app/MarkEdit-preview/',
   lastCheckCacheKey: 'updater.last-check-time',
   skippedCacheKey: 'updater.skipped-versions',
 };

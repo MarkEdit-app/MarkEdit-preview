@@ -15,7 +15,7 @@ const rootValue = toObject(userSettings[Constants.rootValueKey]);
 const changeMode = toObject(rootValue.changeMode);
 const markdownIt = toObject(rootValue.markdownIt);
 
-const updateBehaviors = ['quiet', 'notify', 'never'] as const;
+const updateBehaviors = ['automatic', 'quiet', 'notify', 'never'] as const;
 export type UpdateBehavior = (typeof updateBehaviors)[number];
 
 export const updateBehavior: UpdateBehavior = (() => {
