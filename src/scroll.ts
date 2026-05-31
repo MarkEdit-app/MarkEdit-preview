@@ -1,3 +1,13 @@
+
+/**
+ * Called by the WYSIWYG module after each preview re-render to signal that
+ * any cached block-position data should be discarded.
+ *
+ * This is a no-op in the base implementation. If PR #121 (BlockEntry cache
+ * optimisation) is merged first, this stub will be replaced by the real
+ * invalidation function in that PR.
+ */
+export function invalidateBlockCache(): void { /* no-op */ }
 import { MarkEdit } from 'markedit-api';
 import { getClosestLine, getBlockRange, getElementTop, scrollToElement, scrollToPosition } from './shared/utils';
 import { syncScroll } from './support/settings';

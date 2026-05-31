@@ -13,6 +13,7 @@ import Split from 'split-grid';
 import type { SplitInstance as Splitter } from 'split-grid';
 
 import mainCss from '../styles/main.css?raw';
+import toolbarCss from '../styles/toolbar.css?raw';
 import { previewThemeCss, hljsCss, codeCopyCss } from './styling';
 
 const containerView = document.body;
@@ -38,6 +39,7 @@ export function setUp() {
   appendStyle(mainCss);
   appendStyle(previewThemeCss());
   appendStyle(codeCopyCss());
+  appendStyle(toolbarCss);
 
   if (__FULL_BUILD__) {
     import('../styles/katex.css?raw').then(mod => appendStyle(mod.default));
@@ -177,7 +179,19 @@ export function currentViewMode() {
   return states.viewMode;
 }
 
+/**
+ * Lock/unlock rendering. Called by the WYSIWYG module to suppress re-renders
+ * during editing so the user's cursor position is not destroyed.
+ */
+export function setWysiwygEditLock(locked: boolean): void {
+  states.wysiwygEditLock = locked;
+}
+
 export async function renderHtmlPreview() {
+  // Suppress re-render while the user is editing in the WYSIWYG pane.
+  if (states.wysiwygEditLock) {
+    return;
+  }
   if (currentViewMode() === ViewMode.edit) {
     return;
   }
@@ -384,7 +398,9 @@ function handleTaskItemToggle(event: MouseEvent) {
 const states: {
   viewMode: ViewMode;
   splitter: Splitter | undefined;
+  wysiwygEditLock: boolean;
 } = {
   viewMode: ViewMode.edit,
   splitter: undefined,
+  wysiwygEditLock: false,
 };

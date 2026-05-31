@@ -30,6 +30,7 @@ import { hasFullHost } from './src/support/host';
 import { copyToSharedContainer, setUpQuickLook } from './src/quicklook';
 import { localized } from './src/shared/strings';
 import { macOSTahoe, hasFilePathInfo } from './src/shared/utils';
+import { enableWysiwyg, disableWysiwyg, isWysiwyg } from './src/wysiwyg';
 
 import {
   performSearch,
@@ -102,6 +103,13 @@ if (hasFullHost()) {
       ...createHtmlItems(),
       { separator: true },
       {
+        title: 'WYSIWYG Editing',
+        action: toggleWysiwyg,
+        // state requires MarkEdit 1.24.0+
+        state: () => ({ isSelected: isWysiwyg() }),
+      },
+      { separator: true },
+      {
         title: `${localized('version')} ${__PKG_VERSION__}`,
         action: () => open(`https://github.com/MarkEdit-app/MarkEdit-preview/releases/tag/v${__PKG_VERSION__}`),
       },
@@ -168,6 +176,18 @@ if (hasFullHost()) {
     states.keyDownListener = event => handlePageZoom(event);
     document.addEventListener('keydown', states.keyDownListener);
   });
+}
+
+function toggleWysiwyg() {
+  if (isWysiwyg()) {
+    disableWysiwyg();
+  } else {
+    // WYSIWYG requires an active preview pane — switch to side-by-side if needed
+    if (currentViewMode() === ViewMode.edit) {
+      setViewMode(ViewMode.sideBySide, true);
+    }
+    enableWysiwyg();
+  }
 }
 
 function createModeItem(title: string, mode: ViewMode): MenuItem {

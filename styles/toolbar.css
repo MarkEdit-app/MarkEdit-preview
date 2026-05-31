@@ -1,0 +1,72 @@
+/* ── WYSIWYG Formatting Toolbar ─────────────────────────────────────────────
+   Positioned sticky at the top of .markdown-body so it stays in view as
+   the user scrolls. Only rendered when WYSIWYG mode is active.           */
+
+.wysiwyg-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 10px;
+  margin: -25px -25px 20px -25px; /* bleed to edges of markdown-body padding */
+  position: sticky;
+  top: -25px; /* compensate for parent padding */
+  z-index: 999;
+  background: var(--toolbar-bg, rgba(246, 246, 246, 0.94));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--toolbar-border, rgba(0,0,0,0.1));
+  user-select: none;
+  flex-wrap: wrap;
+}
+
+.wysiwyg-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 26px;
+  padding: 0 6px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--toolbar-fg, #333);
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.wysiwyg-btn:hover {
+  background: var(--toolbar-hover, rgba(0,0,0,0.08));
+}
+
+.wysiwyg-btn:active {
+  background: var(--toolbar-active, rgba(0,0,0,0.14));
+}
+
+.wysiwyg-sep {
+  display: inline-block;
+  width: 1px;
+  height: 18px;
+  margin: 0 4px;
+  background: var(--toolbar-border, rgba(0,0,0,0.15));
+  flex-shrink: 0;
+}
+
+/* Cursor cue that the preview is editable */
+.markdown-body.wysiwyg-active {
+  cursor: text;
+  outline: none;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .wysiwyg-toolbar {
+    --toolbar-bg: rgba(36, 36, 36, 0.94);
+    --toolbar-border: rgba(255,255,255,0.1);
+    --toolbar-fg: #ddd;
+    --toolbar-hover: rgba(255,255,255,0.1);
+    --toolbar-active: rgba(255,255,255,0.18);
+  }
+}
