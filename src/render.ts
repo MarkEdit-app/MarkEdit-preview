@@ -67,7 +67,7 @@ export async function applyStyles(html: string) {
     stylify(coreCss(styledHtmlColorScheme)),
     stylify(previewThemeCss(styledHtmlColorScheme)),
     stylify(alertsCss(styledHtmlColorScheme)),
-    stylify(codeCopyCss(styledHtmlColorScheme)),
+    stylify(codeCopyCss()),
     '</body></html>',
   ];
 

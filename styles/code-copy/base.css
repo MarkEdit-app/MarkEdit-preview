@@ -8,11 +8,20 @@
   right: 6px;
   opacity: 0;
   transition: opacity 0.2s, background 0.2s;
-  border: none;
+  border: 1px solid var(--borderColor-default, ButtonBorder);
   border-radius: 8px;
   padding: 6px 7px;
-  background: none;
+  background: var(--bgColor-muted, Canvas);
+  color: var(--fgColor-muted, GrayText);
 
   /* Prevent elements from moving during opacity changes in Safari */
   will-change: opacity, background;
+}
+
+.code-copy-button:hover {
+  background: var(--bgColor-neutral-muted, ButtonFace);
+}
+
+.code-copy-button:active {
+  background: var(--borderColor-default, ButtonBorder);
 }
