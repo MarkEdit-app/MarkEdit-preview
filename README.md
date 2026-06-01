@@ -88,6 +88,10 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 >
 > To add menu items to the toolbar, see MarkEdit [Customization](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#editorcustomtoolbaritems) wiki.
 
+## Community Extensions
+
+- [Direct Preview](https://github.com/Squarelight-ai/markedit-direct-preview) (by [@Squarelight-ai](https://github.com/Squarelight-ai)): A setup helper that provides a one-click setup for a two-mode Edit/Preview toggle by configuring the toolbar item and `changeMode.modes` for you.
+
 ## Contribution
 
 Pull requests are welcome, but please discuss the proposal before making changes. This helps avoid misunderstandings and saves effort on both sides.
