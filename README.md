@@ -84,7 +84,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 
 > [!TIP]
 >
-> Extension settings require MarkEdit 1.24.0 or later.
+> In MarkEdit 1.33.0 or later, this extension also provides preview support in [Quick Look](https://github.com/MarkEdit-app/MarkEdit/wiki/Manual#quick-look-extension).
 >
 > To add menu items to the toolbar, see MarkEdit [Customization](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#editorcustomtoolbaritems) wiki.
 
