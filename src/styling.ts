@@ -29,8 +29,6 @@ import hljsBase from '../styles/hljs/base.css?raw';
 import hljsDark from '../styles/hljs/dark.css?raw';
 
 import codeCopyBase from '../styles/code-copy/base.css?raw';
-import codeCopyLight from '../styles/code-copy/light.css?raw';
-import codeCopyDark from '../styles/code-copy/dark.css?raw';
 
 export type PreviewTheme = typeof previewThemeNames[number];
 
@@ -116,13 +114,8 @@ export function hljsCss(colorScheme: ColorScheme = 'auto') {
   return createCss(colorScheme, hljsBase, hljsDark).join('\n');
 }
 
-export function codeCopyCss(colorScheme: ColorScheme = 'auto') {
-  const styles = [
-    codeCopyBase,
-    ...createCss(colorScheme, codeCopyLight, codeCopyDark),
-  ];
-
-  return styles.join('\n');
+export function codeCopyCss() {
+  return codeCopyBase;
 }
 
 function createCss(colorScheme: ColorScheme, lightCss: string, darkCss: string): string[] {
