@@ -1873,7 +1873,11 @@ ${u}`}async function su(e=!0){const n=H.MarkEdit.editorAPI.getText();return awai
 .quicklook .markdown-body.overlay > .quicklook-content {
   display: flow-root;
   zoom: 0.9;
-  min-height: calc(100% + 1px);
+
+  /* Pull content under the toolbar (scroller stays inset to keep its scrollbar clear) */
+  margin-top: calc(-1 * var(--editor-inset-top) / 0.9) !important;
+  /* Restore the height the negative margin removed so bouncing stays in the pane, not the page */
+  min-height: calc(100% + var(--editor-inset-top) / 0.9 + 1px);
 }
 
 /* Links are not interactive in quicklook */
