@@ -66,11 +66,13 @@ export function setUp() {
       return;
     }
 
-    // Cmd-a to select the preview pane, if the editor is not focused.
+    // Cmd-a to select the preview pane when it's the active surface: the
+    // overlay is shown, or focus isn't in the editor (e.g. side-by-side).
     // Fall back to `.cm-content` for lite hosts where `editorView` is absent.
     const contentDOM = MarkEdit.editorView?.contentDOM ?? document.querySelector<HTMLElement>('.cm-content');
-    if (document.activeElement !== contentDOM) {
+    if (previewPane.classList.contains('overlay') || document.activeElement !== contentDOM) {
       selectFullRange(previewPane);
+      event.preventDefault();
     }
   });
 
