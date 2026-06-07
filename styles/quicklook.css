@@ -12,9 +12,9 @@ body {
   zoom: 0.9;
 
   /* Pull content under the toolbar (scroller stays inset to keep its scrollbar clear) */
-  margin-top: calc(-1 * var(--editor-inset-top) / 0.9) !important;
+  margin-top: calc(-1 * var(--editor-inset-top) * 0.9 / var(--quicklook-zoom, 0.9)) !important;
   /* Restore the height the negative margin removed so bouncing stays in the pane, not the page */
-  min-height: calc(100% + var(--editor-inset-top) / 0.9 + 1px);
+  min-height: calc(100% + var(--editor-inset-top) + 1px);
 }
 
 /* Links are not interactive in quicklook */
