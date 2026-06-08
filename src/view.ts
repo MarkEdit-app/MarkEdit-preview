@@ -5,7 +5,7 @@ import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyl
 import { replaceImageURLs } from './features/image';
 import { hidePreviewButtons, previewModes } from './support/settings';
 import { localized } from './shared/strings';
-import { syncScrollProgress } from './scroll';
+import { syncScrollProgress, suppressScrollSync, resumeScrollSync } from './scroll';
 import { resolveTaskToggle } from './features/task';
 import { ClassNames, CacheKeys } from './shared/const';
 
@@ -378,16 +378,14 @@ function handleTaskItemToggle(event: MouseEvent) {
   // Let the native toggle stand for instant feedback; just sync the source
   const from = lineRange.from + toggle.offset;
 
-  // Dispatch can trigger scroll-sync via the editor's scrollDOM; preserve preview position.
-  const savedScrollTop = previewPane.scrollTop;
-
+  // Suppress scroll-sync for this dispatch: the editor's scrollDOM can emit a
+  // scrollend event that would jump the preview to the editor's cursor line.
+  suppressScrollSync();
   MarkEdit.editorView.dispatch({
     changes: { from, to: from + 1, insert: toggle.replacement },
     annotations: silentChange.of(true),
   });
-
-  previewPane.scrollTop = savedScrollTop;
-  requestAnimationFrame(() => { previewPane.scrollTop = savedScrollTop; });
+  requestAnimationFrame(resumeScrollSync);
 }
 
 const states: {

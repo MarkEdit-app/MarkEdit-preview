@@ -8,7 +8,11 @@ export function startObserving(sourcePane: HTMLElement, targetPane: HTMLElement)
   }
 
   if ('onscrollend' in window) {
-    sourcePane.addEventListener('scrollend', () => syncScrollProgress(sourcePane, targetPane));
+    sourcePane.addEventListener('scrollend', () => {
+      if (!states.syncSuppressed) {
+        syncScrollProgress(sourcePane, targetPane);
+      }
+    });
   } else {
     sourcePane.addEventListener('scroll', () => {
       if (states.scrollUpdater !== undefined) {
@@ -16,10 +20,20 @@ export function startObserving(sourcePane: HTMLElement, targetPane: HTMLElement)
       }
 
       states.scrollUpdater = setTimeout(() => {
-        syncScrollProgress(sourcePane, targetPane);
+        if (!states.syncSuppressed) {
+          syncScrollProgress(sourcePane, targetPane);
+        }
       }, 100);
     });
   }
+}
+
+export function suppressScrollSync() {
+  states.syncSuppressed = true;
+}
+
+export function resumeScrollSync() {
+  states.syncSuppressed = false;
 }
 
 export function syncScrollProgress(sourcePane: HTMLElement, targetPane: HTMLElement, animated = true) {
@@ -136,6 +150,8 @@ function clampProgressValue(value: number) {
 
 const states: {
   scrollUpdater: ReturnType<typeof setTimeout> | undefined;
+  syncSuppressed: boolean;
 } = {
   scrollUpdater: undefined,
+  syncSuppressed: false,
 };
