@@ -1,7 +1,14 @@
 import { createToolbar } from './toolbar';
 import { currentMode, saveMode } from './mode';
 import { getEditorText } from './editor';
-import { interceptForceTouch, interceptPinchZoom, interceptDragging, interceptWheelEvent, trackToolbarSeparator } from './interaction';
+import {
+  interceptForceTouch,
+  interceptPinchZoom,
+  interceptDragging,
+  interceptWheelEvent,
+  interceptPreviewCopy,
+  trackToolbarSeparator,
+} from './interaction';
 import { renderMarkdown, handlePostRender } from '../render';
 import { replaceImageURLs } from '../features/image';
 import { appendStyle } from '../shared/utils';
@@ -58,6 +65,7 @@ export function setUpQuickLook(previewPane: HTMLElement) {
   interceptPinchZoom(currentMode, previewPane);
   interceptDragging(currentMode, previewPane);
   interceptWheelEvent(currentMode, previewPane, toolbar);
+  interceptPreviewCopy(previewPane);
 }
 
 interface ViewContext {

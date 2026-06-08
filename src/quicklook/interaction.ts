@@ -168,6 +168,37 @@ export function trackToolbarSeparator(getMode: () => Mode, previewPane: HTMLElem
   return update;
 }
 
+/**
+ * Make cmd-c copy the preview pane instead of the focused source editor.
+ * Capture-phase `copy` beats CodeMirror's handler regardless of focus.
+ */
+export function interceptPreviewCopy(previewPane: HTMLElement) {
+  document.addEventListener('copy', event => {
+    if (!previewPane.classList.contains('overlay')) {
+      return;
+    }
+
+    const selection = getSelection();
+    const range = selection !== null && selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    const previewRange = range !== null && !range.collapsed && previewPane.contains(range.commonAncestorContainer) ? range : null;
+
+    const fragment = previewRange ?? (() => {
+      const fullRange = document.createRange();
+      fullRange.selectNodeContents(previewPane);
+      return fullRange;
+    })();
+
+    const container = document.createElement('div');
+    container.appendChild(fragment.cloneContents());
+
+    event.clipboardData?.setData('text/html', container.innerHTML);
+    event.clipboardData?.setData('text/plain', previewRange !== null ? previewRange.toString() : previewPane.innerText);
+
+    event.preventDefault();
+    event.stopPropagation();
+  }, true);
+}
+
 function convertToLocal(previewPane: HTMLElement, viewportY: number) {
   return viewportY - previewPane.getBoundingClientRect().top;
 }
