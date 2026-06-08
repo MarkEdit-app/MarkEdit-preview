@@ -1875,10 +1875,13 @@ ${u}`}async function su(e=!0){const n=H.MarkEdit.editorAPI.getText();return awai
   --quicklook-default-zoom: 0.9;
   zoom: var(--quicklook-default-zoom);
 
-  /* Pull content under the toolbar (scroller stays inset to keep its scrollbar clear) */
-  margin-top: calc(-1 * var(--editor-inset-top) * var(--quicklook-default-zoom) / var(--quicklook-zoom, var(--quicklook-default-zoom))) !important;
-  /* Restore the height the negative margin removed so bouncing stays in the pane, not the page */
-  min-height: calc(100% + var(--editor-inset-top) + 1px);
+  /* Toolbar clearance minus the inset, normalized so it stays constant under pinch-zoom */
+  --quicklook-toolbar-inset: 8px;
+  --quicklook-toolbar-clearance: calc((var(--editor-inset-top) - var(--quicklook-toolbar-inset)) * var(--quicklook-default-zoom) / var(--quicklook-zoom, var(--quicklook-default-zoom)));
+  /* Scroll content under the toolbar; scroller stays inset so its scrollbar is clear */
+  margin-top: calc(-1 * var(--quicklook-toolbar-clearance)) !important;
+  /* Add the clearance back so the bounce stays in the pane, not the page */
+  min-height: calc(100% + var(--quicklook-toolbar-clearance) + 1px);
 }
 
 /* Links are not interactive in quicklook */
@@ -1967,6 +1970,7 @@ ${u}`}async function su(e=!0){const n=H.MarkEdit.editorAPI.getText();return awai
 
   .quicklook .markdown-body.overlay > .quicklook-content {
     --quicklook-default-zoom: 0.8;
+    --quicklook-toolbar-inset: 0px;
   }
 
   .quicklook-toolbar {
