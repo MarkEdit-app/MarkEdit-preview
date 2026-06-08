@@ -21,6 +21,17 @@ body {
   min-height: calc(100% + var(--quicklook-toolbar-clearance) + 1px);
 }
 
+/* Tighten heading spacing for the limited Quick Look viewport */
+.quicklook .markdown-body h1,
+.quicklook .markdown-body h2,
+.quicklook .markdown-body h3,
+.quicklook .markdown-body h4,
+.quicklook .markdown-body h5,
+.quicklook .markdown-body h6 {
+  margin-top: var(--base-size-16, 1rem);
+  margin-bottom: var(--base-size-8, 0.5rem);
+}
+
 /* Links are not interactive in quicklook */
 .quicklook .markdown-body a,
 .quicklook .markdown-body a:hover,
