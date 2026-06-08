@@ -31,6 +31,19 @@ export function interceptPinchZoom(getMode: () => Mode, previewPane: HTMLElement
     const inner = previewPane.querySelector<HTMLElement>('.quicklook-content');
     return inner !== null ? { scroller: previewPane, inner } : null;
   };
+
+  // The toolbar-clearance margin lives on the zoomed element, so `zoom` scales it.
+  // Track the live zoom in `--quicklook-zoom` so the margin can divide it back out (see CSS).
+  for (const event of ['gesturechange', 'gestureend'] as const) {
+    document.addEventListener(event, () => {
+      if (getMode() !== 'preview') {
+        return;
+      }
+
+      const inner = previewPane.querySelector<HTMLElement>('.quicklook-content');
+      inner?.style.setProperty('--quicklook-zoom', inner.style.zoom || '0.9');
+    }, { passive: false });
+  }
 }
 
 /**
