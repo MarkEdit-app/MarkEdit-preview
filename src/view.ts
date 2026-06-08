@@ -377,10 +377,17 @@ function handleTaskItemToggle(event: MouseEvent) {
 
   // Let the native toggle stand for instant feedback; just sync the source
   const from = lineRange.from + toggle.offset;
+
+  // Dispatch can trigger scroll-sync via the editor's scrollDOM; preserve preview position.
+  const savedScrollTop = previewPane.scrollTop;
+
   MarkEdit.editorView.dispatch({
     changes: { from, to: from + 1, insert: toggle.replacement },
     annotations: silentChange.of(true),
   });
+
+  previewPane.scrollTop = savedScrollTop;
+  requestAnimationFrame(() => { previewPane.scrollTop = savedScrollTop; });
 }
 
 const states: {
