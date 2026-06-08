@@ -41,7 +41,11 @@ export function interceptPinchZoom(getMode: () => Mode, previewPane: HTMLElement
       }
 
       const inner = previewPane.querySelector<HTMLElement>('.quicklook-content');
-      inner?.style.setProperty('--quicklook-zoom', inner.style.zoom || '0.9');
+      if (inner?.style.zoom.length) {
+        inner?.style.setProperty('--quicklook-zoom', inner.style.zoom);
+      } else {
+        inner?.style.removeProperty('--quicklook-zoom');
+      }
     }, { passive: false });
   }
 }

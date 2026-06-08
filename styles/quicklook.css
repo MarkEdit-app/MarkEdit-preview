@@ -9,10 +9,11 @@ body {
 
 .quicklook .markdown-body.overlay > .quicklook-content {
   display: flow-root;
-  zoom: 0.9;
+  --quicklook-default-zoom: 0.9;
+  zoom: var(--quicklook-default-zoom);
 
   /* Pull content under the toolbar (scroller stays inset to keep its scrollbar clear) */
-  margin-top: calc(-1 * var(--editor-inset-top) * 0.9 / var(--quicklook-zoom, 0.9)) !important;
+  margin-top: calc(-1 * var(--editor-inset-top) * var(--quicklook-default-zoom) / var(--quicklook-zoom, var(--quicklook-default-zoom))) !important;
   /* Restore the height the negative margin removed so bouncing stays in the pane, not the page */
   min-height: calc(100% + var(--editor-inset-top) + 1px);
 }
@@ -102,7 +103,7 @@ body {
   }
 
   .quicklook .markdown-body.overlay > .quicklook-content {
-    zoom: 0.8;
+    --quicklook-default-zoom: 0.8;
   }
 
   .quicklook-toolbar {
