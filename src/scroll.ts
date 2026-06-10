@@ -7,17 +7,26 @@ export function startObserving(sourcePane: HTMLElement, targetPane: HTMLElement)
     return;
   }
 
+  // Skip phantom scroll events where the editor didn't actually move
+  states.lastSourceScrollTop = sourcePane.scrollTop;
+  const didScroll = () => {
+    if (Math.abs(sourcePane.scrollTop - states.lastSourceScrollTop) < 0.5) {
+      return;
+    }
+
+    states.lastSourceScrollTop = sourcePane.scrollTop;
+    syncScrollProgress(sourcePane, targetPane);
+  };
+
   if ('onscrollend' in window) {
-    sourcePane.addEventListener('scrollend', () => syncScrollProgress(sourcePane, targetPane));
+    sourcePane.addEventListener('scrollend', didScroll);
   } else {
     sourcePane.addEventListener('scroll', () => {
       if (states.scrollUpdater !== undefined) {
         clearTimeout(states.scrollUpdater);
       }
 
-      states.scrollUpdater = setTimeout(() => {
-        syncScrollProgress(sourcePane, targetPane);
-      }, 100);
+      states.scrollUpdater = setTimeout(didScroll, 100);
     });
   }
 }
@@ -135,7 +144,9 @@ function clampProgressValue(value: number) {
 }
 
 const states: {
+  lastSourceScrollTop: number;
   scrollUpdater: ReturnType<typeof setTimeout> | undefined;
 } = {
+  lastSourceScrollTop: 0,
   scrollUpdater: undefined,
 };
