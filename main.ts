@@ -16,6 +16,7 @@ import {
   saveStyledHtml,
   copyHtml,
   copyRichText,
+  exportPdf,
   getEditPane,
   getPreviewPane,
   generateStaticHtml,
@@ -100,6 +101,7 @@ if (hasFullHost()) {
       createModeItem(localized('previewMode'), ViewMode.preview),
       { separator: true },
       ...createHtmlItems(),
+      ...createPdfItems(),
       { separator: true },
       {
         title: `${localized('version')} ${__PKG_VERSION__}`,
@@ -180,6 +182,19 @@ function createModeItem(title: string, mode: ViewMode): MenuItem {
     // state requires MarkEdit 1.24.0+
     state: () => ({ isSelected: currentViewMode() === mode }),
   };
+}
+
+function createPdfItems(): MenuItem[] {
+  if (typeof (MarkEdit as any).generatePDF === 'undefined') {
+    return [];
+  }
+
+  return [
+    {
+      title: localized('exportPdf'),
+      action: exportPdf,
+    },
+  ];
 }
 
 function createHtmlItems(): MenuItem[] {

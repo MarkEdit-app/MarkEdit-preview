@@ -59,44 +59,59 @@ export function handlePostRender(process: () => void) {
   }
 }
 
-export async function applyStyles(html: string) {
+export async function applyStyles(html: string, colorScheme?: string) {
+  const scheme = colorScheme ?? styledHtmlColorScheme;
+
+  // Pre-render mermaid to inline SVGs so exports work fully offline
+  let bodyHtml = html;
+  if (__FULL_BUILD__ && bodyHtml.includes('class="mermaid"')) {
+    bodyHtml = await preRenderMermaid(bodyHtml, scheme);
+  }
+
   const stylify = (css: string) => `<style>\n${css}\n</style>`;
   const components = [
     '<!doctype html><html lang="en"><head><meta charset="UTF-8" /></head><body>',
-    `<div class="markdown-body">\n${html}\n</div>`,
-    stylify(coreCss(styledHtmlColorScheme)),
-    stylify(previewThemeCss(styledHtmlColorScheme)),
-    stylify(alertsCss(styledHtmlColorScheme)),
+    `<div class="markdown-body">\n${bodyHtml}\n</div>`,
+    stylify(coreCss(scheme)),
+    stylify(previewThemeCss(scheme)),
+    stylify(alertsCss(scheme)),
     stylify(codeCopyCss()),
     '</body></html>',
   ];
 
   if (__FULL_BUILD__) {
-    components.push(stylify(hljsCss(styledHtmlColorScheme)));
+    components.push(stylify(hljsCss(scheme)));
 
     const { default: katexCss } = await import('../styles/katex.css?raw');
     components.push(stylify(katexCss));
-
-    const mermaid = `
-    <script type="module">
-      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      if (${styledHtmlColorScheme === 'auto' ? 'true' : 'false'}) {
-        const darkMode = matchMedia("(prefers-color-scheme: dark)");
-        mermaid.initialize({ theme: darkMode.matches ? "dark" : undefined });
-        darkMode.addEventListener("change", () => {
-          if (document.querySelector(".mermaid") !== null) {
-            location.reload();
-          }
-        });
-      } else {
-        const isDark = ${styledHtmlColorScheme === 'dark' ? 'true' : 'false'};
-        mermaid.initialize({ theme: isDark ? "dark" : undefined });
-      }
-    </script>`;
-    components.push(mermaid);
   }
 
   return components.join('\n');
+}
+
+async function preRenderMermaid(html: string, colorScheme: string): Promise<string> {
+  try {
+    const { default: mermaid } = await import('mermaid');
+
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    container.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px';
+    document.body.appendChild(container);
+
+    const isDarkMode = colorScheme === 'dark' || (colorScheme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+    mermaid.initialize({ theme: isDarkMode ? 'dark' : undefined });
+
+    const elements = container.querySelectorAll('.mermaid');
+    if (elements.length > 0) {
+      await mermaid.run({ nodes: Array.from(elements) });
+    }
+
+    const result = container.innerHTML;
+    document.body.removeChild(container);
+    return result;
+  } catch {
+    return html;
+  }
 }
 
 // Render the entire content as a standalone block

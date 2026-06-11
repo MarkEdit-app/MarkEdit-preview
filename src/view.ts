@@ -260,9 +260,27 @@ export function getPreviewPane() {
   return previewPane;
 }
 
-export async function generateStaticHtml(styled: boolean) {
+export async function exportPdf() {
+  const fileName = await (async () => {
+    const info = await MarkEdit.getFileInfo();
+    if (info === undefined) {
+      return `${localized('untitled')}.pdf`;
+    }
+
+    return `${getFileName(info.filePath)}.pdf`;
+  })();
+
+  // Use light mode for PDF to ensure readability when printed
+  const html = await generateStaticHtml(true, 'light');
+
+  if (typeof (MarkEdit as any).generatePDF === 'function') {
+    await (MarkEdit as any).generatePDF(html, fileName);
+  }
+}
+
+export async function generateStaticHtml(styled: boolean, colorScheme?: string) {
   const html = await getRenderedHtml(false);
-  return styled ? (await applyStyles(html)) : `<meta charset="UTF-8">\n${html}`;
+  return styled ? (await applyStyles(html, colorScheme)) : `<meta charset="UTF-8">\n${html}`;
 }
 
 /**

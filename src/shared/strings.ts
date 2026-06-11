@@ -9,6 +9,7 @@ type LocalizableKeys = {
   copyHtml: string;
   copyRichText: string;
   copyCode: string;
+  exportPdf: string;
   untitled: string;
   update: string;
   version: string;
@@ -35,6 +36,7 @@ const strings: Record<Locale, Localizable> = {
     copyHtml: 'Copy HTML',
     copyRichText: 'Copy Rich Text',
     copyCode: 'Copy Code',
+    exportPdf: 'Export as PDF',
     untitled: 'Untitled',
     update: 'Update',
     version: 'Version',
@@ -59,6 +61,7 @@ const strings: Record<Locale, Localizable> = {
     copyHtml: '复制 HTML',
     copyRichText: '复制富文本',
     copyCode: '复制代码',
+    exportPdf: '导出为 PDF',
     untitled: '未命名',
     update: '更新',
     version: '版本',
@@ -80,6 +83,7 @@ const strings: Record<Locale, Localizable> = {
     copyHtml: '拷貝 HTML',
     copyRichText: '複製富文字',
     copyCode: '拷貝程式碼',
+    exportPdf: '匯出為 PDF',
     editMode: '編輯模式',
     sideBySideMode: '並排模式',
     previewMode: '預覽模式',
