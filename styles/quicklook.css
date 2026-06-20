@@ -133,8 +133,8 @@ body {
 
   .quicklook-toolbar {
     top: 6px;
+    right: 6px;
     left: auto;
-    right: 8px;
     height: auto;
     background: transparent !important;
     border-bottom: none !important;
