@@ -2028,7 +2028,7 @@ ${r}`}async function dr(e=!0){const n=H.MarkEdit.editorAPI.getText();return awai
   .quicklook-segmented {
     pointer-events: auto;
     padding: 0;
-    gap: 2px;
+    gap: 0;
     overflow: hidden;
     background: rgba(242, 242, 245, 0.85);
     backdrop-filter: saturate(180%) blur(12px);
@@ -2040,6 +2040,10 @@ ${r}`}async function dr(e=!0){const n=H.MarkEdit.editorAPI.getText();return awai
   .quicklook-segment {
     padding: 2px 3px;
     min-width: 0;
+  }
+
+  .quicklook-segment:hover:not(.active) {
+    background: transparent;
   }
 
   .quicklook-segment.active {
@@ -2090,6 +2094,10 @@ ${r}`}async function dr(e=!0){const n=H.MarkEdit.editorAPI.getText();return awai
     background: rgba(40, 40, 42, 0.85);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
     border-color: rgba(128, 128, 128, 0.15);
+  }
+
+  .quicklook-segment:hover:not(.active) {
+    background: transparent;
   }
 
   .quicklook-segment.active {
