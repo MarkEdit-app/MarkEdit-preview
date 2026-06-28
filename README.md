@@ -5,11 +5,13 @@ Markdown preview for [MarkEdit](https://github.com/MarkEdit-app/MarkEdit) that l
 ## Installation
 
 Copy [dist/markedit-preview.js](dist/markedit-preview.js?raw=true) to `~/Library/Containers/app.cyan.markedit/Data/Documents/scripts/`.
-Open the folder with Finder (`open ~/Library/Containers/app.cyan.markedit/Data/Documents/scripts/`) and alt-drag the file in there, because of the kernel-level enforced sandbox in `~/Library/Containers/` doesn't allow to use terminal commmands to copy the file in there.
-Details [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#entries).
 
 Use [dist/lite/markedit-preview.js](dist/lite/markedit-preview.js?raw=true) if you don't need [mermaid](https://mermaid.js.org/), [katex](https://katex.org/) and [highlight.js](https://highlightjs.org/); it's much smaller (about 250 KB, compared to about 5 MB for the full build).
 
+> [!TIP]
+> 
+> Open the folder in Finder (see details [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#entries)), then hold **Option** and drag the file into it. Otherwise, the kernel-enforced sandbox may block commands that attempt to copy the file.
+> 
 > Once installed, restart MarkEdit to apply the changes.
 >
 > This extension automatically checks for updates and notifies you when a new version is available.
