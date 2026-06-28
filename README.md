@@ -4,7 +4,9 @@ Markdown preview for [MarkEdit](https://github.com/MarkEdit-app/MarkEdit) that l
 
 ## Installation
 
-Copy [dist/markedit-preview.js](dist/markedit-preview.js?raw=true) to `~/Library/Containers/app.cyan.markedit/Data/Documents/scripts/`. Details [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#entries).
+Copy [dist/markedit-preview.js](dist/markedit-preview.js?raw=true) to `~/Library/Containers/app.cyan.markedit/Data/Documents/scripts/`.
+Open the folder with Finder (`open ~/Library/Containers/app.cyan.markedit/Data/Documents/scripts/`) and alt-drag the file in there, because of the kernel-level enforced sandbox in `~/Library/Containers/` doesn't allow to use terminal commmands to copy the file in there.
+Details [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#entries).
 
 Use [dist/lite/markedit-preview.js](dist/lite/markedit-preview.js?raw=true) if you don't need [mermaid](https://mermaid.js.org/), [katex](https://katex.org/) and [highlight.js](https://highlightjs.org/); it's much smaller (about 250 KB, compared to about 5 MB for the full build).
 
