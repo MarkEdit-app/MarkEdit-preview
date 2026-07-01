@@ -3,6 +3,7 @@ export const ClassNames = {
   gutterViewClass: 'markdown-gutter',
   dividerViewClass: 'markdown-divider',
   previewPaneClass: 'markdown-body',
+  reverseClass: 'markdown-reverse',
   updatePillClass: 'markdown-update-pill',
 };
 

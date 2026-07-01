@@ -32,6 +32,7 @@ export enum ViewMode {
   edit,
   sideBySide,
   preview,
+  sideBySideReverse,
 }
 
 export function setUp() {
@@ -112,12 +113,12 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
   if (mode === ViewMode.edit) {
     // Don't call contentDOM.focus() here, it scrolls to the top
     editorView.focus();
-  } else if (mode === ViewMode.preview) {
+  } else if (mode === ViewMode.preview || mode === ViewMode.sideBySideReverse) {
     // When the mode is side-by-side, focus won't be changed
     editorView.contentDOM.blur();
   }
 
-  if (mode === ViewMode.sideBySide) {
+  if (mode === ViewMode.sideBySide || mode === ViewMode.sideBySideReverse) {
     containerView.classList.add(ClassNames.containerClass);
     states.splitter ??= Split({
       columnGutters: [{ track: 1, element: gutterView }],
@@ -129,6 +130,13 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
     containerView.classList.remove(ClassNames.containerClass);
     states.splitter?.destroy();
     states.splitter = undefined;
+  }
+
+  if (mode === ViewMode.sideBySideReverse) {
+    containerView.classList.add(ClassNames.reverseClass);
+    updateGutterStyle();
+  } else {
+    containerView.classList.remove(ClassNames.reverseClass);
   }
 
   if (mode === ViewMode.preview) {
@@ -149,6 +157,7 @@ export function changeViewMode() {
     ...previewModes.map(mode => {
       switch (mode) {
         case 'side-by-side': return ViewMode.sideBySide;
+        case 'side-by-side-reverse': return ViewMode.sideBySideReverse;
         case 'preview': return ViewMode.preview;
         default: return undefined;
       }
@@ -202,7 +211,7 @@ export async function renderHtmlPreview() {
 }
 
 export function handlePageZoom(event: KeyboardEvent) {
-  if (currentViewMode() === ViewMode.edit || (currentViewMode() === ViewMode.sideBySide && MarkEdit.editorView.hasFocus)) {
+  if (currentViewMode() === ViewMode.edit || ((currentViewMode() === ViewMode.sideBySide || currentViewMode() === ViewMode.sideBySideReverse) && MarkEdit.editorView.hasFocus)) {
     return;
   }
 
@@ -303,7 +312,10 @@ async function getRenderedHtml(lineInfo = true) {
 
 function updateGutterStyle() {
   const backgroundColor = getComputedStyle(previewPane).backgroundColor;
-  gutterView.style.background = `linear-gradient(to right, transparent 50%, ${backgroundColor} 50%)`;
+  const isReverse = containerView.classList.contains(ClassNames.reverseClass);
+  gutterView.style.background = isReverse
+    ? `linear-gradient(to right, ${backgroundColor} 50%, transparent 50%)`
+    : `linear-gradient(to right, transparent 50%, ${backgroundColor} 50%)`;
 }
 
 async function saveGeneratedHtml(styled: boolean) {

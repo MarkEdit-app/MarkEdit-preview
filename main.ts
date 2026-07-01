@@ -97,6 +97,7 @@ if (hasFullHost()) {
       { separator: true },
       createModeItem(localized('editMode'), ViewMode.edit),
       createModeItem(localized('sideBySideMode'), ViewMode.sideBySide),
+      createModeItem(localized('sideBySideReverseMode'), ViewMode.sideBySideReverse),
       createModeItem(localized('previewMode'), ViewMode.preview),
       { separator: true },
       ...createHtmlItems(),

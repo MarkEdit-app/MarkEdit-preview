@@ -49,6 +49,11 @@ body .markdown-body .task-list-item.enabled label {
   display: block;
 }
 
+/* Reverse side-by-side: preview on the left, editor on the right */
+.markdown-container.markdown-reverse .markdown-body {
+  order: -1;
+}
+
 .markdown-body .task-list-item-checkbox {
   width: 1.1em;
   height: 1.1em;

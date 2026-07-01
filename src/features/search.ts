@@ -136,7 +136,7 @@ function remarkWithNewOptions(container: HTMLElement) {
 // Show the current-match indicator only when not in side-by-side mode, where
 // the editor's own highlight is already visible and indices may not correspond.
 function highlightCurrent() {
-  const shouldHighlight = currentViewMode() !== ViewMode.sideBySide;
+  const shouldHighlight = currentViewMode() !== ViewMode.sideBySide && currentViewMode() !== ViewMode.sideBySideReverse;
   markElements.forEach((mark, index) => {
     mark.classList.toggle(MARK_HIGHLIGHTED_CLASS, shouldHighlight && index === currentIndex);
   });

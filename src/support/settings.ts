@@ -5,7 +5,7 @@ import type { ColorScheme } from '../shared/types';
 
 const Constants = {
   rootValueKey: 'extension.markeditPreview',
-  defaultModes: ['side-by-side', 'preview'],
+  defaultModes: ['side-by-side', 'side-by-side-reverse', 'preview'],
   defaultPreset: 'default',
 };
 
