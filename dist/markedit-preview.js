@@ -2248,8 +2248,8 @@ ${r}`}async function Jw(t=!0){const e=Yr.MarkEdit.editorAPI.getText();{const r=a
   }
 
   .quicklook-toolbar {
-    top: 6px;
-    right: 6px;
+    top: 8px;
+    right: 16px;
     left: auto;
     height: auto;
     background: transparent !important;
