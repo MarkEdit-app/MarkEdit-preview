@@ -1997,8 +1997,8 @@ ${r}`}async function dr(e=!0){const n=H.MarkEdit.editorAPI.getText();return awai
   }
 
   .quicklook-toolbar {
-    top: 6px;
-    right: 6px;
+    top: 8px;
+    right: 16px;
     left: auto;
     height: auto;
     background: transparent !important;
