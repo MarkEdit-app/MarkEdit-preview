@@ -7,6 +7,7 @@ import githubAlerts from 'markdown-it-github-alerts';
 
 import { MarkEdit } from 'markedit-api';
 import { createFrontMatterPlugin } from './features/frontMatter';
+import { renderFenBoard } from './features/fen';
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './shared/strings';
 import { hasFullHost } from './support/host';
@@ -180,6 +181,30 @@ const pluginsReady = Promise.all(pluginInits).then(() => {
         return renderBlock(tokens, idx, options, env, self);
       }
 
+      return self.renderToken(tokens, idx, options);
+    };
+  }
+
+  // FEN chess board rendering, available in all builds (zero dependencies)
+  {
+    const renderFence = mdit.renderer.rules.fence;
+    mdit.renderer.rules.fence = (tokens, idx, options, env, self) => {
+      const token = tokens[idx];
+      const lang = token.info.trim();
+
+      if (lang === 'fen' || lang.startsWith('fen ')) {
+        const code = token.content.trim();
+        const fenHtml = renderFenBoard(code, lang);
+        if (fenHtml) {
+          token.attrSet('data-code', code + '\n');
+          return fenHtml;
+        }
+        // Invalid FEN — fall through to default code block rendering
+      }
+
+      if (renderFence !== undefined) {
+        return renderFence(tokens, idx, options, env, self);
+      }
       return self.renderToken(tokens, idx, options);
     };
   }
