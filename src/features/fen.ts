@@ -127,10 +127,11 @@ export function renderFenBoard(fen: string, info: string): string {
   const rows = flip ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
   const cols = flip ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
 
-  const padTop  = opts.coords ? cSize + 4 : 0;
-  const padLeft = opts.coords ? cSize + 4 : 0;
-  const totalW  = opts.size + padLeft;
-  const totalH  = opts.size + padTop;
+  const padTop    = opts.coords ? cSize + 4 : 0;
+  const padLeft   = opts.coords ? cSize + 4 : 0;
+  const padBottom = opts.coords ? cSize + 4 : 0;
+  const totalW    = opts.size + padLeft;
+  const totalH    = opts.size + padTop + padBottom;
 
   // ── Build SVG ──────────────────────────────────────────────
   let svg = `<svg viewBox="0 0 ${totalW} ${totalH}" width="${totalW}" height="${totalH}" xmlns="http://www.w3.org/2000/svg">\n`;
