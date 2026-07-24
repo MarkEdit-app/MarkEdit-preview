@@ -1,4 +1,5 @@
 import { MarkEdit } from 'markedit-api';
+import { hasExtensionManager } from './host';
 import type { JSONObject, JSONValue } from 'markedit-api';
 import type { PresetName } from 'markdown-it';
 import type { ColorScheme } from '../shared/types';
@@ -19,6 +20,10 @@ const updateBehaviors = ['automatic', 'quiet', 'notify', 'never'] as const;
 export type UpdateBehavior = (typeof updateBehaviors)[number];
 
 export const updateBehavior: UpdateBehavior = (() => {
+  if (hasExtensionManager()) {
+    return 'never';
+  }
+
   const behavior = rootValue.updateBehavior as string | undefined;
   if (behavior && (updateBehaviors as readonly string[]).includes(behavior)) {
     return behavior as UpdateBehavior;

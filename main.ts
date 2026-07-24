@@ -26,7 +26,7 @@ import { enableHoverPreview } from './src/features/image';
 import { startObserving } from './src/scroll';
 import { checkForUpdates, checkForUpdatesThrottled, downloadLatestBuild, fetchLatestRelease, renderUpdatePill } from './src/support/updater';
 import { imageHoverPreview, keyboardShortcut, updateBehavior } from './src/support/settings';
-import { hasFullHost } from './src/support/host';
+import { hasFullHost, hasExtensionManager } from './src/support/host';
 import { copyToSharedContainer, setUpQuickLook } from './src/quicklook';
 import { localized } from './src/shared/strings';
 import { macOSTahoe, hasFilePathInfo } from './src/shared/utils';
@@ -109,7 +109,7 @@ if (hasFullHost()) {
         title: `${localized('checkReleases')} (GitHub)`,
         action: () => open('https://github.com/MarkEdit-app/MarkEdit-preview/releases/latest'),
       },
-      ...(hasFilePathInfo() ? [{
+      ...(hasFilePathInfo() && !hasExtensionManager() ? [{
         title: localized('updateAndRelaunch'),
         action: async () => {
           const release = await fetchLatestRelease();
