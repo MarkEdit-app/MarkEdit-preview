@@ -41,6 +41,10 @@ body .markdown-body .task-list-item.enabled label {
   z-index: 10000;
 }
 
+.markdown-body a.suppress-underline {
+  text-decoration: none !important;
+}
+
 .markdown-container .markdown-gutter {
   display: flex;
 }
