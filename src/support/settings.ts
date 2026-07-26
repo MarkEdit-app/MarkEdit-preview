@@ -45,8 +45,8 @@ export const keyboardShortcut = toObject(changeMode.hotKey);
 export const markdownItPreset = (markdownIt.preset ?? Constants.defaultPreset) as PresetName;
 export const markdownItOptions = toObject(markdownIt.options);
 
-function toObject(jsonValue: JSONValue, defaultValue = {}) {
-  return (jsonValue ?? defaultValue) as JSONObject;
+function toObject(jsonValue: JSONValue, defaultValue = {}): JSONObject {
+  return jsonValue ?? defaultValue;
 }
 
 function toBoolean(jsonValue: JSONValue, defaultValue = true) {
