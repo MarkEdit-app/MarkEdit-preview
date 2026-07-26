@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const mockMatchCount = vi.hoisted(() => ({ value: 1 }));
 const mockViewState = vi.hoisted(() => ({
-  mode: 'preview' as string,
+  mode: 'preview',
   pane: null as HTMLElement | null,
 }));
 
