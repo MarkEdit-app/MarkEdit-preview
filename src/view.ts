@@ -94,7 +94,10 @@ export function setUp() {
     previewPane.addEventListener('click', handleExternalFiles);
   }
 
-  previewPane.addEventListener('click', handleTaskItemToggle);
+  previewPane.addEventListener('click', event => {
+    handleAnchorClick(event);
+    handleTaskItemToggle(event);
+  });
 }
 
 export function setViewMode(mode: ViewMode, needsDisplay = true) {
@@ -350,6 +353,26 @@ async function handleExternalFiles(event: MouseEvent) {
   } catch (error) {
     console.error('Failed to open file:', error);
   }
+}
+
+/**
+ * Opening a link steals focus and leaves WebKit's link :hover state stale.
+ *
+ * Suppress the underline after a click until the pointer actually leaves.
+ */
+function handleAnchorClick(event: MouseEvent) {
+  const suppressor = 'suppress-underline';
+  const anchor = event.target instanceof Element ? event.target.closest('a') : null;
+  if (anchor === null || anchor.classList.contains(suppressor) || !anchor.matches(':hover')) {
+    return;
+  }
+
+  anchor.classList.add(suppressor);
+  anchor.addEventListener(
+    'mouseleave',
+    () => anchor.classList.remove(suppressor),
+    { once: true },
+  );
 }
 
 function handleTaskItemToggle(event: MouseEvent) {
