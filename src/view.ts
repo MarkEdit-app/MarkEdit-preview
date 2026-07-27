@@ -209,16 +209,22 @@ export function handlePageZoom(event: KeyboardEvent) {
     return;
   }
 
-  if (!event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) {
+  if (!event.metaKey || event.ctrlKey || event.altKey) {
+    return;
+  }
+
+  // Shift-Cmd-0 belongs to View > Actual Size
+  if (event.shiftKey && event.key === '0') {
     return;
   }
 
   const zoom = Number(previewPane.style.zoom) || 1.0;
   const clamp = (value: number) => String(Math.min(Math.max(value, 0.5), 3.0));
 
+  // Shifted forms are accepted too, menus advertise these shortcuts as `Cmd +` and `Cmd -`
   switch (event.key) {
-    case '-': previewPane.style.zoom = clamp(zoom - 0.1); break;
-    case '=': previewPane.style.zoom = clamp(zoom + 0.1); break;
+    case '-': case '_': previewPane.style.zoom = clamp(zoom - 0.1); break;
+    case '=': case '+': previewPane.style.zoom = clamp(zoom + 0.1); break;
     case '0': previewPane.style.zoom = '1'; break;
     default: return; // Ignores caching and event handling
   }
