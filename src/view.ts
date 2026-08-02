@@ -199,7 +199,7 @@ export async function renderHtmlPreview() {
 
     const pageZoom = localStorage.getItem(CacheKeys.previewPageZoomKey);
     if (pageZoom !== null) {
-      previewPane.style.zoom = pageZoom;
+      setPageZoom(pageZoom);
     }
   });
 }
@@ -223,9 +223,9 @@ export function handlePageZoom(event: KeyboardEvent) {
 
   // Shifted forms are accepted too, menus advertise these shortcuts as `Cmd +` and `Cmd -`
   switch (event.key) {
-    case '-': case '_': previewPane.style.zoom = clamp(zoom - 0.1); break;
-    case '=': case '+': previewPane.style.zoom = clamp(zoom + 0.1); break;
-    case '0': previewPane.style.zoom = '1'; break;
+    case '-': case '_': setPageZoom(clamp(zoom - 0.1)); break;
+    case '=': case '+': setPageZoom(clamp(zoom + 0.1)); break;
+    case '0': setPageZoom('1'); break;
     default: return; // Ignores caching and event handling
   }
 
@@ -313,6 +313,14 @@ async function getRenderedHtml(lineInfo = true) {
 function updateGutterStyle() {
   const backgroundColor = getComputedStyle(previewPane).backgroundColor;
   gutterView.style.background = `linear-gradient(to right, transparent 50%, ${backgroundColor} 50%)`;
+}
+
+function setPageZoom(value: string) {
+  previewPane.style.zoom = value;
+
+  // Zooming in narrows the layout width,
+  // mark it so that diagrams can opt out of shrinking.
+  previewPane.classList.toggle('zoomed-in', Number(value) > 1);
 }
 
 async function saveGeneratedHtml(styled: boolean) {

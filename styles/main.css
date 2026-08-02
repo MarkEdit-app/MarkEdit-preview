@@ -58,6 +58,15 @@ body .markdown-body .task-list-item.enabled label {
   height: 1.1em;
 }
 
+.markdown-body.zoomed-in .mermaid {
+  overflow-x: auto;
+}
+
+/* Clamped by mermaid's inline max-width, i.e. it ends up being the natural size */
+.markdown-body.zoomed-in .mermaid > svg[style*="max-width"] {
+  width: 10000px;
+}
+
 .markdown-update-pill {
   position: fixed;
   top: 12px;
