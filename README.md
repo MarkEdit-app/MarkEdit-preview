@@ -9,9 +9,9 @@ Copy [dist/markedit-preview.js](dist/markedit-preview.js?raw=true) to `~/Library
 Use [dist/lite/markedit-preview.js](dist/lite/markedit-preview.js?raw=true) if you don't need [mermaid](https://mermaid.js.org/), [katex](https://katex.org/) and [highlight.js](https://highlightjs.org/); it's much smaller (about 250 KB, compared to about 5 MB for the full build).
 
 > [!TIP]
-> 
+>
 > Open the folder in Finder (see details [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#entries)), then hold **Option** and drag the file into it. Otherwise, the kernel-enforced sandbox may block commands that attempt to copy the file.
-> 
+>
 > Once installed, restart MarkEdit to apply the changes.
 >
 > This extension automatically checks for updates and notifies you when a new version is available.
@@ -94,6 +94,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 
 ## Community Extensions
 
+- [Bidirectional Preview Sync](https://github.com/Nigelw/MarkEdit-bidirectional-preview-sync) (by [@Nigelw](https://github.com/Nigelw/)): Keeps MarkEdit’s editor and preview modes synchronized as you switch between them and scroll, replacing MarkEdit-preview's one-way editor→preview sync.
 - [Direct Preview](https://github.com/Squarelight-ai/markedit-direct-preview) (by [@Squarelight-ai](https://github.com/Squarelight-ai)): A setup helper that provides a one-click setup for a two-mode Edit/Preview toggle by configuring the toolbar item and `changeMode.modes` for you.
 
 ## Contribution
