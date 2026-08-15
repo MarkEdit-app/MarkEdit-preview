@@ -7,6 +7,7 @@ import { hidePreviewButtons, previewModes } from './support/settings';
 import { localized } from './shared/strings';
 import { syncScrollProgress } from './scroll';
 import { resolveTaskToggle } from './features/task';
+import { handlePreviewLinkClick } from './features/navigation';
 import { ClassNames, CacheKeys } from './shared/const';
 
 import Split from 'split-grid';
@@ -377,6 +378,10 @@ async function handleExternalFiles(event: MouseEvent) {
 function handleAnchorClick(event: MouseEvent) {
   const suppressor = 'suppress-underline';
   const anchor = event.target instanceof Element ? event.target.closest('a') : null;
+  if (anchor !== null) {
+    handlePreviewLinkClick(previewPane, event);
+  }
+
   if (anchor === null || anchor.classList.contains(suppressor) || !anchor.matches(':hover')) {
     return;
   }
