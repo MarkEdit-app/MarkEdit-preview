@@ -3,12 +3,13 @@ import { MarkEdit } from 'markedit-api';
 import { appendStyle, getBlockRange, getFileExtension, getFileName, joinPaths, selectFullRange } from './shared/utils';
 import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './features/image';
-import { hidePreviewButtons, previewModes } from './support/settings';
+import { hidePreviewButtons, viewModes } from './support/settings';
 import { localized } from './shared/strings';
 import { syncScrollProgress } from './scroll';
 import { resolveTaskToggle } from './features/task';
 import { handlePreviewLinkClick } from './features/navigation';
 import { ClassNames, CacheKeys } from './shared/const';
+import { setHiddenSyntaxMode } from './hiddenSyntax/mode';
 
 import Split from 'split-grid';
 import type { SplitInstance as Splitter } from 'split-grid';
@@ -33,6 +34,7 @@ export enum ViewMode {
   edit,
   sideBySide,
   preview,
+  syntaxHidden,
 }
 
 export function setUp() {
@@ -113,7 +115,9 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
   }
 
   const editorView = MarkEdit.editorView;
-  if (mode === ViewMode.edit) {
+  setHiddenSyntaxMode(editorView, mode === ViewMode.syntaxHidden);
+
+  if (isEditorOnlyMode()) {
     // Don't call contentDOM.focus() here, it scrolls to the top
     editorView.focus();
   } else if (mode === ViewMode.preview) {
@@ -147,19 +151,20 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
 }
 
 export function changeViewMode() {
-  // Get the rotation of all modes, "edit" always goes first
-  const rotation = [
-    ViewMode.edit,
-    ...previewModes.map(mode => {
-      switch (mode) {
-        case 'side-by-side': return ViewMode.sideBySide;
-        case 'preview': return ViewMode.preview;
-        default: return undefined;
-      }
-    }).filter(mode => mode !== undefined),
-  ];
+  const configuredModes = viewModes.map(mode => {
+    switch (mode) {
+      case 'edit': return ViewMode.edit;
+      case 'side-by-side': return ViewMode.sideBySide;
+      case 'preview': return ViewMode.preview;
+      case 'syntax-hidden': return ViewMode.syntaxHidden;
+      default: return undefined;
+    }
+  }).filter(mode => mode !== undefined);
 
-  // When current mode is not found in the rotation, start over from "edit"
+  const canEdit = configuredModes.some(mode => mode === ViewMode.edit || mode === ViewMode.syntaxHidden);
+  const rotation = canEdit ? configuredModes : [ViewMode.edit, ...configuredModes];
+
+  // When current mode is not found, start at the beginning
   const currentIndex = rotation.indexOf(currentViewMode());
   const nextIndex = currentIndex === -1 ? 0 : ((currentIndex + 1) % rotation.length);
   setViewMode(rotation[nextIndex]);
@@ -173,6 +178,10 @@ export function restoreViewMode() {
 
   const newMode = Number(cachedValue);
   if (currentViewMode() === newMode) {
+    if (newMode === ViewMode.syntaxHidden) {
+      setHiddenSyntaxMode(MarkEdit.editorView, true);
+    }
+
     return;
   }
 
@@ -183,8 +192,13 @@ export function currentViewMode() {
   return states.viewMode;
 }
 
+export function isEditorOnlyMode() {
+  const mode = currentViewMode();
+  return mode === ViewMode.edit || mode === ViewMode.syntaxHidden;
+}
+
 export async function renderHtmlPreview() {
-  if (currentViewMode() === ViewMode.edit) {
+  if (isEditorOnlyMode()) {
     return;
   }
 
@@ -206,7 +220,7 @@ export async function renderHtmlPreview() {
 }
 
 export function handlePageZoom(event: KeyboardEvent) {
-  if (currentViewMode() === ViewMode.edit || (currentViewMode() === ViewMode.sideBySide && MarkEdit.editorView.hasFocus)) {
+  if (isEditorOnlyMode() || (currentViewMode() === ViewMode.sideBySide && MarkEdit.editorView.hasFocus)) {
     return;
   }
 

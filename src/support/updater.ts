@@ -1,7 +1,7 @@
 import { MarkEdit } from 'markedit-api';
 import { updateBehavior } from './settings';
 import { localized } from '../shared/strings';
-import { currentViewMode, ViewMode } from '../view';
+import { isEditorOnlyMode } from '../view';
 import { hasFilePathInfo } from '../shared/utils';
 import { ClassNames } from '../shared/const';
 
@@ -123,7 +123,7 @@ export function renderUpdatePill(release = states.pendingRelease): HTMLButtonEle
   newPill.dataset.releaseName = release.name;
   newPill.className = ClassNames.updatePillClass;
   newPill.textContent = localized('update');
-  newPill.style.display = currentViewMode() === ViewMode.edit ? 'none' : '';
+  newPill.style.display = isEditorOnlyMode() ? 'none' : '';
 
   newPill.addEventListener('webkitmouseforcedown', event => {
     event.preventDefault();

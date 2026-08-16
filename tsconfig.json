@@ -3,7 +3,7 @@
     "typeRoots": ["./node_modules/@types"],
     "module": "esnext",
     "target": "esnext",
-    "lib": ["es2019", "dom"],
+    "lib": ["es2019", "dom", "dom.iterable"],
     "noImplicitAny": true,
     "moduleResolution": "node",
     "ignoreDeprecations": "6.0",

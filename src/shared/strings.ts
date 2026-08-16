@@ -4,6 +4,7 @@ type LocalizableKeys = {
   editMode: string;
   sideBySideMode: string;
   previewMode: string;
+  syntaxHiddenMode: string;
   saveCleanHtml: string;
   saveStyledHtml: string;
   copyHtml: string;
@@ -30,6 +31,7 @@ const strings: Record<Locale, Localizable> = {
     editMode: 'Edit Mode',
     sideBySideMode: 'Side-by-Side Mode',
     previewMode: 'Preview Mode',
+    syntaxHiddenMode: 'Mixed (Syntax Hidden)',
     saveCleanHtml: 'Save Clean HTML',
     saveStyledHtml: 'Save Styled HTML',
     copyHtml: 'Copy HTML',
@@ -54,6 +56,7 @@ const strings: Record<Locale, Localizable> = {
     editMode: '编辑模式',
     sideBySideMode: '并排模式',
     previewMode: '预览模式',
+    syntaxHiddenMode: '混合模式（隐藏语法）',
     saveCleanHtml: '保存无样式 HTML',
     saveStyledHtml: '保存带样式 HTML',
     copyHtml: '复制 HTML',
@@ -83,6 +86,7 @@ const strings: Record<Locale, Localizable> = {
     editMode: '編輯模式',
     sideBySideMode: '並排模式',
     previewMode: '預覽模式',
+    syntaxHiddenMode: '混合模式（隱藏語法）',
     untitled: '未命名',
     update: '更新',
     version: '版本',

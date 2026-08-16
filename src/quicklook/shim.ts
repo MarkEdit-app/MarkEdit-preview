@@ -17,7 +17,13 @@ const host = globalThis as unknown as Globals;
 if (typeof host.require === 'undefined') {
   type MarkEditModule = { MarkEdit: RealMarkEdit };
   type ViewModule = { EditorView: Pick<typeof RealEditorView, 'updateListener'> };
-  type StateModule = { Annotation: Pick<typeof RealAnnotation, 'define'> };
+  type StateModule = {
+    Annotation: Pick<typeof RealAnnotation, 'define'>;
+    Compartment: new () => {
+      of: () => unknown;
+      reconfigure: () => unknown;
+    };
+  };
 
   const markeditApi: MarkEditModule = {
     MarkEdit: host.MarkEdit ?? (Object.freeze({}) as RealMarkEdit),
@@ -33,6 +39,10 @@ if (typeof host.require === 'undefined') {
     Annotation: {
       define: () => ({ of: () => ({}) }),
     } as unknown as StateModule['Annotation'],
+    Compartment: class {
+      of() { return {}; }
+      reconfigure() { return {}; }
+    },
   };
 
   const stubs: Record<string, unknown> = {
