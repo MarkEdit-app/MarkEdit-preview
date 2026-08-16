@@ -20,6 +20,7 @@ import {
   getPreviewPane,
   generateStaticHtml,
   renderStaticHtml,
+  isEditorOnlyMode,
 } from './src/view';
 
 import { enableHoverPreview } from './src/features/image';
@@ -30,6 +31,7 @@ import { hasFullHost, hasExtensionManager } from './src/support/host';
 import { copyToSharedContainer, setUpQuickLook } from './src/quicklook';
 import { localized } from './src/shared/strings';
 import { macOSTahoe, hasFilePathInfo } from './src/shared/utils';
+import { hiddenSyntaxModeExtension } from './src/hiddenSyntax/mode';
 
 import {
   performSearch,
@@ -98,6 +100,7 @@ if (hasFullHost()) {
       createModeItem(localized('editMode'), ViewMode.edit),
       createModeItem(localized('sideBySideMode'), ViewMode.sideBySide),
       createModeItem(localized('previewMode'), ViewMode.preview),
+      createModeItem(localized('syntaxHiddenMode'), ViewMode.syntaxHidden),
       { separator: true },
       ...createHtmlItems(),
       { separator: true },
@@ -123,21 +126,24 @@ if (hasFullHost()) {
     ],
   });
 
-  MarkEdit.addExtension(EditorView.updateListener.of(update => {
-    if (!update.docChanged) {
-      return;
-    }
+  MarkEdit.addExtension([
+    EditorView.updateListener.of(update => {
+      if (!update.docChanged) {
+        return;
+      }
 
-    if (update.transactions.every(tr => tr.annotation(silentChange))) {
-      return;
-    }
+      if (update.transactions.every(tr => tr.annotation(silentChange))) {
+        return;
+      }
 
-    if (states.renderUpdater !== undefined) {
-      clearTimeout(states.renderUpdater);
-    }
+      if (states.renderUpdater !== undefined) {
+        clearTimeout(states.renderUpdater);
+      }
 
-    states.renderUpdater = setTimeout(renderHtmlPreview, 500);
-  }));
+      states.renderUpdater = setTimeout(renderHtmlPreview, 500);
+    }),
+    hiddenSyntaxModeExtension,
+  ]);
 
   MarkEdit.onEditorReady(() => {
     if (imageHoverPreview) {
@@ -215,7 +221,7 @@ function createHtmlItems(): MenuItem[] {
 function renderDecorationViews() {
   const updatePill = renderUpdatePill();
   if (updatePill !== undefined) {
-    updatePill.style.display = currentViewMode() === ViewMode.edit ? 'none' : '';
+    updatePill.style.display = isEditorOnlyMode() ? 'none' : '';
   }
 }
 

@@ -55,11 +55,12 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
     "hidePreviewButtons": true,
     "syntaxAutoDetect": false,
     "imageHoverPreview": false,
+    "inlineImages": false,
     "themeName": "github",
     "styledHtmlColorScheme": "auto",
     "mathDelimiters": [],
     "changeMode": {
-      "modes": ["side-by-side", "preview"],
+      "modes": ["edit", "side-by-side", "preview", "syntax-hidden"],
       "hotKey": {
         "key": "V",
         "modifiers": ["Command"]
@@ -78,10 +79,11 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `hidePreviewButtons`: Whether to hide the built-in preview buttons in side-by-side mode (not applicable for lite build).
 - `syntaxAutoDetect`: Whether to enable automatic language detection for syntax highlighting in code blocks (not applicable for lite build).
 - `imageHoverPreview`: Whether to enable image preview on hover.
+- `inlineImages`: Whether Mixed mode replaces image links with inline images.
 - `themeName`: Set the preview color theme, available themes can be found in the [`styles/themes`](styles/themes) folder. Use `"none"` to disable preview styling and render the raw HTML.
 - `styledHtmlColorScheme`: Determine the color scheme of saving styled html files, valid values are `light`, `dark`, and `auto`.
 - `mathDelimiters`: Customize math delimiters for KaTeX rendering (not applicable for lite build), each delimiter object has `left`, `right`, and `display` properties, defaults to `$...$`, `$$...$$`, `\(...\)`, and `\[...\]`.
-- `changeMode.modes`: Define available preview modes for the "Change Mode" feature.
+- `changeMode.modes`: Define the ordered rotation for the "Change Mode" feature using `edit`, `syntax-hidden`, `side-by-side`, and `preview`. If neither editor mode is included, `edit` is added automatically.
 - `changeMode.hotKey`: Assign keyboard shortcuts for mode switching. See the specification [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#generalmainwindowhotkey).
 - `markdownIt.preset`: Override the default [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) preset.
 - `markdownIt.options`: Customize [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) options.

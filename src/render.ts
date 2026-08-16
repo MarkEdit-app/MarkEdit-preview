@@ -20,6 +20,20 @@ export async function renderMarkdown(markdown: string, lineInfo = true) {
   return mdit.render(markdown, { lineInfo });
 }
 
+export async function headingLineForAnchor(markdown: string, destination: string) {
+  if (!destination.startsWith('#')) {
+    return undefined;
+  }
+
+  await pluginsReady;
+  const anchorID = mdit.normalizeLink(destination).substring(1);
+  const heading = mdit.parse(markdown, {}).find(token => {
+    return token.type === 'heading_open' && token.attrGet('id') === anchorID;
+  });
+
+  return heading?.map?.[0];
+}
+
 /**
  * Render raw Mermaid content as a standalone diagram, used for `.mmd` and `.mermaid` files.
  *

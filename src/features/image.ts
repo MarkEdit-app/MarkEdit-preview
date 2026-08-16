@@ -23,16 +23,18 @@ export function replaceImageURLs(html: string) {
       return;
     }
 
-    // Image with a remote url or base64 data
-    if (url.includes('://') || url.startsWith('data:image/')) {
-      return;
-    }
-
-    // Image with a local file path
-    image.src = `${scheme}://${url}`;
+    image.src = resolveImageURL(url);
   });
 
   return doc.body.innerHTML;
+}
+
+export function resolveImageURL(url: string) {
+  if (url.includes('://') || url.startsWith('//') || url.startsWith('data:image/')) {
+    return url;
+  }
+
+  return `${scheme}://${url}`;
 }
 
 /**
