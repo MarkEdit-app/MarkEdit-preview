@@ -9,6 +9,7 @@ import { createHiddenSyntaxExtension, hiddenSyntaxExtension } from '../src/hidde
 import { blockquoteBarDescriptors, blockquoteBarMarkers } from '../src/hiddenSyntax/components/bar';
 import { unorderedListBulletDescriptors, unorderedListBulletMarkers } from '../src/hiddenSyntax/components/bullet';
 import { taskCheckboxDescriptors } from '../src/hiddenSyntax/components/task';
+import { BlockMathWidget } from '../src/hiddenSyntax/components/math';
 import { hiddenSyntaxModeExtension, setHiddenSyntaxMode } from '../src/hiddenSyntax/mode';
 import { followLinkAnchor } from '../src/hiddenSyntax/navigation';
 import * as editor from './support/editor';
@@ -354,6 +355,62 @@ describe('Inline images', () => {
   });
 });
 
+describe('Block math', () => {
+  test('allows editor mouse handling throughout the rendered widget', () => {
+    expect(new BlockMathWidget('y=x').ignoreEvent()).toBe(false);
+  });
+
+  test('renders inactive math and reveals its source when selected', async () => {
+    const source = '$$y=x$$\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    await vi.waitFor(() => expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenBlockMath .katex-display')).not.toBeNull());
+    expect(window.editor.state.doc.toString()).toBe(source);
+
+    window.editor.dispatch({ selection: { anchor: source.indexOf('y') } });
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenBlockMath')).toBeNull();
+    expect(window.editor.dom.textContent).toContain('$$y=x$$');
+  });
+
+  test('renders multiline math', async () => {
+    const source = '$$\ny = x + 1\n$$\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    await vi.waitFor(() => expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenBlockMath .katex-display')).not.toBeNull());
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenBlockMath')?.textContent).toContain('y=x+1');
+  });
+
+  test('closes multiline math only on a standalone delimiter line', async () => {
+    const source = '$$\nx = 1\nx $$y=x$$\ny = 3\n$$\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    await vi.waitFor(() => expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenBlockMath')).not.toBeNull());
+    window.editor.dispatch({ selection: { anchor: source.indexOf('y = 3') } });
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenBlockMath')).toBeNull();
+  });
+
+  test('keeps empty, incomplete, and inline-positioned math as source', () => {
+    const source = '$$$$\n\n$$\n\nIncomplete\n\nx $$y=x$$';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenBlockMath')).toBeNull();
+    expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test('renders invalid math as a safe KaTeX error', async () => {
+    const source = '$$\\frac{$$\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    await vi.waitFor(() => expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenBlockMath .katex-error')).not.toBeNull());
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenBlockMath')?.textContent).toContain('\\frac{');
+  });
+});
+
 describe('Inline code syntax', () => {
   test('rounds the CoreEditor background tile', () => {
     const source = '`code` after';
@@ -464,7 +521,6 @@ describe('Inline code syntax', () => {
 
     expect(hiddenTexts()).toEqual([]);
   });
-
 });
 
 describe('Horizontal rule syntax', () => {

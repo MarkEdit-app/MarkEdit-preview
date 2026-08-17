@@ -50,9 +50,13 @@ export async function renderMermaid(content: string, lineInfo = false) {
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
  */
 export async function renderKatex(content: string, lineInfo = false) {
-  const katex = (await import('katex')).default;
-  const html = katex.renderToString(content.trim(), { displayMode: true, throwOnError: false });
+  const html = await renderKatexHTML(content);
   return renderStandalone('katex', html, lineInfo);
+}
+
+export async function renderKatexHTML(content: string) {
+  const katex = (await import('katex')).default;
+  return katex.renderToString(content.trim(), { displayMode: true, throwOnError: false });
 }
 
 export function handlePostRender(process: () => void) {
