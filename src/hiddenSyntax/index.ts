@@ -1,7 +1,8 @@
 import { syntaxTree } from '@codemirror/language';
 import { Facet, type Range } from '@codemirror/state';
 import { Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate } from '@codemirror/view';
-import { blockquoteSyntaxRange } from './blockquote';
+import { blockquoteAlert, blockquoteSyntaxRange } from './blockquote';
+import { BlockquoteAlertWidget } from './components/alert';
 import { blockquoteBars } from './components/bar';
 import { unorderedListBullets } from './components/bullet';
 import { taskCheckboxes } from './components/task';
@@ -63,6 +64,7 @@ export const hiddenSyntaxExtension = createHiddenSyntaxExtension();
 
 function hiddenSyntaxDecorations(view: EditorView) {
   const ranges: Range<Decoration>[] = [];
+  const alertMarkers = new Set<number>();
   const renderInlineImages = view.state.facet(inlineImagesConfig);
   const resolveReferenceDestination = referenceDestinationResolver(view.state);
 
@@ -71,6 +73,14 @@ function hiddenSyntaxDecorations(view: EditorView) {
       from,
       to,
       enter: node => {
+        const alert = blockquoteAlert(node, view.state);
+        if (alert !== undefined && !alertMarkers.has(alert.from)) {
+          alertMarkers.add(alert.from);
+          ranges.push(Decoration.replace({
+            widget: new BlockquoteAlertWidget(alert.type, alert.title),
+          }).range(alert.from, alert.to));
+        }
+
         // > Blockquote
         const blockquote = blockquoteSyntaxRange(node, view.state);
         if (blockquote !== undefined) {

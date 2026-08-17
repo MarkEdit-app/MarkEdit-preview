@@ -57,6 +57,56 @@ export const hiddenSyntaxTheme = EditorView.baseTheme({
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenBlockquoteBar': {
     pointerEvents: 'none',
   },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert': {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.4em',
+    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
+    fontStyle: 'normal',
+    fontWeight: '500',
+    textIndent: '0',
+  },
+  '&light.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert[data-type="note"]': {
+    color: '#0969da',
+  },
+  '&light.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert[data-type="tip"]': {
+    color: '#1a7f37',
+  },
+  '&light.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert[data-type="important"]': {
+    color: '#8250df',
+  },
+  '&light.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert[data-type="warning"]': {
+    color: '#9a6700',
+  },
+  '&light.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert[data-type="caution"]': {
+    color: '#d1242f',
+  },
+  '&dark.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert[data-type="note"]': {
+    color: '#2f81f7',
+  },
+  '&dark.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert[data-type="tip"]': {
+    color: '#3fb950',
+  },
+  '&dark.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert[data-type="important"]': {
+    color: '#a371f7',
+  },
+  '&dark.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert[data-type="warning"]': {
+    color: '#d29922',
+  },
+  '&dark.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert[data-type="caution"]': {
+    color: '#f85149',
+  },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlertIcon': {
+    display: 'inline-block',
+    width: '1em',
+    height: '1em',
+  },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlertIcon svg': {
+    display: 'block',
+    width: '100%',
+    height: '100%',
+    fill: 'currentColor',
+  },
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenLinkButton': {
     display: 'inline-block',
     appearance: 'none',
