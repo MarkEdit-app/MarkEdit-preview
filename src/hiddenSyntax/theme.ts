@@ -102,4 +102,22 @@ export const hiddenSyntaxTheme = EditorView.baseTheme({
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenBlockMath .katex-display': {
     margin: '0',
   },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenMermaid': {
+    boxSizing: 'border-box',
+    width: '100%',
+    paddingBlock: '0.5em',
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    textAlign: 'center',
+  },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenMermaid svg': {
+    display: 'block',
+    maxWidth: '100%',
+    height: 'auto',
+    marginInline: 'auto',
+  },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenMermaidError': {
+    whiteSpace: 'pre-wrap',
+    textAlign: 'start',
+  },
 });

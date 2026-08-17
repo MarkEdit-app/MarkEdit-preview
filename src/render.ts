@@ -44,6 +44,12 @@ export async function renderMermaid(content: string, lineInfo = false) {
   return renderStandalone('mermaid', html, lineInfo);
 }
 
+export async function renderMermaidSVG(content: string) {
+  const mermaid = await loadMermaid();
+  const result = await mermaid.render(`markedit-mermaid-${mermaidRenderID++}`, content.trim());
+  return result.svg;
+}
+
 /**
  * Render raw LaTeX content as standalone KaTeX math, used for `.tex` files.
  *
@@ -55,18 +61,13 @@ export async function renderKatex(content: string, lineInfo = false) {
 }
 
 export async function renderKatexHTML(content: string) {
-  const katex = (await import('katex')).default;
+  const katex = await importKatex();
   return katex.renderToString(content.trim(), { displayMode: true, throwOnError: false });
 }
 
 export function handlePostRender(process: () => void) {
   if (__FULL_BUILD__) {
-    import('mermaid').then(({ default: mermaid }) => {
-      const isDarkMode = matchMedia('(prefers-color-scheme: dark)').matches;
-      mermaid.initialize({
-        theme: isDarkMode ? 'dark' : undefined,
-      });
-
+    loadMermaid().then(mermaid => {
       mermaid.run({
         querySelector: '.mermaid',
         postRenderCallback: process,
@@ -124,6 +125,33 @@ const renderStandalone = async (className: string, innerHtml: string, lineInfo: 
   const lineAttrs = lineInfo ? ` data-line-from="0" data-line-to="${lineTo()}"` : '';
   return `<div class="${className}"${lineAttrs}>${innerHtml}</div>`;
 };
+
+const importKatex = __FULL_BUILD__
+  ? () => import('katex').then(mod => mod.default)
+  : async () => ({ renderToString: (..._args: unknown[]) => '' });
+
+const importMermaid = __FULL_BUILD__
+  ? () => import('mermaid').then(mod => mod.default)
+  : async () => ({
+    initialize: () => {},
+    render: async () => ({ svg: '' }),
+    run: async ({ postRenderCallback }: { postRenderCallback?: () => void }) => postRenderCallback?.(),
+  });
+
+let mermaidAPI: ReturnType<typeof importMermaid> | undefined;
+let mermaidDarkMode: boolean | undefined;
+let mermaidRenderID = 0;
+
+async function loadMermaid() {
+  const mermaid = await (mermaidAPI ??= importMermaid());
+  const isDarkMode = matchMedia('(prefers-color-scheme: dark)').matches;
+  if (isDarkMode !== mermaidDarkMode) {
+    mermaid.initialize({ theme: isDarkMode ? 'dark' : undefined });
+    mermaidDarkMode = isDarkMode;
+  }
+
+  return mermaid;
+}
 
 // Create the markdown-it instance
 const mdit = markdownit(markdownItPreset, {
