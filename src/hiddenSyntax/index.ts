@@ -7,7 +7,7 @@ import { unorderedListBullets } from './components/bullet';
 import { taskCheckboxes } from './components/task';
 import { LinkIconWidget } from './components/icon';
 import { InlineImageWidget } from './components/image';
-import { blockMathDecorations } from './blockMath';
+import { renderedBlockDecorations } from './block';
 import { atxHeadingSyntaxRange, setextHeadingSyntaxLine } from './heading';
 import { horizontalRuleDecoration } from './horizontalRule';
 import { inlineSyntaxDecorations } from './inline';
@@ -51,7 +51,7 @@ const hiddenSyntaxBaseExtension = [
   blockquoteBars,
   unorderedListBullets,
   taskCheckboxes,
-  ...(__FULL_BUILD__ ? [blockMathDecorations] : []),
+  ...(__FULL_BUILD__ ? [renderedBlockDecorations] : []),
   hiddenSyntaxTheme,
 ];
 

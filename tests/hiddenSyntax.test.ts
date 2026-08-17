@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { EditorSelection, EditorState } from '@codemirror/state';
 import { history, redo, undo } from '@codemirror/commands';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
@@ -10,9 +10,24 @@ import { blockquoteBarDescriptors, blockquoteBarMarkers } from '../src/hiddenSyn
 import { unorderedListBulletDescriptors, unorderedListBulletMarkers } from '../src/hiddenSyntax/components/bullet';
 import { taskCheckboxDescriptors } from '../src/hiddenSyntax/components/task';
 import { BlockMathWidget } from '../src/hiddenSyntax/components/math';
+import { MermaidWidget } from '../src/hiddenSyntax/components/mermaid';
+import { renderMermaidSVG } from '../src/render';
 import { hiddenSyntaxModeExtension, setHiddenSyntaxMode } from '../src/hiddenSyntax/mode';
 import { followLinkAnchor } from '../src/hiddenSyntax/navigation';
 import * as editor from './support/editor';
+
+const mermaidMocks = vi.hoisted(() => ({
+  initialize: vi.fn(),
+  render: vi.fn(async (_id: string, source: string) => ({ svg: `<svg><text>${source}</text></svg>` })),
+}));
+
+vi.mock('mermaid', () => ({ default: mermaidMocks }));
+
+beforeEach(() => {
+  mermaidMocks.initialize.mockClear();
+  mermaidMocks.render.mockReset();
+  mermaidMocks.render.mockImplementation(async (_id, source) => ({ svg: `<svg><text>${source}</text></svg>` }));
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -408,6 +423,98 @@ describe('Block math', () => {
 
     await vi.waitFor(() => expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenBlockMath .katex-error')).not.toBeNull());
     expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenBlockMath')?.textContent).toContain('\\frac{');
+  });
+});
+
+describe('Mermaid blocks', () => {
+  test('reinitializes Mermaid when the color scheme changes', async () => {
+    let darkMode = false;
+    vi.spyOn(window, 'matchMedia').mockImplementation(() => ({
+      get matches() { return darkMode; },
+    }) as MediaQueryList);
+
+    await renderMermaidSVG('graph TD');
+    mermaidMocks.initialize.mockClear();
+
+    darkMode = true;
+    await renderMermaidSVG('graph TD');
+    expect(mermaidMocks.initialize).toHaveBeenLastCalledWith({ theme: 'dark' });
+
+    darkMode = false;
+    await renderMermaidSVG('graph TD');
+    expect(mermaidMocks.initialize).toHaveBeenLastCalledWith({ theme: undefined });
+  });
+
+  test('rerenders mounted diagrams when the color scheme changes', async () => {
+    let darkMode = false;
+    let listener: EventListener | undefined;
+    const removeEventListener = vi.fn();
+    vi.spyOn(window, 'matchMedia').mockImplementation(() => ({
+      get matches() { return darkMode; },
+      addEventListener: (_type: string, callback: EventListenerOrEventListenerObject) => {
+        listener = callback as EventListener;
+      },
+      removeEventListener,
+    }) as unknown as MediaQueryList);
+
+    const widget = new MermaidWidget('graph TD');
+    const view = { requestMeasure: vi.fn() } as unknown as EditorView;
+    const container = widget.toDOM(view);
+    document.body.appendChild(container);
+    await vi.waitFor(() => expect(mermaidMocks.render).toHaveBeenCalledTimes(1));
+    mermaidMocks.render.mockClear();
+
+    darkMode = true;
+    listener?.(new Event('change'));
+    await vi.waitFor(() => expect(mermaidMocks.render).toHaveBeenCalledTimes(1));
+    expect(mermaidMocks.initialize).toHaveBeenLastCalledWith({ theme: 'dark' });
+
+    widget.destroy(container);
+    expect(removeEventListener).toHaveBeenCalledOnce();
+  });
+
+  test('allows editor mouse handling throughout the rendered widget', () => {
+    expect(new MermaidWidget('graph TD').ignoreEvent()).toBe(false);
+  });
+
+  test('renders inactive diagrams and reveals their source when selected', async () => {
+    const source = '```mermaid\ngraph TD\n  A --> B\n```\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    await vi.waitFor(() => expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenMermaid svg')).not.toBeNull());
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenMermaid')?.textContent).toContain('graph TD');
+    expect(mermaidMocks.render).toHaveBeenCalledWith(expect.stringMatching(/^markedit-mermaid-/), 'graph TD\n  A --> B');
+    expect(window.editor.state.doc.toString()).toBe(source);
+
+    window.editor.dispatch({ selection: { anchor: source.indexOf('graph TD') } });
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenMermaid')).toBeNull();
+    expect(window.editor.dom.textContent).toContain('```mermaid');
+  });
+
+  test.each([
+    ['empty', '```mermaid\n```'],
+    ['incomplete', '```mermaid\ngraph TD'],
+    ['other language', '```javascript\ngraph TD\n```'],
+    ['extended info', '```mermaid example\ngraph TD\n```'],
+  ])('keeps %s fences as source', (_name, source) => {
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenMermaid')).toBeNull();
+    expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test('falls back to safe source text when rendering fails', async () => {
+    const content = 'not a diagram';
+    const source = `\`\`\`mermaid\n${content}\n\`\`\`\n\nAfter`;
+    mermaidMocks.render.mockRejectedValueOnce(new Error('Parse error'));
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    await vi.waitFor(() => expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenMermaidError')).not.toBeNull());
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenMermaidError')?.textContent).toBe(content);
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenMermaid svg')).toBeNull();
   });
 });
 
