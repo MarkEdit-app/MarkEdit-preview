@@ -1180,6 +1180,115 @@ describe('Unordered list syntax', () => {
 });
 
 describe('Blockquote syntax', () => {
+  test('replaces GitHub alert markers with icons and normalized titles', () => {
+    const source = [
+      '> [!NOTE]',
+      '> note',
+      '',
+      '> [!tip]',
+      '> tip',
+      '',
+      '> [!IMPORTANT]',
+      '> important',
+      '',
+      '> [!warning]',
+      '> warning',
+      '',
+      '> [!CAUTION]',
+      '> caution',
+      '',
+      'Body',
+    ].join('\n');
+
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    const alerts = [...window.editor.dom.querySelectorAll<HTMLElement>('.cm-md-syntaxHiddenAlert')];
+    expect(alerts.map(alert => alert.dataset.type)).toEqual(['note', 'tip', 'important', 'warning', 'caution']);
+    expect(alerts.map(alert => alert.textContent)).toEqual(['Note', 'Tip', 'Important', 'Warning', 'Caution']);
+    expect(alerts.every(alert => alert.querySelector('svg')?.getAttribute('viewBox') === '0 0 16 16')).toBe(true);
+    expect(alerts.every(alert => alert.querySelector('svg')?.classList.contains('octicon'))).toBe(true);
+    expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test('recognizes only the first standalone marker in each parsed blockquote', () => {
+    const source = [
+      '[!NOTE]',
+      '',
+      '> intro',
+      '>',
+      '> [!WARNING]',
+      '> later',
+      '',
+      '> [!CUSTOM]',
+      '',
+      '> [!TIP] custom title',
+      '',
+      '> [!CAUTION',
+      '',
+      '> - preceding list',
+      '>',
+      '> [!NOTE]',
+      '> later paragraph',
+      '',
+      '> outer',
+      '>> [!IMPORTANT]',
+      '>> nested',
+      '',
+      'Body',
+    ].join('\n');
+
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    const alerts = [...window.editor.dom.querySelectorAll<HTMLElement>('.cm-md-syntaxHiddenAlert')];
+    expect(alerts.map(alert => alert.dataset.type)).toEqual(['important']);
+  });
+
+  test('reveals an alert marker only when the selection intersects it', () => {
+    const source = '> [!TIP]\n> Discover more.\n\nBody';
+    const markerFrom = source.indexOf('[!TIP]');
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenAlert')?.textContent).toBe('Tip');
+
+    window.editor.dispatch({ selection: { anchor: source.indexOf('Discover') } });
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenAlert')?.textContent).toBe('Tip');
+
+    window.editor.dispatch({ selection: { anchor: markerFrom + 2 } });
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenAlert')).toBeNull();
+    expect(editorText()).toContain('[!TIP]');
+
+    window.editor.dispatch({ selection: { anchor: markerFrom + '[!TIP]'.length, head: source.indexOf('Discover') } });
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenAlert')?.textContent).toBe('Tip');
+  });
+
+  test('handles alert line wrapping and uses type colors', () => {
+    const source = '> [!TIP]\n> Discover more.\n\nBody';
+    const hangingIndent = EditorView.decorations.of(Decoration.set([
+      Decoration.line({
+        class: 'cm-md-contentIndent',
+        attributes: { style: 'text-indent: -20px; margin-inline-start: 20px;' },
+      }).range(0),
+    ]));
+
+    const darkTheme = EditorView.theme({}, { dark: true });
+    editor.setUp(source, [EditorView.lineWrapping, hangingIndent, darkTheme, hiddenSyntaxExtension]);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    const alert = window.editor.dom.querySelector<HTMLElement>('.cm-md-syntaxHiddenAlert');
+    const icon = alert?.querySelector<HTMLElement>('.cm-md-syntaxHiddenAlertIcon');
+    expect(alert).not.toBeNull();
+    expect(getComputedStyle(alert as HTMLElement).textIndent).toBe('0px');
+    expect(getComputedStyle(alert as HTMLElement).gap).toBe('0.4em');
+    expect(getComputedStyle(alert as HTMLElement).fontFamily).toContain('system-ui');
+    expect(getComputedStyle(alert as HTMLElement).fontWeight).toBe('500');
+    expect(getComputedStyle(alert as HTMLElement).color).toBe('#3fb950');
+    expect(getComputedStyle(icon as HTMLElement).color).toBe('#3fb950');
+    expect(getComputedStyle(icon as HTMLElement).width).toBe('16px');
+    expect(getComputedStyle(icon?.querySelector('svg') as SVGElement).fill).toBe('currentColor');
+  });
+
   test('paints source opacity', () => {
     const source = '> quote\n\nBody';
     editor.setUp(source, hiddenSyntaxExtension);
