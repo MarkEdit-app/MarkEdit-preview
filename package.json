@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "js-yaml": "^5.2.1",
-    "katex": "^0.18.0",
+    "katex": "^0.18.4",
     "mark.js": "^8.11.1",
     "markdown-it": "^14.3.0",
     "markdown-it-anchor": "^9.2.1",
@@ -51,7 +51,7 @@
     "markdown-it-highlightjs": "^4.3.0",
     "markdown-it-link-attributes": "^4.0.1",
     "markdown-it-task-lists": "^2.1.1",
-    "markedit-katex": "https://github.com/MarkEdit-app/MarkEdit-katex#v1.1.5",
+    "markedit-katex": "https://github.com/MarkEdit-app/MarkEdit-katex#v1.1.6",
     "mermaid": "^11.16.0",
     "split-grid": "^1.0.11"
   }
