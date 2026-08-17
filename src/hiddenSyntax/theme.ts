@@ -91,4 +91,15 @@ export const hiddenSyntaxTheme = EditorView.baseTheme({
     height: 'auto',
     verticalAlign: 'middle',
   },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenBlockMath': {
+    boxSizing: 'border-box',
+    width: '100%',
+    paddingBlock: '0.5em',
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    textAlign: 'center',
+  },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenBlockMath .katex-display': {
+    margin: '0',
+  },
 });
