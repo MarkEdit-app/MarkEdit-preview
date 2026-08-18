@@ -1,5 +1,5 @@
 import { extractBackgroundColor } from './shared/utils';
-import { themeName, showRawHtml } from './support/settings';
+import { currentTheme, showRawHtml } from './support/settings';
 import type { ColorScheme } from './shared/types';
 
 import githubBase from '../styles/themes/github/base.css?raw';
@@ -60,12 +60,30 @@ const previewThemes: Record<string, ThemeVariants> = {
   'xcode': { light: xcodeLight, dark: xcodeDark },
 };
 
+/**
+ * The variants of the theme in use, resolving `"auto"` against the app theme.
+ */
+function activeVariants(): ThemeVariants {
+  const { name } = currentTheme();
+  return previewThemes[name] ?? previewThemes['github'];
+}
+
+/**
+ * For `"auto"` theming, the app theme pins the color scheme (e.g. `xcode-dark`
+ * stays dark under a light system appearance); explicit schemes pass through.
+ */
+function pinColorScheme(colorScheme: ColorScheme): ColorScheme {
+  const { scheme } = currentTheme();
+  return colorScheme === 'auto' && scheme !== undefined ? scheme : colorScheme;
+}
+
 export function coreCss(colorScheme: ColorScheme = 'auto') {
   if (showRawHtml) {
     return '';
   }
 
-  const variants = previewThemes[themeName] ?? previewThemes['github'];
+  colorScheme = pinColorScheme(colorScheme);
+  const variants = activeVariants();
   const lightVariant = variants.light ?? variants.dark;
   const darkVariant = variants.dark ?? variants.light;
   const lightBackground = extractBackgroundColor(lightVariant) ?? '#ffffff';
@@ -89,7 +107,8 @@ export function previewThemeCss(colorScheme: ColorScheme = 'auto') {
     ].join('\n');
   }
 
-  const variants = previewThemes[themeName] ?? previewThemes['github'];
+  colorScheme = pinColorScheme(colorScheme);
+  const variants = activeVariants();
   const light = (variants.light ?? variants.dark) as string;
   const dark = (variants.dark ?? variants.light) as string;
 
@@ -104,14 +123,14 @@ export function previewThemeCss(colorScheme: ColorScheme = 'auto') {
 export function alertsCss(colorScheme: ColorScheme = 'auto') {
   const styles = [
     alertsBase,
-    ...createCss(colorScheme, alertsLight, alertsDark),
+    ...createCss(pinColorScheme(colorScheme), alertsLight, alertsDark),
   ];
 
   return styles.join('\n');
 }
 
 export function hljsCss(colorScheme: ColorScheme = 'auto') {
-  return createCss(colorScheme, hljsBase, hljsDark).join('\n');
+  return createCss(pinColorScheme(colorScheme), hljsBase, hljsDark).join('\n');
 }
 
 export function codeCopyCss() {
