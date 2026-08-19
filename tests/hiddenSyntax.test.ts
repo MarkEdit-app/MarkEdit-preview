@@ -1280,6 +1280,8 @@ describe('Blockquote syntax', () => {
     const icon = alert?.querySelector<HTMLElement>('.cm-md-syntaxHiddenAlertIcon');
     expect(alert).not.toBeNull();
     expect(getComputedStyle(alert as HTMLElement).textIndent).toBe('0px');
+    expect(getComputedStyle(alert as HTMLElement).height).toBe(getComputedStyle(icon as HTMLElement).height);
+    expect(getComputedStyle(alert as HTMLElement).verticalAlign).toBe('middle');
     expect(getComputedStyle(alert as HTMLElement).gap).toBe('0.4em');
     expect(getComputedStyle(alert as HTMLElement).fontFamily).toContain('system-ui');
     expect(getComputedStyle(alert as HTMLElement).fontWeight).toBe('500');
