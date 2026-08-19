@@ -60,6 +60,10 @@ export const hiddenSyntaxTheme = EditorView.baseTheme({
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenAlert': {
     display: 'inline-flex',
     alignItems: 'center',
+    boxSizing: 'border-box',
+    height: '1em',
+    lineHeight: '1em',
+    verticalAlign: 'middle',
     gap: '0.4em',
     fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
     fontStyle: 'normal',
