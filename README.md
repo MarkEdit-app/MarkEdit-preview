@@ -1,6 +1,6 @@
 # MarkEdit-preview
 
-Markdown preview for [MarkEdit](https://github.com/MarkEdit-app/MarkEdit) that leverages [markedit-api](https://github.com/MarkEdit-app/MarkEdit-api).
+Markdown view modes for [MarkEdit](https://github.com/MarkEdit-app/MarkEdit) that leverage [markedit-api](https://github.com/MarkEdit-app/MarkEdit-api).
 
 ## Installation
 
@@ -19,7 +19,7 @@ To build the lite version, run `yarn build:lite` instead.
 
 ## How to Use
 
-Access it from the `Extensions` menu in the menu bar, or use the keyboard shortcut <kbd>Shift–Command–V</kbd>.
+Choose a mode from `Extensions` > `View Mode`, or use the keyboard shortcut <kbd>Shift–Command–V</kbd> to cycle through modes.
 
 <img src="./screenshot.png" width="520" alt="Using MarkEdit-preview">
 
@@ -73,7 +73,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `themeName`: Set the preview color theme, available themes can be found in the [`styles/themes`](styles/themes) folder. Use `"none"` to disable preview styling and render the raw HTML.
 - `styledHtmlColorScheme`: Determine the color scheme of saving styled html files, valid values are `light`, `dark`, and `auto`.
 - `mathDelimiters`: Customize math delimiters for KaTeX rendering (not applicable for lite build), each delimiter object has `left`, `right`, and `display` properties, defaults to `$...$`, `$$...$$`, `\(...\)`, and `\[...\]`.
-- `changeMode.modes`: Define the ordered rotation for the "Change Mode" feature using `edit`, `syntax-hidden`, `side-by-side`, and `preview`. If neither editor mode is included, `edit` is added automatically.
+- `changeMode.modes`: Order modes by ID: `edit` (Markdown Source), `side-by-side` (Side-by-Side), `preview` (Overlay), and `syntax-hidden` (Mixed). If neither editor mode is included, `edit` is added automatically.
 - `changeMode.hotKey`: Assign keyboard shortcuts for mode switching. See the specification [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#generalmainwindowhotkey).
 - `markdownIt.preset`: Override the default [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) preset.
 - `markdownIt.options`: Customize [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) options.
