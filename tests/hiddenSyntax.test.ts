@@ -53,6 +53,64 @@ function editorText() {
     .join('\n');
 }
 
+describe('Pointer selection', () => {
+  test('keeps click jitter collapsed at its original position', () => {
+    const source = '# Hello\n\nBody';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    const coords = vi.spyOn(window.editor, 'posAndSideAtCoords')
+      .mockReturnValueOnce({ pos: 4, assoc: 1 })
+      .mockReturnValue({ pos: 2, assoc: 1 });
+
+    const start = new MouseEvent('mousedown', {
+      bubbles: true, button: 0, buttons: 1, detail: 1, clientX: 40, clientY: 10,
+    });
+
+    const end = new MouseEvent('mouseup', {
+      bubbles: true, button: 0, detail: 1, clientX: 40, clientY: 10,
+    });
+
+    window.editor.contentDOM.querySelector('.cm-line')?.dispatchEvent(start);
+    document.dispatchEvent(new MouseEvent('mousemove', {
+      bubbles: true, buttons: 1, clientX: 41, clientY: 10,
+    }));
+    document.dispatchEvent(end);
+
+    expect(window.editor.state.selection.main).toEqual(EditorSelection.cursor(4, 1));
+    expect(coords).toHaveBeenCalledTimes(1);
+  });
+
+  test('creates a range after actual pointer movement', () => {
+    const source = '# Hello\n\nBody';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    vi.spyOn(window.editor, 'posAndSideAtCoords')
+      .mockReturnValueOnce({ pos: 4, assoc: 1 })
+      .mockReturnValue({ pos: 7, assoc: -1 });
+
+    const start = new MouseEvent('mousedown', { button: 0, detail: 1, clientX: 40, clientY: 10 });
+    const move = new MouseEvent('mousemove', { buttons: 1, clientX: 46, clientY: 10 });
+    const style = window.editor.state.facet(EditorView.mouseSelectionStyle)[0](window.editor, start);
+    expect(style?.get(move, false, false).main).toEqual(EditorSelection.range(4, 7, undefined, undefined, -1));
+  });
+
+  test('leaves modified and multi-click gestures to other selection styles', () => {
+    editor.setUp('# Hello', hiddenSyntaxExtension);
+    const makeStyle = window.editor.state.facet(EditorView.mouseSelectionStyle)[0];
+
+    const events = [
+      new MouseEvent('mousedown', { button: 1, detail: 1 }),
+      new MouseEvent('mousedown', { button: 0, detail: 2 }),
+      new MouseEvent('mousedown', { button: 0, detail: 1, altKey: true }),
+      new MouseEvent('mousedown', { button: 0, detail: 1, ctrlKey: true }),
+      new MouseEvent('mousedown', { button: 0, detail: 1, metaKey: true }),
+      new MouseEvent('mousedown', { button: 0, detail: 1, shiftKey: true }),
+    ];
+
+    expect(events.every(event => makeStyle(window.editor, event) === null)).toBe(true);
+  });
+});
+
 describe('Link syntax', () => {
   test('opens links from their icons without revealing syntax', () => {
     const source = '[title](https://example.com) after';
