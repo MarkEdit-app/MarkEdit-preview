@@ -37,7 +37,7 @@ vi.mock('mark.js', () => ({
   },
 }));
 
-vi.mock('../src/support/settings', () => ({ themeName: 'github' }));
+vi.mock('../src/support/settings', () => ({ themeName: 'github', currentTheme: () => ({ name: 'github' }) }));
 
 vi.mock('../src/view', () => ({
   ViewMode: { edit: 'edit', sideBySide: 'side-by-side', preview: 'preview' },

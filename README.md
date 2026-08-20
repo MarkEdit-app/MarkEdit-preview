@@ -70,7 +70,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `syntaxAutoDetect`: Whether to enable automatic language detection for syntax highlighting in code blocks (not applicable for lite build).
 - `imageHoverPreview`: Whether to enable image preview on hover.
 - `inlineImages`: Whether Mixed mode replaces image links with inline images.
-- `themeName`: Set the preview color theme, available themes can be found in the [`styles/themes`](styles/themes) folder. Use `"none"` to disable preview styling and render the raw HTML.
+- `themeName`: Set the preview color theme, available themes can be found in the [`styles/themes`](styles/themes) folder. Use `"auto"` to follow the app's current theme (every built-in app theme has a preview counterpart, and a dark app theme keeps the preview dark regardless of the system appearance). Use `"none"` to disable preview styling and render the raw HTML.
 - `styledHtmlColorScheme`: Determine the color scheme of saving styled html files, valid values are `light`, `dark`, and `auto`.
 - `mathDelimiters`: Customize math delimiters for KaTeX rendering (not applicable for lite build), each delimiter object has `left`, `right`, and `display` properties, defaults to `$...$`, `$$...$$`, `\(...\)`, and `\[...\]`.
 - `changeMode.modes`: Order modes by ID: `edit` (Markdown Source), `side-by-side` (Side-by-Side), `preview` (Overlay), and `syntax-hidden` (Mixed). If neither editor mode is included, `edit` is added automatically.
