@@ -5,8 +5,8 @@
  */
 
 import type { MarkEdit as RealMarkEdit } from 'markedit-api';
-import type { EditorView as RealEditorView } from '@codemirror/view';
-import type { Annotation as RealAnnotation } from '@codemirror/state';
+import type * as CodeMirrorView from '@codemirror/view';
+import type * as CodeMirrorState from '@codemirror/state';
 
 type Globals = {
   MarkEdit?: RealMarkEdit;
@@ -16,34 +16,45 @@ type Globals = {
 const host = globalThis as unknown as Globals;
 if (typeof host.require === 'undefined') {
   type MarkEditModule = { MarkEdit: RealMarkEdit };
-  type ViewModule = { EditorView: Pick<typeof RealEditorView, 'updateListener'> };
-  type StateModule = {
-    Annotation: Pick<typeof RealAnnotation, 'define'>;
-    Compartment: new () => {
-      of: () => unknown;
-      reconfigure: () => unknown;
-    };
-  };
+  type ViewModule = typeof CodeMirrorView;
+  type StateModule = typeof CodeMirrorState;
 
   const markeditApi: MarkEditModule = {
     MarkEdit: host.MarkEdit ?? (Object.freeze({}) as RealMarkEdit),
   };
 
-  const codemirrorView: ViewModule = {
-    EditorView: {
-      updateListener: { of: () => ({}) },
-    } as unknown as ViewModule['EditorView'],
-  };
+  const inertFacet = { of: () => ({}) };
+  const inertDecoration = () => ({ range: () => ({}) });
+  class InertBase {}
 
-  const codemirrorState: StateModule = {
+  const codemirrorView = {
+    EditorView: {
+      updateListener: inertFacet,
+      mouseSelectionStyle: inertFacet,
+      editorAttributes: inertFacet,
+      baseTheme: () => ({}),
+    },
+    Decoration: {
+      mark: inertDecoration,
+      line: inertDecoration,
+    },
+    ViewPlugin: { fromClass: () => ({}) },
+    WidgetType: InertBase,
+    RectangleMarker: InertBase,
+    layer: () => ({}),
+  } as unknown as ViewModule;
+
+  const codemirrorState = {
     Annotation: {
       define: () => ({ of: () => ({}) }),
-    } as unknown as StateModule['Annotation'],
+    },
     Compartment: class {
       of() { return {}; }
       reconfigure() { return {}; }
     },
-  };
+    Facet: { define: () => inertFacet },
+    StateField: { define: () => ({}) },
+  } as unknown as StateModule;
 
   const stubs: Record<string, unknown> = {
     'markedit-api': markeditApi,
