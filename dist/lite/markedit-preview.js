@@ -1926,7 +1926,7 @@ ${t}`}async function Wn(e=!0){const n=_.MarkEdit.editorAPI.getText();return awai
   box-sizing: border-box;
   background: transparent;
   border-bottom: 1px solid transparent;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.2s ease;
   z-index: 10001;
 }
 
@@ -2017,7 +2017,7 @@ ${t}`}async function Wn(e=!0){const n=_.MarkEdit.editorAPI.getText();return awai
     height: 56px;
     background: linear-gradient(to bottom, rgba(250, 250, 252, 0.95), rgba(250, 250, 252, 0));
     opacity: 0;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.2s ease;
     pointer-events: none;
     z-index: -1;
   }
@@ -2037,7 +2037,7 @@ ${t}`}async function Wn(e=!0){const n=_.MarkEdit.editorAPI.getText();return awai
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
     border: 0.5px solid rgba(0, 0, 0, 0.12);
     border-radius: 4px;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.2s ease;
   }
 
   body:hover .quicklook-segmented, .quicklook-segmented:focus-within {
