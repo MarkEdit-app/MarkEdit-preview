@@ -2017,12 +2017,12 @@ ${t}`}async function Wn(e=!0){const n=_.MarkEdit.editorAPI.getText();return awai
     height: 56px;
     background: linear-gradient(to bottom, rgba(250, 250, 252, 0.95), rgba(250, 250, 252, 0));
     opacity: 0;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.25s ease;
     pointer-events: none;
     z-index: -1;
   }
 
-  .quicklook-toolbar.scrolled-far::before {
+  body:hover .quicklook-toolbar.scrolled-far::before {
     opacity: 1;
   }
 
@@ -2031,11 +2031,17 @@ ${t}`}async function Wn(e=!0){const n=_.MarkEdit.editorAPI.getText();return awai
     padding: 0;
     gap: 0;
     overflow: hidden;
+    opacity: 0;
     background: rgba(242, 242, 245, 0.85);
     backdrop-filter: saturate(180%) blur(12px);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
     border: 0.5px solid rgba(0, 0, 0, 0.12);
     border-radius: 4px;
+    transition: opacity 0.15s ease;
+  }
+
+  body:hover .quicklook-segmented, .quicklook-segmented:focus-within {
+    opacity: 1;
   }
 
   .quicklook-segment {
