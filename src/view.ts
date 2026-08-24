@@ -1,6 +1,6 @@
 import { Annotation } from '@codemirror/state';
 import { MarkEdit } from 'markedit-api';
-import { appendStyle, getBlockRange, getFileExtension, getFileName, joinPaths, selectFullRange } from './shared/utils';
+import { appendStyle, getBlockRange, getFileExtension, getFileName, joinPaths, selectFullRange, writeClipboard, htmlToPlainText } from './shared/utils';
 import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './features/image';
 import { hidePreviewButtons, viewModes } from './support/settings';
@@ -261,19 +261,23 @@ export function saveStyledHtml() {
   saveGeneratedHtml(true);
 }
 
-export async function copyHtml() {
-  const html = await getRenderedHtml(false);
-  await navigator.clipboard.writeText(html);
-}
-
-export async function copyRichText() {
-  const html = await getRenderedHtml(false);
+export function copyHtml() {
+  const html = getRenderedHtml(false);
   const items = new ClipboardItem({
-    'text/html': new Blob([html], { type: 'text/html' }),
-    'text/plain': new Blob([previewPane.innerText], { type: 'text/plain' }),
+    'text/plain': html.then(value => new Blob([value], { type: 'text/plain' })),
   });
 
-  await navigator.clipboard.write([items]);
+  return writeClipboard(items, localized('failedToCopy'));
+}
+
+export function copyRichText() {
+  const html = getRenderedHtml(false);
+  const items = new ClipboardItem({
+    'text/html': html.then(value => new Blob([value], { type: 'text/html' })),
+    'text/plain': html.then(value => new Blob([htmlToPlainText(value)], { type: 'text/plain' })),
+  });
+
+  return writeClipboard(items, localized('failedToCopy'));
 }
 
 export function getEditPane() {

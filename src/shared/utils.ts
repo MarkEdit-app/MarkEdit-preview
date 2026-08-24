@@ -110,3 +110,24 @@ export async function parseJSON(path: string): Promise<Record<string, unknown>> 
     return {};
   }
 }
+
+export function writeClipboard(item: ClipboardItem, failedToCopyMessage: string) {
+  // Deliberately keep clipboard.write synchronous for #174
+  return navigator.clipboard.write([item]).catch(error => {
+    console.error('Failed to copy:', error);
+    MarkEdit.showAlert(failedToCopyMessage);
+  });
+}
+
+export function htmlToPlainText(html: string) {
+  const element = document.createElement('div');
+  element.style.cssText = 'position: fixed; left: -10000px; top: 0;';
+  element.innerHTML = html;
+  document.body.appendChild(element);
+
+  try {
+    return element.innerText;
+  } finally {
+    element.remove();
+  }
+}
