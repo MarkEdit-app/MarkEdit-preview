@@ -3,7 +3,7 @@ import type { EditorState, Range } from '@codemirror/state';
 import { Decoration, WidgetType } from '@codemirror/view';
 import type { SyntaxNodeRef } from '@lezer/common';
 import { tags } from '@lezer/highlight';
-import { selectionIntersects } from './selection';
+import { selectionReveals } from './selection';
 
 export function horizontalRuleDecoration(node: SyntaxNodeRef, state: EditorState): Range<Decoration> | undefined {
   if (node.name !== 'HorizontalRule' || node.node.parent?.name !== 'Document') {
@@ -11,7 +11,7 @@ export function horizontalRuleDecoration(node: SyntaxNodeRef, state: EditorState
   }
 
   const line = state.doc.lineAt(node.from);
-  if (selectionIntersects(state, line.from, line.to)) {
+  if (selectionReveals(state, line.from, line.to)) {
     return;
   }
 

@@ -3,7 +3,7 @@ import { Direction, RectangleMarker, layer } from '@codemirror/view';
 import type { EditorView } from '@codemirror/view';
 import type { SyntaxNode } from '@lezer/common';
 import { blockquoteStyleRange } from '../blockquote';
-import { selectionIntersects } from '../selection';
+import { selectionReveals } from '../selection';
 
 export interface BlockquoteBarDescriptor {
   line: number;
@@ -64,7 +64,7 @@ export function blockquoteBarDescriptors(view: EditorView): BlockquoteBarDescrip
 
         ownerAnchors.set(line, {
           position: node.from,
-          active: selectionIntersects(view.state, node.from, node.to),
+          active: selectionReveals(view.state, node.from, node.to),
         });
 
         anchors.set(key, ownerAnchors);

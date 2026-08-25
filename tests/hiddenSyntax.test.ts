@@ -269,14 +269,14 @@ describe('Link syntax', () => {
     expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenLinkButton')).toBeNull();
   });
 
-  test('reveals links at caret boundaries but not adjacent selection boundaries', () => {
+  test('reveals links when a selection touches their boundaries', () => {
     editor.setUp('[one](a) [two](b)', hiddenSyntaxExtension);
 
     window.editor.dispatch({ selection: { anchor: 8 } });
     expect(editorText()).toBe('[one](a) two');
 
     window.editor.dispatch({ selection: { anchor: 1, head: 9 } });
-    expect(editorText()).toBe('[one](a) two');
+    expect(editorText()).toBe('[one](a) [two](b)');
   });
 
   test('hides image syntax when inline images are disabled', () => {
@@ -761,11 +761,11 @@ describe('Strong emphasis syntax', () => {
     expect(editorText()).toBe('**One** and Two');
   });
 
-  test('does not reveal the next node at a selection boundary', () => {
+  test('reveals the next node at a selection boundary', () => {
     editor.setUp('**One** **Two**', hiddenSyntaxExtension);
     window.editor.dispatch({ selection: { anchor: 2, head: 8 } });
 
-    expect(editorText()).toBe('**One** Two');
+    expect(editorText()).toBe('**One** **Two**');
   });
 
   test('hides nested strong and italic marks', () => {
@@ -1303,7 +1303,7 @@ describe('Blockquote syntax', () => {
     expect(alerts.map(alert => alert.dataset.type)).toEqual(['important']);
   });
 
-  test('reveals an alert marker only when the selection intersects it', () => {
+  test('reveals an alert marker when the selection touches it', () => {
     const source = '> [!TIP]\n> Discover more.\n\nBody';
     const markerFrom = source.indexOf('[!TIP]');
     editor.setUp(source, hiddenSyntaxExtension);
@@ -1318,7 +1318,8 @@ describe('Blockquote syntax', () => {
     expect(editorText()).toContain('[!TIP]');
 
     window.editor.dispatch({ selection: { anchor: markerFrom + '[!TIP]'.length, head: source.indexOf('Discover') } });
-    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenAlert')?.textContent).toBe('Tip');
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenAlert')).toBeNull();
+    expect(editorText()).toContain('[!TIP]');
   });
 
   test('handles alert line wrapping and uses type colors', () => {
@@ -1525,14 +1526,14 @@ describe('Blockquote syntax', () => {
     expect(hiddenTexts()).toEqual(['>']);
   });
 
-  test('reveals at a caret boundary but not an adjacent selection boundary', () => {
+  test('reveals at caret and selection boundaries', () => {
     const source = '>one\n\n> two';
     const secondQuote = source.indexOf('> two');
     editor.setUp(source, hiddenSyntaxExtension);
 
     window.editor.dispatch({ selection: { anchor: 1, head: secondQuote } });
-    expect(hiddenTexts()).toEqual(['>', '>']);
-    expect(blockquoteBarDescriptors(window.editor).map(bar => bar.ownerFrom)).toEqual([0, secondQuote]);
+    expect(hiddenTexts()).toEqual([]);
+    expect(blockquoteBarDescriptors(window.editor)).toEqual([]);
 
     window.editor.dispatch({ selection: { anchor: secondQuote } });
     expect(hiddenTexts()).toEqual(['>']);
@@ -1630,10 +1631,10 @@ describe('ATX heading syntax', () => {
     expect(editorText()).toBe('## Heading');
   });
 
-  test('does not reveal the next heading at a selection boundary', () => {
+  test('reveals the next heading at a selection boundary', () => {
     editor.setUp('# One\n# Two', hiddenSyntaxExtension);
     window.editor.dispatch({ selection: { anchor: 2, head: 6 } });
-    expect(editorText()).toBe('# One\nTwo');
+    expect(editorText()).toBe('# One\n# Two');
   });
 
   test('hides all spaces after the opening marker', () => {
@@ -1683,7 +1684,7 @@ describe('Setext heading syntax', () => {
     expect(underline?.classList.contains('cm-md-syntaxHiddenSetextUnderline')).toBe(false);
   });
 
-  test('reveals at a caret boundary but not an adjacent selection boundary', () => {
+  test('reveals at caret and selection boundaries', () => {
     const source = 'Heading\n=======\nBody';
     const boundary = source.indexOf('\nBody');
     editor.setUp(source, hiddenSyntaxExtension);
@@ -1694,7 +1695,7 @@ describe('Setext heading syntax', () => {
     expect(underline()?.classList.contains('cm-md-syntaxHiddenSetextUnderline')).toBe(false);
 
     window.editor.dispatch({ selection: { anchor: boundary, head: source.length } });
-    expect(underline()?.classList.contains('cm-md-syntaxHiddenSetextUnderline')).toBe(true);
+    expect(underline()?.classList.contains('cm-md-syntaxHiddenSetextUnderline')).toBe(false);
   });
 
   test('suppresses pseudo-elements inside the collapsed underline line', () => {

@@ -2,7 +2,7 @@ import type { EditorState } from '@codemirror/state';
 import { syntaxTree } from '@codemirror/language';
 import type { SyntaxNode, SyntaxNodeRef, Tree } from '@lezer/common';
 import { getStyleTags, type Tag } from '@lezer/highlight';
-import { selectionIntersects } from './selection';
+import { selectionReveals } from './selection';
 
 type ReferenceDestinationResolver = (label: string) => string;
 const referenceDestinationCache = new WeakMap<Tree, {
@@ -15,7 +15,7 @@ export function linkSyntax(
   state: EditorState,
   resolveReferenceDestination: ReferenceDestinationResolver,
 ) {
-  if (!['Link', 'Image', 'Autolink'].includes(node.name) || selectionIntersects(state, node.from, node.to)) {
+  if (!['Link', 'Image', 'Autolink'].includes(node.name) || selectionReveals(state, node.from, node.to)) {
     return;
   }
 

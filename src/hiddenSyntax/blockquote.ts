@@ -1,6 +1,6 @@
 import type { EditorState } from '@codemirror/state';
 import type { SyntaxNodeRef } from '@lezer/common';
-import { selectionIntersects } from './selection';
+import { selectionReveals } from './selection';
 
 const alertTitles = {
   note: 'Note',
@@ -45,7 +45,7 @@ export function blockquoteAlert(node: SyntaxNodeRef, state: EditorState) {
   const type = match[1].toLowerCase() as BlockquoteAlertType;
   const from = paragraph.from;
   const to = from + match[0].length;
-  if (selectionIntersects(state, from, to)) {
+  if (selectionReveals(state, from, to)) {
     return;
   }
 
@@ -57,7 +57,7 @@ export function blockquoteSyntaxRange(node: SyntaxNodeRef, state: EditorState) {
     return;
   }
 
-  if (selectionIntersects(state, node.from, node.to)) {
+  if (selectionReveals(state, node.from, node.to)) {
     return;
   }
 

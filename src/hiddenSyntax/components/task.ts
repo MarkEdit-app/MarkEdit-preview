@@ -1,7 +1,7 @@
 import { syntaxTree } from '@codemirror/language';
 import type { Range } from '@codemirror/state';
 import { Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate, WidgetType } from '@codemirror/view';
-import { selectionIntersects } from '../selection';
+import { selectionReveals } from '../selection';
 
 export interface TaskCheckboxDescriptor {
   from: number;
@@ -90,7 +90,7 @@ export function taskCheckboxDescriptors(view: EditorView): TaskCheckboxDescripto
           && listMark !== null
           && listMark !== undefined
           && view.state.sliceDoc(node.to, separatorTo) === ' '
-          && !selectionIntersects(view.state, listMark.from, node.to)
+          && !selectionReveals(view.state, listMark.from, node.to)
         ) {
           descriptors.push({
             from: listMark.from,
