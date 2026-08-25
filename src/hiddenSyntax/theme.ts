@@ -1,9 +1,8 @@
 import { EditorView } from '@codemirror/view';
 
 export const hiddenSyntaxTheme = EditorView.baseTheme({
-  // Keep hidden source measurable so WebKit can resolve pointer positions.
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenSource, &.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenSource *': {
-    fontSize: '0.01px !important',
+    fontSize: '0px !important',
   },
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenSource:has(> *)': {
     fontSize: 'inherit !important',

@@ -741,7 +741,7 @@ describe('Strong emphasis syntax', () => {
 
     const cssRules = [...document.styleSheets].flatMap(sheet => [...sheet.cssRules]);
     const sourceRule = cssRules.find(rule => rule.cssText.includes('.cm-md-syntaxHiddenSource *')) as CSSStyleRule;
-    expect(sourceRule.style.getPropertyValue('font-size')).toBe('0.01px');
+    expect(sourceRule.style.getPropertyValue('font-size')).toBe('0px');
     expect(sourceRule.style.getPropertyPriority('font-size')).toBe('important');
 
     const wrapperRule = cssRules.find(rule => rule.cssText.includes('.cm-md-syntaxHiddenSource:has(> *)')) as CSSStyleRule;
