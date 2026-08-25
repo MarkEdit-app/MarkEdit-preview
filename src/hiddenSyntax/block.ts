@@ -4,7 +4,7 @@ import { Decoration, type DecorationSet, EditorView } from '@codemirror/view';
 import type { SyntaxNodeRef } from '@lezer/common';
 import { BlockMathWidget } from './components/math';
 import { MermaidWidget } from './components/mermaid';
-import { selectionIntersects } from './selection';
+import { selectionReveals } from './selection';
 
 interface BlockDecorationState {
   all: DecorationSet;
@@ -96,6 +96,6 @@ function hideSelectedBlocks(decorations: DecorationSet, state: EditorState) {
   }
 
   return decorations.update({
-    filter: (from, to) => !selectionIntersects(state, from, to),
+    filter: (from, to) => !selectionReveals(state, from, to),
   });
 }

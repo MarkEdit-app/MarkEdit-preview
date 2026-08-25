@@ -1,6 +1,6 @@
 import type { EditorState } from '@codemirror/state';
 import type { SyntaxNodeRef } from '@lezer/common';
-import { selectionIntersects } from './selection';
+import { selectionReveals } from './selection';
 
 export function atxHeadingSyntaxRange(node: SyntaxNodeRef, state: EditorState) {
   const parent = node.node.parent;
@@ -14,7 +14,7 @@ export function atxHeadingSyntaxRange(node: SyntaxNodeRef, state: EditorState) {
   }
 
   const hiddenTo = takeFollowingSpaces(state, node.to, parent.to);
-  if (!hasHeadingContent(state, hiddenTo, parent.to) || selectionIntersects(state, parent.from, parent.to)) {
+  if (!hasHeadingContent(state, hiddenTo, parent.to) || selectionReveals(state, parent.from, parent.to)) {
     return;
   }
 
@@ -28,7 +28,7 @@ export function setextHeadingSyntaxLine(node: SyntaxNodeRef, state: EditorState)
   }
 
   const line = state.doc.lineAt(node.from);
-  if (selectionIntersects(state, parent.from, parent.to)) {
+  if (selectionReveals(state, parent.from, parent.to)) {
     return;
   }
 

@@ -1,7 +1,7 @@
 import type { EditorState, Range } from '@codemirror/state';
 import { Decoration } from '@codemirror/view';
 import type { SyntaxNodeRef } from '@lezer/common';
-import { selectionIntersects } from './selection';
+import { selectionReveals } from './selection';
 
 const marks = new Map([
   ['Emphasis', 'EmphasisMark'],
@@ -18,7 +18,7 @@ const inlineCodeBoth = Decoration.mark({ class: `${inlineCodeBoundary} cm-md-syn
 
 export function inlineSyntaxDecorations(node: SyntaxNodeRef, state: EditorState): Range<Decoration>[] {
   const parent = node.node.parent;
-  if (parent === null || marks.get(parent.name) !== node.name || selectionIntersects(state, parent.from, parent.to)) {
+  if (parent === null || marks.get(parent.name) !== node.name || selectionReveals(state, parent.from, parent.to)) {
     return [];
   }
 

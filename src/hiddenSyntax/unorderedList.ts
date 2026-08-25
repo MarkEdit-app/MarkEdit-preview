@@ -1,6 +1,6 @@
 import type { EditorState } from '@codemirror/state';
 import type { SyntaxNodeRef } from '@lezer/common';
-import { selectionIntersects } from './selection';
+import { selectionReveals } from './selection';
 
 export function unorderedListSyntax(node: SyntaxNodeRef, state: EditorState) {
   if (node.name !== 'ListMark') {
@@ -14,7 +14,7 @@ export function unorderedListSyntax(node: SyntaxNodeRef, state: EditorState) {
     item?.name !== 'ListItem'
     || item.parent?.name !== 'BulletList'
     || !/^[ \t]$/.test(state.sliceDoc(node.to, node.to + 1))
-    || selectionIntersects(state, node.from, taskMarker?.to ?? node.to)
+    || selectionReveals(state, node.from, taskMarker?.to ?? node.to)
   ) {
     return;
   }
