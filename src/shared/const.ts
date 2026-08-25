@@ -3,7 +3,6 @@ export const ClassNames = {
   gutterViewClass: 'markdown-gutter',
   dividerViewClass: 'markdown-divider',
   previewPaneClass: 'markdown-body',
-  updatePillClass: 'markdown-update-pill',
 };
 
 export const CacheKeys = {

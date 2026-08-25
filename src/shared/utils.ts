@@ -5,10 +5,6 @@ export function macOSTahoe() {
   return match === null ? false : parseInt(match[1]) >= 26;
 }
 
-export function hasFilePathInfo() {
-  return typeof __FILE_PATH__ === 'string';
-}
-
 export function appendStyle(css: string, enabled = true) {
   const style = document.createElement('style');
   style.textContent = css;

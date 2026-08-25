@@ -107,22 +107,6 @@ describe('Syntax-hidden mode', () => {
     ]);
   });
 
-  test('hides a late update pill in syntax-hidden mode', async () => {
-    vi.resetModules();
-    const view = await import('../src/view');
-    const { renderUpdatePill } = await import('../src/support/updater');
-    view.setViewMode(view.ViewMode.syntaxHidden, false);
-
-    const pill = renderUpdatePill({
-      name: '2.0.0',
-      body: '',
-      tag_name: 'v2.0.0',
-      html_url: 'https://example.com',
-    });
-
-    expect(pill?.style.display).toBe('none');
-  });
-
   test('rotates after Preview and restores cached syntax-hidden mode', async () => {
     vi.resetModules();
     const view = await import('../src/view');

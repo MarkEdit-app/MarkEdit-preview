@@ -20,17 +20,15 @@ import {
   getPreviewPane,
   generateStaticHtml,
   renderStaticHtml,
-  isEditorOnlyMode,
 } from './src/view';
 
 import { enableHoverPreview } from './src/features/image';
 import { startObserving } from './src/scroll';
-import { checkForUpdates, checkForUpdatesThrottled, downloadLatestBuild, fetchLatestRelease, renderUpdatePill } from './src/support/updater';
-import { imageHoverPreview, keyboardShortcut, updateBehavior } from './src/support/settings';
-import { hasFullHost, hasExtensionManager } from './src/support/host';
+import { imageHoverPreview, keyboardShortcut } from './src/support/settings';
+import { hasFullHost } from './src/support/host';
 import { copyToSharedContainer, setUpQuickLook } from './src/quicklook';
 import { localized } from './src/shared/strings';
-import { macOSTahoe, hasFilePathInfo } from './src/shared/utils';
+import { macOSTahoe } from './src/shared/utils';
 import { hiddenSyntaxModeExtension } from './src/hiddenSyntax/mode';
 
 import {
@@ -48,18 +46,7 @@ if (window.__markeditPreviewInitialized__) {
   if (hasFullHost()) {
     // onAppReady is ensured to be called once per app lifecycle
     if (typeof MarkEdit.onAppReady === 'function') {
-      MarkEdit.onAppReady(() => {
-        copyToSharedContainer();
-        setTimeout(() => void checkForUpdates(), 2000);
-      });
-    } else {
-      // No onAppReady: this runs on every document load, so throttle it
-      setTimeout(() => void checkForUpdatesThrottled(), 4000);
-    }
-
-    if (updateBehavior === 'automatic' || updateBehavior === 'quiet') {
-      // Checks for updates every 7 days when in automatic or quiet mode
-      setInterval(() => void checkForUpdates(), 604800000);
+      MarkEdit.onAppReady(copyToSharedContainer);
     }
   } else {
     // Minimal UI for lite hosts, like the preview extension
@@ -89,10 +76,7 @@ if (hasFullHost()) {
     children: [
       {
         title: localized('changeMode'),
-        action: () => {
-          changeViewMode();
-          renderDecorationViews();
-        },
+        action: changeViewMode,
         key: (keyboardShortcut['key'] ?? 'V') as string,
         modifiers: (keyboardShortcut['modifiers'] ?? ['Command']) as MenuItem['modifiers'],
       },
@@ -108,21 +92,6 @@ if (hasFullHost()) {
         title: `${localized('version')} ${__PKG_VERSION__}`,
         action: () => open(`https://github.com/MarkEdit-app/MarkEdit-preview/releases/tag/v${__PKG_VERSION__}`),
       },
-      {
-        title: `${localized('checkReleases')} (GitHub)`,
-        action: () => open('https://github.com/MarkEdit-app/MarkEdit-preview/releases/latest'),
-      },
-      ...(hasFilePathInfo() && !hasExtensionManager() ? [{
-        title: localized('updateAndRelaunch'),
-        action: async () => {
-          const release = await fetchLatestRelease();
-          if (await downloadLatestBuild(release.tag_name)) {
-            MarkEdit.relaunchApp();
-          } else {
-            MarkEdit.showAlert(localized('failedToUpdate'));
-          }
-        },
-      }] : []),
     ],
   });
 
@@ -164,7 +133,6 @@ if (hasFullHost()) {
     });
 
     renderHtmlPreview();
-    renderDecorationViews();
     startObserving(getEditPane(), getPreviewPane());
 
     if (states.keyDownListener !== undefined) {
@@ -179,10 +147,7 @@ if (hasFullHost()) {
 function createModeItem(title: string, mode: ViewMode): MenuItem {
   return {
     title,
-    action: () => {
-      setViewMode(mode);
-      renderDecorationViews();
-    },
+    action: () => setViewMode(mode),
     // state requires MarkEdit 1.24.0+
     state: () => ({ isSelected: currentViewMode() === mode }),
   };
@@ -216,13 +181,6 @@ function createHtmlItems(): MenuItem[] {
     },
     ...copyItems,
   ];
-}
-
-function renderDecorationViews() {
-  const updatePill = renderUpdatePill();
-  if (updatePill !== undefined) {
-    updatePill.style.display = isEditorOnlyMode() ? 'none' : '';
-  }
 }
 
 const states: {
