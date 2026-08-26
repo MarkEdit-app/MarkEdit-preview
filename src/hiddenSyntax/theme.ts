@@ -20,7 +20,8 @@ export const hiddenSyntaxTheme = EditorView.baseTheme({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: '0.85em',
+    fontFamily: 'Menlo, monospace',
+    fontSize: '0.9em',
     pointerEvents: 'none',
   },
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenListBulletLayer, &.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenBlockquoteLayer': {
