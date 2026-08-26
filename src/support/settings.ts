@@ -21,7 +21,29 @@ export const syntaxAutoDetect = toBoolean(rootValue.syntaxAutoDetect, false);
 export const imageHoverPreview = toBoolean(rootValue.imageHoverPreview, false);
 export const inlineImages = toBoolean(rootValue.inlineImages, false);
 export const themeName = (rootValue.themeName ?? 'github') as string;
+export const isAutoTheme = themeName === 'auto';
 export const showRawHtml = themeName === 'none';
+
+/**
+ * The theme to use right now. For `"themeName": "auto"`, it follows the app's
+ * current theme via `MarkEdit.editorConfig.theme`: the `-light`/`-dark`/`-dawn`
+ * suffix maps to the theme's base name and pins the color scheme, so a dark
+ * editor theme keeps the preview dark regardless of the system appearance.
+ */
+export function currentTheme(): { name: string; scheme?: Exclude<ColorScheme, 'auto'> } {
+  if (!isAutoTheme) {
+    return { name: themeName };
+  }
+
+  const appTheme = ((MarkEdit.editorConfig as { theme?: unknown }).theme ?? 'github-light') as string;
+  const match = /^(.+?)(?:-(light|dark|dawn))?$/.exec(appTheme);
+  const suffix = match?.[2];
+  return {
+    name: match?.[1] ?? 'github',
+    // Suffix-less app themes (dracula, cobalt, night-owl, ...) are all dark
+    scheme: suffix === 'light' || suffix === 'dawn' ? 'light' : 'dark',
+  };
+}
 export const styledHtmlColorScheme = (rootValue.styledHtmlColorScheme ?? rootValue.styledHtmlTheme ?? 'auto') as ColorScheme; // styledHtmlTheme for backward compatibility
 export const mathDelimiters = rootValue.mathDelimiters;
 export const viewModes = (changeMode.modes ?? Constants.defaultModes) as string[];
