@@ -16,6 +16,10 @@ export async function setHiddenSyntaxMode(view: EditorView, enabled: boolean) {
   view.dispatch({
     effects: extensionCompartment.reconfigure(extension),
   });
+
+  if (enabled) {
+    view.requestMeasure();
+  }
 }
 
 let loadingExtensionPromise: Promise<Extension> | undefined;
