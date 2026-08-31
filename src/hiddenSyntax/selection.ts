@@ -16,6 +16,10 @@ export const stablePointerSelection = EditorView.mouseSelectionStyle.of((view, s
 
   return {
     get(event) {
+      if (!Number.isFinite(startPos.pos)) {
+        return view.state.selection;
+      }
+
       const movement = Math.max(
         Math.abs(event.clientX - startCoords.x),
         Math.abs(event.clientY - startCoords.y),
@@ -27,6 +31,10 @@ export const stablePointerSelection = EditorView.mouseSelectionStyle.of((view, s
       }
 
       const current = view.posAndSideAtCoords({ x: event.clientX, y: event.clientY }, false);
+      if (!Number.isFinite(current.pos)) {
+        return view.state.selection;
+      }
+
       if (current.pos === startPos.pos) {
         return EditorSelection.create([EditorSelection.cursor(current.pos, current.assoc)]);
       }
@@ -36,7 +44,7 @@ export const stablePointerSelection = EditorView.mouseSelectionStyle.of((view, s
       ]);
     },
     update(update) {
-      if (update.docChanged) {
+      if (update.docChanged && Number.isFinite(startPos.pos)) {
         startPos = { ...startPos, pos: update.changes.mapPos(startPos.pos) };
       }
     },
