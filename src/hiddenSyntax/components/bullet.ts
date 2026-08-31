@@ -56,6 +56,7 @@ export function unorderedListBulletMarkers(view: EditorView) {
       rect.bottom - rect.top,
       style.color,
       style.opacity,
+      style.textShadow,
     )];
   });
 }
@@ -68,6 +69,7 @@ class BulletMarker extends RectangleMarker {
     height: number,
     private readonly color: string,
     private readonly opacity: number,
+    private readonly textShadow: string,
   ) {
     super('cm-md-syntaxHiddenListBullet', left, top, width, height);
   }
@@ -77,6 +79,7 @@ class BulletMarker extends RectangleMarker {
     element.textContent = '\u2022';
     element.style.color = this.color;
     element.style.opacity = `${this.opacity}`;
+    element.style.textShadow = this.textShadow;
     return element;
   }
 
@@ -87,17 +90,22 @@ class BulletMarker extends RectangleMarker {
 
     element.style.color = this.color;
     element.style.opacity = `${this.opacity}`;
+    element.style.textShadow = this.textShadow;
     return true;
   }
 
   eq(other: BulletMarker) {
-    return super.eq(other) && this.color === other.color && this.opacity === other.opacity;
+    return super.eq(other)
+      && this.color === other.color
+      && this.opacity === other.opacity
+      && this.textShadow === other.textShadow;
   }
 }
 
 function sourceStyle(view: EditorView, position: number) {
   const node = view.domAtPos(position).node;
   const source = node instanceof HTMLElement ? node : node.parentElement;
+  const computedStyle = getComputedStyle(source ?? view.contentDOM);
   let opacity = 1;
 
   for (let element = source; element !== null && element !== view.scrollDOM; element = element.parentElement) {
@@ -108,8 +116,9 @@ function sourceStyle(view: EditorView, position: number) {
   }
 
   return {
-    color: getComputedStyle(source ?? view.contentDOM).color,
+    color: computedStyle.color,
     opacity,
+    textShadow: computedStyle.textShadow === 'none' ? '' : computedStyle.textShadow,
   };
 }
 
