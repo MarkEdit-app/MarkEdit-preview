@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { EditorSelection, EditorState } from '@codemirror/state';
 import { history, redo, undo } from '@codemirror/commands';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
-import { Decoration, EditorView, lineNumbers } from '@codemirror/view';
+import { Decoration, EditorView, lineNumbers, type ViewUpdate } from '@codemirror/view';
 import { classHighlighter, tags } from '@lezer/highlight';
 import { createHiddenSyntaxExtension, hiddenSyntaxExtension } from '../src/hiddenSyntax';
 import { blockquoteBarDescriptors, blockquoteBarMarkers } from '../src/hiddenSyntax/components/bar';
@@ -92,6 +92,36 @@ describe('Pointer selection', () => {
     const move = new MouseEvent('mousemove', { buttons: 1, clientX: 46, clientY: 10 });
     const style = window.editor.state.facet(EditorView.mouseSelectionStyle)[0](window.editor, start);
     expect(style?.get(move, false, false).main).toEqual(EditorSelection.range(4, 7, undefined, undefined, -1));
+  });
+
+  test('keeps the current selection for an invalid pointer position', () => {
+    const source = '# Hello\n\nBody';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    vi.spyOn(window.editor, 'posAndSideAtCoords')
+      .mockReturnValueOnce({ pos: 4, assoc: 1 })
+      .mockReturnValue({ pos: Number.NaN, assoc: -1 });
+
+    const start = new MouseEvent('mousedown', { button: 0, detail: 1, clientX: 40, clientY: 10 });
+    const move = new MouseEvent('mousemove', { buttons: 1, clientX: 46, clientY: 10 });
+    const style = window.editor.state.facet(EditorView.mouseSelectionStyle)[0](window.editor, start);
+    expect(style?.get(move, false, false)).toBe(window.editor.state.selection);
+  });
+
+  test('keeps the current selection for an invalid initial pointer position', () => {
+    const source = '# Hello\n\nBody';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    vi.spyOn(window.editor, 'posAndSideAtCoords').mockReturnValue({ pos: Number.NaN, assoc: 1 });
+
+    const start = new MouseEvent('mousedown', { button: 0, detail: 1, clientX: 40, clientY: 10 });
+    const move = new MouseEvent('mousemove', { buttons: 1, clientX: 46, clientY: 10 });
+    const style = window.editor.state.facet(EditorView.mouseSelectionStyle)[0](window.editor, start);
+    const mapPos = vi.fn();
+    style?.update?.({ docChanged: true, changes: { mapPos } } as unknown as ViewUpdate);
+
+    expect(mapPos).not.toHaveBeenCalled();
+    expect(style?.get(move, false, false)).toBe(window.editor.state.selection);
   });
 
   test('leaves modified and multi-click gestures to other selection styles', () => {
