@@ -971,9 +971,10 @@ describe('Unordered list syntax', () => {
     expect(taskCheckboxDescriptors(window.editor)).toHaveLength(1);
   });
 
-  test('paints source color and line opacity without marker classes', () => {
+  test('paints source color, opacity, and shadow without marker classes', () => {
     const source = '- item\n\nBody';
     const listColor = 'rgb(12, 34, 56)';
+    const listShadow = 'rgb(1, 2, 3) 0px 0px 4px';
     editor.setUp(source, hiddenSyntaxExtension);
     window.editor.dispatch({ selection: { anchor: source.length } });
 
@@ -993,6 +994,7 @@ describe('Unordered list syntax', () => {
 
     marker.style.color = listColor;
     marker.style.opacity = '0.5';
+    marker.style.textShadow = listShadow;
     line.style.opacity = '0.5';
 
     vi.spyOn(window.editor, 'coordsForChar').mockReturnValue({
@@ -1007,14 +1009,17 @@ describe('Unordered list syntax', () => {
     expect(painted.className).toBe('cm-md-syntaxHiddenListBullet');
     expect(painted.style.color).toBe(listColor);
     expect(painted.style.opacity).toBe('0.25');
+    expect(painted.style.textShadow).toBe(listShadow);
     expect(painted.style.left).toBe('10px');
     expect(painted.style.width).toBe('10px');
 
     line.style.opacity = '0.4';
+    marker.style.textShadow = 'none';
     const updated = unorderedListBulletMarkers(window.editor)[0];
     expect(updated.eq(initial)).toBe(false);
     expect(updated.update(painted, initial)).toBe(true);
     expect(painted.style.opacity).toBe('0.2');
+    expect(painted.style.textShadow).toBe('');
   });
 
   test('reveals nested prefixes independently', () => {
