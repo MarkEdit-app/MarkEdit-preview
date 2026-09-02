@@ -142,6 +142,15 @@ if (hasFullHost()) {
     states.keyDownListener = event => handlePageZoom(event);
     document.addEventListener('keydown', states.keyDownListener);
   });
+
+  // Handle lineHeight change, which doesn't trigger a CodeMirror update
+  if (typeof MarkEdit.onEditorConfigChange === 'function') {
+    MarkEdit.onEditorConfigChange(key => {
+      if (key === 'lineHeight' && currentViewMode() === ViewMode.syntaxHidden) {
+        MarkEdit.editorView?.requestMeasure();
+      }
+    });
+  }
 }
 
 function createModeItem(title: string, mode: ViewMode): MenuItem {

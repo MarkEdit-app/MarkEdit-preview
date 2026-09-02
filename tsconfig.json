@@ -6,7 +6,6 @@
     "lib": ["es2019", "dom", "dom.iterable"],
     "noImplicitAny": true,
     "moduleResolution": "node",
-    "ignoreDeprecations": "6.0",
     "strictNullChecks": true,
     "importHelpers": true,
     "noEmit": true,
