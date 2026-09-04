@@ -773,6 +773,8 @@ describe('Strong emphasis syntax', () => {
     const sourceRule = cssRules.find(rule => rule.cssText.includes('.cm-md-syntaxHiddenSource *')) as CSSStyleRule;
     expect(sourceRule.style.getPropertyValue('font-size')).toBe('0px');
     expect(sourceRule.style.getPropertyPriority('font-size')).toBe('important');
+    expect(sourceRule.style.getPropertyValue('font-variant-ligatures')).toBe('none');
+    expect(sourceRule.style.getPropertyPriority('font-variant-ligatures')).toBe('important');
 
     const wrapperRule = cssRules.find(rule => rule.cssText.includes('.cm-md-syntaxHiddenSource:has(> *)')) as CSSStyleRule;
     expect(wrapperRule.style.getPropertyValue('font-size')).toBe('inherit');

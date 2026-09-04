@@ -3,6 +3,7 @@ import { EditorView } from '@codemirror/view';
 export const hiddenSyntaxTheme = EditorView.baseTheme({
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenSource, &.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenSource *': {
     fontSize: '0px !important',
+    fontVariantLigatures: 'none !important',
   },
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenSource:has(> *)': {
     fontSize: 'inherit !important',
