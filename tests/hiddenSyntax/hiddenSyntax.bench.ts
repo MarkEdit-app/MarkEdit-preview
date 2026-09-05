@@ -4,8 +4,8 @@ import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { yamlFrontmatter as frontMatter } from '@codemirror/lang-yaml';
 import type { Extension } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
-import { hiddenSyntaxExtension } from '../src/hiddenSyntax';
-import { markdownExtensions } from './support/markdown';
+import { hiddenSyntaxExtension } from '../../src/hiddenSyntax';
+import { markdownExtensions } from '../support/markdown';
 
 const section = [
   '# Heading',
@@ -19,6 +19,7 @@ const section = [
   '[shared]: https://example.com',
   '',
 ].join('\n');
+
 const smallSource = section.repeat(20);
 const largeSource = section.repeat(2_000);
 
