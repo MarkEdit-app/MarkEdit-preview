@@ -15,7 +15,7 @@ import { inlineSyntaxDecorations } from './inline';
 import { linkSyntax, referenceDestinationResolver } from './link';
 import { hiddenSyntaxTheme } from './theme';
 import { unorderedListSyntax } from './unorderedList';
-import { stablePointerSelection } from './selection';
+import { correctedLineUp, stablePointerSelection } from './selection';
 import { inlineImages } from '../support/settings';
 
 const hiddenSyntax = Decoration.mark({ class: 'cm-md-syntaxHiddenSource' });
@@ -31,6 +31,7 @@ const hiddenSyntaxBaseExtension = [
   EditorView.editorAttributes.of({
     class: 'cm-md-syntaxHiddenMode',
   }),
+  correctedLineUp,
   stablePointerSelection,
   ViewPlugin.fromClass(
     class {
