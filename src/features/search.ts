@@ -1,6 +1,6 @@
 import Mark from 'mark.js';
 import { currentViewMode, getPreviewPane, ViewMode } from '../view';
-import { themeName } from '../support/settings';
+import { currentTheme } from '../support/settings';
 
 const MARK_MATCH_CLASS = 'markedit-preview-mark';
 const MARK_HIGHLIGHTED_CLASS = 'markedit-preview-mark-highlighted';
@@ -168,7 +168,7 @@ function updateStyles() {
     document.head.appendChild(markStyleSheet);
   }
 
-  const { light, dark } = searchMatchColors[themeName] ?? searchMatchColors['github'];
+  const { light, dark } = searchMatchColors[currentTheme().name] ?? searchMatchColors['github'];
   markStyleSheet.textContent = [
     `.${MARK_MATCH_CLASS} { background: ${light} !important; color: inherit !important; }`,
     `.${MARK_HIGHLIGHTED_CLASS} { background: #ffff00 !important; color: #000000 !important; border-radius: 2px; box-shadow: 0px 0px 0px 2px #ffff00, 0px 0px 3px 2px rgba(0, 0, 0, 0.4); }`,

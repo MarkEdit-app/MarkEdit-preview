@@ -3,7 +3,7 @@ import { MarkEdit } from 'markedit-api';
 import { appendStyle, getBlockRange, getFileExtension, getFileName, joinPaths, selectFullRange, writeClipboard, htmlToPlainText } from './shared/utils';
 import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles } from './render';
 import { replaceImageURLs } from './features/image';
-import { hidePreviewButtons, viewModes } from './support/settings';
+import { hidePreviewButtons, isAutoTheme, viewModes } from './support/settings';
 import { localized } from './shared/strings';
 import { syncScrollProgress } from './scroll';
 import { resolveTaskToggle } from './features/task';
@@ -39,12 +39,12 @@ export enum ViewMode {
 
 export function setUp() {
   appendStyle(mainCss);
-  appendStyle(previewThemeCss());
+  themeStyles = appendStyle(previewThemeCss());
   appendStyle(codeCopyCss());
 
   if (__FULL_BUILD__) {
     import('../styles/katex.css?raw').then(mod => appendStyle(mod.default));
-    appendStyle(hljsCss());
+    hljsStyles = appendStyle(hljsCss());
 
     // Hide the built-in preview buttons in side-by-side mode
     if (hidePreviewButtons) {
@@ -85,6 +85,9 @@ export function setUp() {
   const darkModeObserver = matchMedia('(prefers-color-scheme: dark)');
   darkModeObserver.addEventListener('change', () => {
     updateGutterStyle();
+
+    // The app may switch its theme along with the appearance
+    setTimeout(refreshThemeStyles, 200);
 
     // Re-render mermaid diagrams to apply the new theme
     if (document.querySelector('.mermaid') !== null) {
@@ -197,10 +200,33 @@ export function isEditorOnlyMode() {
   return mode === ViewMode.edit || mode === ViewMode.syntaxHidden;
 }
 
+let themeStyles: HTMLStyleElement | undefined;
+let hljsStyles: HTMLStyleElement | undefined;
+
+/**
+ * With `"themeName": "auto"`, the css depends on the app's current theme,
+ * which can change at runtime; refresh it whenever the preview updates.
+ */
+function refreshThemeStyles() {
+  if (!isAutoTheme) {
+    return;
+  }
+
+  if (themeStyles !== undefined) {
+    themeStyles.textContent = previewThemeCss();
+  }
+
+  if (hljsStyles !== undefined) {
+    hljsStyles.textContent = hljsCss();
+  }
+}
+
 export async function renderHtmlPreview() {
   if (isEditorOnlyMode()) {
     return;
   }
+
+  refreshThemeStyles();
 
   const html = replaceImageURLs(await getRenderedHtml());
   previewPane.innerHTML = html;
