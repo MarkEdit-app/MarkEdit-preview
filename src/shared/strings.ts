@@ -15,6 +15,8 @@ type LocalizableKeys = {
   version: string;
   source: string;
   preview: string;
+  goToFootnoteDefinition: string;
+  backToFootnoteReference: string;
 };
 
 const strings: Record<Locale, Localizable> = {
@@ -35,6 +37,8 @@ const strings: Record<Locale, Localizable> = {
     version: 'Version',
     source: 'Source',
     preview: 'Preview',
+    goToFootnoteDefinition: 'Go to definition [%s]',
+    backToFootnoteReference: 'Back to reference [%s]',
   },
   'zh-CN': {
     viewMode: '视图模式',
@@ -53,6 +57,8 @@ const strings: Record<Locale, Localizable> = {
     version: '版本',
     source: '源码',
     preview: '预览',
+    goToFootnoteDefinition: '跳转到定义 [%s]',
+    backToFootnoteReference: '返回引用 [%s]',
   },
   'zh-TW': {
     viewMode: '視圖模式',
@@ -71,6 +77,8 @@ const strings: Record<Locale, Localizable> = {
     version: '版本',
     source: '原始碼',
     preview: '預覽',
+    goToFootnoteDefinition: '前往定義 [%s]',
+    backToFootnoteReference: '返回引用 [%s]',
   },
 };
 

@@ -1,11 +1,17 @@
 // @vitest-environment happy-dom
 import { hiddenTexts, editorText } from './support';
-import { describe, expect, test, vi } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
 import { createHiddenSyntaxExtension, hiddenSyntaxExtension } from '../../src/hiddenSyntax';
 import { followLinkAnchor } from '../../src/hiddenSyntax/navigation';
 import * as editor from '../support/editor';
+
+const markEditMock = vi.hoisted(() => ({ playSystemBeep: undefined as (() => void) | undefined }));
+vi.mock('markedit-api', () => ({ MarkEdit: markEditMock }));
+beforeEach(() => {
+  markEditMock.playSystemBeep = undefined;
+});
 
 describe('Link syntax', () => {
   test('opens links from their icons without revealing syntax', () => {
@@ -206,6 +212,14 @@ describe('Link syntax', () => {
 
     expect([...window.editor.dom.querySelectorAll('.cm-md-syntaxHiddenLinkButton')].map(icon => icon.getAttribute('title')))
       .toEqual(['https://example.com', 'https://example.com']);
+
+    const beep = vi.fn();
+    markEditMock.playSystemBeep = beep;
+
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+    window.editor.dom.querySelector<HTMLButtonElement>('.cm-md-syntaxHiddenLinkButton')?.click();
+    expect(open).toHaveBeenCalledWith('https://example.com', '_blank', 'noopener');
+    expect(beep).not.toHaveBeenCalled();
   });
 
   test('does not underline link and image labels', () => {
@@ -217,8 +231,105 @@ describe('Link syntax', () => {
     expect(cssRules.some(rule => rule.cssText.includes('.cm-md-syntaxHiddenImageLabel') && rule.cssText.includes('text-decoration'))).toBe(false);
   });
 
-  test('keeps footnotes and empty labels visible', () => {
-    const source = '[^note]\n[](url)\n![](image.png)\n[text]()';
+  test('leaves footnote labels containing an opening bracket unchanged', () => {
+    const source = '[^a[b]\n\n[^a[b]:Note\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    expect(editorText()).toBe(source);
+    expect(hiddenTexts()).toEqual([]);
+    expect(window.editor.dom.querySelector('[data-kind="footnote"], [data-kind="footnoteBack"]')).toBeNull();
+  });
+
+  test('renders bracketed footnote references and definitions and navigates between them', () => {
+    const source = 'Citation.[^1] Another.[^my-source]\n\n[^1]: First note.\n[^my-source]: Second note.\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    expect(hiddenTexts()).toEqual(['^', '^', '^', '^']);
+    expect(editorText()).toBe('Citation.[1] Another.[my-source]\n\n[1]: First note.\n[my-source]: Second note.\n\nAfter');
+    expect(window.editor.state.doc.toString()).toBe(source);
+
+    const icons = window.editor.dom.querySelectorAll<HTMLButtonElement>('.cm-md-syntaxHiddenLinkButton');
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+    expect(icons).toHaveLength(4);
+
+    icons[0].click();
+    expect(window.editor.state.selection.main.from).toBe(source.indexOf('[^1]:'));
+    expect(editor.getText().slice(window.editor.state.selection.main.from, window.editor.state.selection.main.to)).toBe('[^1]');
+    expect(editorText()).toContain('[^1]: First note.');
+
+    icons[1].click();
+    expect(window.editor.state.selection.main.from).toBe(source.indexOf('[^my-source]:'));
+    expect(editor.getText().slice(window.editor.state.selection.main.from, window.editor.state.selection.main.to)).toBe('[^my-source]');
+    expect(editorText()).toContain('[1]: First note.\n[^my-source]: Second note.');
+    expect(open).not.toHaveBeenCalled();
+
+    window.editor.dispatch({ selection: { anchor: source.indexOf('^1') } });
+    expect(editorText()).toContain('Citation.[^1]');
+  });
+
+  test.each([true, false])('handles missing definitions with beep API available: %s', hasBeep => {
+    const beep = vi.fn();
+    markEditMock.playSystemBeep = hasBeep ? beep : undefined;
+
+    const source = '[^missing] [text][missing]\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    const selection = window.editor.state.selection;
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null);
+    const icons = window.editor.dom.querySelectorAll<HTMLButtonElement>('.cm-md-syntaxHiddenLinkButton');
+
+    expect(icons).toHaveLength(2);
+    expect(icons[0].title).toBe('Go to definition [missing]');
+    expect(icons[0].getAttribute('aria-label')).toBe(icons[0].title);
+
+    icons.forEach(icon => icon.click());
+    expect(window.editor.state.selection).toEqual(selection);
+    expect(open).not.toHaveBeenCalled();
+    expect(beep).toHaveBeenCalledTimes(hasBeep ? 2 : 0);
+  });
+
+  test('finds the first real footnote definition after document edits', () => {
+    const source = '[^note]\n\n```\n[^note]: Code, not a definition.\n```\n\n  [^note]: First.\n\n[^note]: Duplicate.\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    window.editor.dispatch({ changes: { from: 0, insert: 'Before\n\n' } });
+
+    const icon = window.editor.dom.querySelector<HTMLButtonElement>('.cm-md-syntaxHiddenLinkButton');
+    expect(icon).not.toBeNull();
+    icon?.click();
+    const updatedSource = window.editor.state.doc.toString();
+    expect(window.editor.state.selection.main.from).toBe(updatedSource.indexOf('[^note]: First.'));
+    expect(updatedSource.slice(window.editor.state.selection.main.from, window.editor.state.selection.main.to)).toBe('[^note]');
+    expect(editorText()).toContain('[^note]: First.');
+  });
+
+  test.each(['[^a][^b]', '[^a](unfinished'])('recognizes footnotes in %s', text => {
+    const source = `${text}\n\n[^a]: Alpha\n\n[^b]: Beta\n\nAfter`;
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    const references = window.editor.dom.querySelectorAll<HTMLButtonElement>('[data-kind="footnote"]');
+    expect(references).toHaveLength(text === '[^a][^b]' ? 2 : 1);
+    expect(editorText().split('\n')[0]).toBe(text.replace(/\[\^/g, '['));
+
+    references.forEach((icon, index) => {
+      icon.click();
+      const marker = index === 0 ? '[^a]' : '[^b]';
+      expect(window.editor.state.selection.main.from).toBe(source.indexOf(`${marker}:`));
+      window.editor.dispatch({ selection: { anchor: source.length } });
+      const back = window.editor.dom.querySelectorAll<HTMLButtonElement>('[data-kind="footnoteBack"]')[index];
+      back.click();
+      const selection = window.editor.state.selection.main;
+      expect(selection.from).toBe(source.indexOf(marker));
+      expect(source.slice(selection.from, selection.to)).toBe(marker);
+    });
+  });
+
+  test('keeps empty labels visible', () => {
+    const source = '[](url)\n![](image.png)\n[text]()\n[^]';
     editor.setUp(source, hiddenSyntaxExtension);
     window.editor.dispatch({ selection: { anchor: source.length } });
     expect(hiddenTexts()).toEqual([]);
@@ -231,6 +342,73 @@ describe('Link syntax', () => {
 
     expect(hiddenTexts()).toEqual([]);
     expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenLinkLabel, .cm-md-syntaxHiddenImageLabel')).toBeNull();
+  });
+
+  test('reveals footnote definition syntax only when the marker is selected', () => {
+    const source = '[^note]: Definition text.\n\n[label]: https://example.com\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.indexOf('text') } });
+    expect(editorText()).toBe('[note]: Definition text.\n\n[label]: https://example.com\n\nAfter');
+    expect(window.editor.dom.querySelector('[data-kind="footnoteBack"]')).not.toBeNull();
+
+    window.editor.dispatch({ selection: { anchor: 2 } });
+    expect(editorText()).toBe(source);
+    expect(hiddenTexts()).toEqual([]);
+    expect(window.editor.dom.querySelector('[data-kind="footnoteBack"]')).toBeNull();
+
+    window.editor.dispatch({ selection: { anchor: source.indexOf(':') } });
+    expect(editorText()).toBe(source);
+
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    expect(hiddenTexts()).toEqual(['^']);
+    expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test.each(['', 'Text', ' Text', '  Text', '\tText'])('spaces footnote definition bodies: %j', body => {
+    const source = `[^1]:${body}\n\nAfter`;
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    const expectedBody = /^[ \t]/.test(body) ? body : ` ${body}`;
+    expect(editorText()).toBe(`[1]:${expectedBody}\n\nAfter`);
+    expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test.each(['1', 'my-source'])('jumps back to the first real reference for %s after edits', label => {
+    const marker = `[^${label}]`;
+    const source = `\`${marker}\`\n\n${marker}(url)\n\nFirst ${marker}. Again ${marker}.\n\n${marker}: Note.\n\nAfter`;
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    window.editor.dispatch({ changes: { from: 0, insert: 'Before\n\n' } });
+
+    const icon = window.editor.dom.querySelector<HTMLButtonElement>('[data-kind="footnoteBack"]');
+    expect(icon?.title).toBe(`Back to reference [${label}]`);
+    expect(icon?.getAttribute('aria-label')).toBe(icon?.title);
+    icon?.click();
+
+    const updatedSource = window.editor.state.doc.toString();
+    const selection = window.editor.state.selection.main;
+    expect(selection.from).toBe(updatedSource.indexOf(`First ${marker}`) + 'First '.length);
+    expect(updatedSource.slice(selection.from, selection.to)).toBe(marker);
+    expect(editorText()).toContain(`First ${marker}`);
+    expect(editorText()).toContain(`[${label}]: Note.`);
+    expect(updatedSource).toBe(`Before\n\n${source}`);
+  });
+
+  test.each([true, false])('handles unreferenced definitions with beep API available: %s', hasBeep => {
+    const beep = vi.fn();
+    markEditMock.playSystemBeep = hasBeep ? beep : undefined;
+
+    const source = '[^missing]: Note.\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    const selection = window.editor.state.selection;
+    const icon = window.editor.dom.querySelector<HTMLButtonElement>('[data-kind="footnoteBack"]');
+    expect(icon).not.toBeNull();
+    icon?.click();
+    expect(window.editor.state.selection).toEqual(selection);
+    expect(beep).toHaveBeenCalledTimes(hasBeep ? 1 : 0);
   });
 
   test('keeps reference definitions visible', () => {

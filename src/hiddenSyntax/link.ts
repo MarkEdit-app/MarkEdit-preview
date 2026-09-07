@@ -5,6 +5,7 @@ import { getStyleTags, type Tag } from '@lezer/highlight';
 import { selectionReveals } from './selection';
 
 type ReferenceDestinationResolver = (label: string) => string;
+const footnotePattern = /^\[\^[^\][\s]+\]$/;
 const referenceDestinationCache = new WeakMap<Tree, {
   doc: EditorState['doc'];
   destinations: Map<string, string>;
@@ -40,6 +41,10 @@ export function linkSyntax(
   }
 
   if (marks.length < 2) {
+    return;
+  }
+
+  if (footnoteReferences(node, state).length > 0) {
     return;
   }
 
@@ -80,6 +85,46 @@ export function linkSyntax(
     image: node.name === 'Image',
     destination,
     highlightTags: inheritedHighlightTags(node.node),
+  };
+}
+
+export function footnoteReferences(node: SyntaxNodeRef, state: EditorState) {
+  if (node.name !== 'Link') {
+    return [];
+  }
+
+  const source = state.sliceDoc(node.from, node.to);
+  const pattern = /\[\^[^\][\s]+\]/g;
+  const matches: RegExpExecArray[] = [];
+  for (let match = pattern.exec(source); match !== null; match = pattern.exec(source)) {
+    matches.push(match);
+  }
+
+  if (matches.map(match => match[0]).join('') !== source) {
+    return [];
+  }
+
+  return matches.map(match => ({
+    from: node.from + match.index,
+    to: node.from + match.index + match[0].length,
+    label: match[0].slice(1, -1),
+    highlightTags: inheritedHighlightTags(node.node),
+  }));
+}
+
+export function footnoteDefinitionSyntax(node: SyntaxNodeRef, state: EditorState) {
+  if (node.name !== 'LinkDefinition' || selectionReveals(state, node.from, node.to + 1)
+    || !footnotePattern.test(state.sliceDoc(node.from, node.to))
+    || state.sliceDoc(node.to, node.to + 1) !== ':') {
+    return;
+  }
+
+  return {
+    hidden: [{ from: node.from + 1, to: node.from + 2 }],
+    label: state.sliceDoc(node.from + 1, node.to - 1),
+    highlightTags: inheritedHighlightTags(node.node),
+    suffixPosition: node.to + 1,
+    suffix: /^[ \t]/.test(state.sliceDoc(node.to + 1, node.to + 2)) ? '' : ' ',
   };
 }
 

@@ -7,15 +7,16 @@ import { blockquoteBars } from './components/bar';
 import { unorderedListBullets } from './components/bullet';
 import { taskCheckboxes } from './components/task';
 import { LinkIconWidget } from './components/icon';
+import { FootnoteDefinitionSuffix } from './components/footnote';
 import { InlineImageWidget } from './components/image';
 import { renderedBlockDecorations } from './block';
 import { atxHeadingSyntaxRange, setextHeadingSyntaxLine } from './heading';
 import { horizontalRuleDecoration } from './horizontalRule';
 import { inlineSyntaxDecorations } from './inline';
-import { linkSyntax, referenceDestinationResolver } from './link';
+import { footnoteReferences, footnoteDefinitionSyntax, linkSyntax, referenceDestinationResolver } from './link';
 import { hiddenSyntaxTheme } from './theme';
 import { unorderedListSyntax } from './unorderedList';
-import { correctedLineUp, stablePointerSelection } from './selection';
+import { correctedLineUp, selectionReveals, stablePointerSelection } from './selection';
 import { inlineImages } from '../support/settings';
 
 const hiddenSyntax = Decoration.mark({ class: 'cm-md-syntaxHiddenSource' });
@@ -119,6 +120,38 @@ function hiddenSyntaxDecorations(view: EditorView) {
               ),
               side: -1,
             }).range(link.label.to));
+          }
+        }
+
+        // [^footnote]
+        const footnoteRefs = footnoteReferences(node, view.state);
+        for (const reference of footnoteRefs) {
+          if (selectionReveals(view.state, reference.from, reference.to)) {
+            continue;
+          }
+
+          ranges.push(hiddenSyntax.range(reference.from + 1, reference.from + 2));
+          ranges.push(hiddenLinkLabel.range(reference.from, reference.to));
+          ranges.push(Decoration.widget({
+            widget: new LinkIconWidget('footnote', view.state, reference.label, reference.label, reference.highlightTags),
+            side: -1,
+          }).range(reference.to));
+        }
+
+        // [^footnote]: Definition
+        const footnoteDef = footnoteDefinitionSyntax(node, view.state);
+        if (footnoteDef !== undefined) {
+          footnoteDef.hidden.forEach(range => ranges.push(hiddenSyntax.range(range.from, range.to)));
+          ranges.push(Decoration.widget({
+            widget: new LinkIconWidget('footnoteBack', view.state, footnoteDef.label, footnoteDef.label, footnoteDef.highlightTags),
+            side: -1,
+          }).range(footnoteDef.suffixPosition));
+
+          if (footnoteDef.suffix !== '') {
+            ranges.push(Decoration.widget({
+              widget: new FootnoteDefinitionSuffix(footnoteDef.suffix),
+              side: 1,
+            }).range(footnoteDef.suffixPosition));
           }
         }
 
