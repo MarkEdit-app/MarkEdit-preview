@@ -1,5 +1,11 @@
 import { MarkEdit } from 'markedit-api';
 
+export function playSystemBeep() {
+  if (typeof MarkEdit.playSystemBeep === 'function') {
+    MarkEdit.playSystemBeep();
+  }
+}
+
 export function macOSTahoe() {
   const match = navigator.userAgent.match(/macOS\/(\d+)/);
   return match === null ? false : parseInt(match[1]) >= 26;

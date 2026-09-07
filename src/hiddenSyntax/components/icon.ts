@@ -3,18 +3,21 @@ import { highlightingFor } from '@codemirror/language';
 import { WidgetType } from '@codemirror/view';
 import type { EditorView } from '@codemirror/view';
 import type { Tag } from '@lezer/highlight';
-import { followLinkAnchor, openLinkDestination } from '../navigation';
+import { followFootnote, followLinkAnchor, openLinkDestination } from '../navigation';
+import { playSystemBeep } from '../../shared/utils';
+import { localized } from '../../shared/strings';
 
 const icons = {
   link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
   image: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg>',
+  footnoteBack: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 14-5-5 5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-2"/></svg>',
 };
 
 export class LinkIconWidget extends WidgetType {
   private readonly highlightClasses: string;
 
   constructor(
-    private readonly kind: keyof typeof icons,
+    private readonly kind: keyof typeof icons | 'footnote',
     state: EditorState,
     private readonly destination: string,
     private readonly label: string,
@@ -29,16 +32,27 @@ export class LinkIconWidget extends WidgetType {
     icon.type = 'button';
     icon.className = ['cm-md-syntaxHiddenLinkButton', this.highlightClasses].filter(Boolean).join(' ');
     icon.dataset.kind = this.kind;
-    icon.title = this.destination;
-    icon.innerHTML = icons[this.kind];
-    icon.setAttribute('aria-label', this.destination || this.label);
+
+    icon.title = this.kind === 'footnote' || this.kind === 'footnoteBack'
+      ? localized(this.kind === 'footnote' ? 'goToFootnoteDefinition' : 'backToFootnoteReference')
+        .replace('%s', () => this.destination.slice(1))
+      : this.destination;
+
+    icon.innerHTML = icons[this.kind === 'footnote' ? 'link' : this.kind];
+    icon.setAttribute('aria-label', icon.title || this.label);
 
     icon.addEventListener('click', event => {
       event.stopPropagation();
-      if (this.destination.startsWith('#')) {
+      if (this.kind === 'footnote') {
+        followFootnote(view, this.destination);
+      } else if (this.kind === 'footnoteBack') {
+        followFootnote(view, this.destination, 'reference');
+      } else if (this.destination.startsWith('#')) {
         followLinkAnchor(view, this.destination);
       } else if (this.destination !== '') {
         openLinkDestination(this.destination);
+      } else {
+        playSystemBeep();
       }
     });
 
