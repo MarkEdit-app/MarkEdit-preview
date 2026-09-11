@@ -1962,7 +1962,7 @@ ${r.map(([i,a])=>`<tr><th scope="row">${e(i)}</th><td>${j9(a,e)}</td></tr>`).joi
 }
 
 .code-copy-button:hover {
-  background: var(--bgColor-neutral-muted, ButtonFace);
+  background: color-mix(in srgb, var(--fgColor-muted, GrayText) 10%, var(--bgColor-muted, Canvas));
 }
 
 .code-copy-button:active {
