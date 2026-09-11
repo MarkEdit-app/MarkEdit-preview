@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { mermaidMocks, hiddenTexts, editorText } from './support';
 import { describe, expect, test, vi } from 'vitest';
+import { codeFolding, foldable, foldEffect, unfoldEffect } from '@codemirror/language';
 import type { EditorView } from '@codemirror/view';
 import { createHiddenSyntaxExtension, hiddenSyntaxExtension } from '../../src/hiddenSyntax';
 import { BlockMathWidget } from '../../src/hiddenSyntax/components/math';
@@ -16,6 +17,97 @@ test('keeps HTML source visible', () => {
   expect(hiddenTexts()).toEqual([]);
   expect(editorText()).toBe(source);
   expect(window.editor.state.doc.toString()).toBe(source);
+});
+
+describe('Fenced code', () => {
+  test.each(['```ts\nconst value = 1;\n```', '```ts\n```', '> ```ts\n> code\n> ```'])('reveals source without a border when folded: %s', block => {
+    const source = `${block}\n\nAfter`;
+    editor.setUp(source, [hiddenSyntaxExtension, codeFolding()]);
+    const view = window.editor;
+    view.dispatch({ selection: { anchor: source.length } });
+    const firstLine = view.state.doc.line(1);
+    const range = foldable(view.state, firstLine.from, firstLine.to);
+    expect(range).not.toBeNull();
+    if (range === null) {
+      return;
+    }
+
+    view.dispatch({ effects: foldEffect.of(range) });
+    expect(view.dom.querySelector('.cm-foldPlaceholder')).not.toBeNull();
+    expect(view.dom.querySelector('.cm-md-syntaxHiddenCodeBlock')).toBeNull();
+    expect(view.dom.querySelector('.cm-md-syntaxHiddenFence')).toBeNull();
+    expect(view.dom.querySelector('[data-code-language]')).toBeNull();
+    expect(editorText()).toContain('```ts');
+
+    view.dispatch({ selection: { anchor: source.indexOf('```') } });
+    expect(view.dom.querySelector('.cm-md-syntaxHiddenCodeBlock')).toBeNull();
+    expect(view.dom.querySelector('[data-code-language]')).toBeNull();
+
+    view.dispatch({ effects: unfoldEffect.of(range) });
+    expect(view.dom.querySelector('.cm-md-syntaxHiddenCodeStart.cm-md-syntaxHiddenCodeEnd')).toBeNull();
+    expect(view.dom.querySelectorAll('.cm-md-syntaxHiddenCodeBlock')).toHaveLength(block.split('\n').length);
+    expect(view.dom.querySelectorAll('.cm-md-syntaxHiddenCodeEnd')).toHaveLength(1);
+    view.dispatch({ selection: { anchor: source.length } });
+    expect(view.dom.querySelectorAll('.cm-md-syntaxHiddenFence')).toHaveLength(2);
+    expect(view.dom.querySelector('[data-code-language]')?.getAttribute('data-code-language')).toBe('ts');
+    expect(view.state.doc.toString()).toBe(source);
+  });
+
+  test('shows a language label until the block syntax is revealed', () => {
+    const source = '```ts\nconst value = 1;\n```\n\nAfter';
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    expect(hiddenTexts()).toEqual(['```ts', '```']);
+    expect(editorText()).toBe('\nconst value = 1;\n\n\nAfter');
+    expect(window.editor.dom.querySelectorAll('.cm-md-syntaxHiddenCodeBlock')).toHaveLength(3);
+    expect(window.editor.state.doc.toString()).toBe(source);
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenCodeStart')?.getAttribute('data-code-language')).toBe('ts');
+
+    window.editor.dispatch({ selection: { anchor: source.indexOf('value') } });
+    expect(hiddenTexts()).toEqual([]);
+    expect(editorText()).toBe(source);
+    expect(window.editor.dom.querySelectorAll('.cm-md-syntaxHiddenCodeBlock')).toHaveLength(3);
+    expect(window.editor.dom.querySelector('[data-code-language]')).toBeNull();
+  });
+
+  test.each([
+    ['```\ncode\n```\n\nAfter', null],
+    ['```typescript title="example"\ncode\n```\n\nAfter', 'typescript'],
+  ])('uses only the language for the label: %s', (source, language) => {
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenCodeStart')?.getAttribute('data-code-language')).toBe(language);
+  });
+
+  test.each([
+    { block: '```\n```', language: null, lines: 2 },
+    { block: '```ts\n```', language: 'ts', lines: 2 },
+    { block: '```ts\n   \n```', language: 'ts', lines: 3 },
+    { block: '> ```ts\n> ```', language: 'ts', lines: 2 },
+  ])('styles empty complete blocks: $block', ({ block, language, lines }) => {
+    const source = `${block}\n\nAfter`;
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    expect(window.editor.dom.querySelectorAll('.cm-md-syntaxHiddenCodeBlock')).toHaveLength(lines);
+    expect(window.editor.dom.querySelectorAll('.cm-md-syntaxHiddenFence')).toHaveLength(2);
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenCodeStart')?.getAttribute('data-code-language')).toBe(language);
+
+    for (const anchor of [source.indexOf('```'), source.lastIndexOf('```')]) {
+      window.editor.dispatch({ selection: { anchor } });
+      expect(window.editor.dom.querySelectorAll('.cm-md-syntaxHiddenCodeBlock')).toHaveLength(lines);
+      expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenFence')).toBeNull();
+      expect(window.editor.dom.querySelector('[data-code-language]')).toBeNull();
+      expect(window.editor.state.doc.toString()).toBe(source);
+    }
+  });
+
+  test.each(['~~~ts\ncode\n~~~', '    code', '```ts\ncode'])('leaves unsupported or unfinished blocks unchanged: %s', source => {
+    editor.setUp(source, hiddenSyntaxExtension);
+    expect(hiddenTexts()).toEqual([]);
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenCodeBlock')).toBeNull();
+  });
 });
 
 describe('Inline images', () => {

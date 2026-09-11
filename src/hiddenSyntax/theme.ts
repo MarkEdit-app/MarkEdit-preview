@@ -1,6 +1,35 @@
 import { EditorView } from '@codemirror/view';
 
 export const hiddenSyntaxTheme = EditorView.baseTheme({
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenCodeBlock': {
+    '--code-border': 'color-mix(in srgb, currentColor 18%, transparent)',
+    boxShadow: 'inset 1px 0 var(--code-border), inset -1px 0 var(--code-border)',
+  },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenCodeStart': {
+    position: 'relative',
+    boxShadow: 'inset 1px 0 var(--code-border), inset -1px 0 var(--code-border), inset 0 1px var(--code-border)',
+    borderTopLeftRadius: '6px',
+    borderTopRightRadius: '6px',
+  },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenCodeStart[data-code-language]::after': {
+    content: 'attr(data-code-language)',
+    position: 'absolute',
+    top: '0.5em',
+    right: '0.5em',
+    maxWidth: 'calc(100% - 1em)',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    fontSize: '0.8em',
+    lineHeight: '1',
+    opacity: '0.55',
+    pointerEvents: 'none',
+  },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenCodeEnd': {
+    boxShadow: 'inset 1px 0 var(--code-border), inset -1px 0 var(--code-border), inset 0 -1px var(--code-border)',
+    borderBottomLeftRadius: '6px',
+    borderBottomRightRadius: '6px',
+  },
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenSource, &.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenSource *': {
     fontSize: '0px !important',
     fontVariantLigatures: 'none !important',
@@ -8,6 +37,10 @@ export const hiddenSyntaxTheme = EditorView.baseTheme({
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenSource:has(> *)': {
     fontSize: 'inherit !important',
     lineHeight: 'inherit !important',
+  },
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenFence, &.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenFence *': {
+    fontSize: 'inherit !important',
+    visibility: 'hidden',
   },
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenQuoteMark, &.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenQuoteMark *': {
     fontSize: 'inherit !important',

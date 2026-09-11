@@ -10,6 +10,7 @@ import { LinkIconWidget } from './components/icon';
 import { FootnoteDefinitionSuffix } from './components/footnote';
 import { InlineImageWidget } from './components/image';
 import { renderedBlockDecorations } from './block';
+import { fencedCodeDecorations } from './fencedCode';
 import { atxHeadingSyntaxRange, setextHeadingSyntaxLine } from './heading';
 import { horizontalRuleDecoration } from './horizontalRule';
 import { inlineSyntaxDecorations } from './inline';
@@ -69,6 +70,7 @@ export const hiddenSyntaxExtension = createHiddenSyntaxExtension();
 function hiddenSyntaxDecorations(view: EditorView) {
   const ranges: Range<Decoration>[] = [];
   const alertMarkers = new Set<number>();
+  const codeBlocks = new Set<number>();
   const renderInlineImages = view.state.facet(inlineImagesConfig);
   const resolveReferenceDestination = referenceDestinationResolver(view.state);
 
@@ -77,6 +79,11 @@ function hiddenSyntaxDecorations(view: EditorView) {
       from,
       to,
       enter: node => {
+        if (node.name === 'FencedCode' && !codeBlocks.has(node.from)) {
+          codeBlocks.add(node.from);
+          ranges.push(...fencedCodeDecorations(node, view));
+        }
+
         const alert = blockquoteAlert(node, view.state);
         if (alert !== undefined && !alertMarkers.has(alert.from)) {
           alertMarkers.add(alert.from);
