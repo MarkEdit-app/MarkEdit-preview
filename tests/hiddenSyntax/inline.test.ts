@@ -112,11 +112,12 @@ describe('Inline code syntax', () => {
     expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenInlineCodeEnd')?.textContent).toBe('b');
   });
 
-  test('keeps fenced code marks visible', () => {
+  test('keeps inline code marks inside fenced code visible', () => {
     const source = '```ts\nconst value = `code`;\n```\n\nBody';
     editor.setUp(source, hiddenSyntaxExtension);
     window.editor.dispatch({ selection: { anchor: source.length } });
-    expect(hiddenTexts()).toEqual([]);
+    expect(hiddenTexts()).toEqual(['```ts', '```']);
+    expect(editorText()).toContain('const value = `code`;');
   });
 });
 
