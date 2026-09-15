@@ -146,7 +146,9 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
   }
 
   if (needsDisplay) {
-    renderHtmlPreview();
+    renderHtmlPreview(true);
+  } else {
+    ++states.renderVersion;
   }
 }
 
@@ -197,26 +199,38 @@ export function isEditorOnlyMode() {
   return mode === ViewMode.edit || mode === ViewMode.syntaxHidden;
 }
 
-export async function renderHtmlPreview() {
+export async function renderHtmlPreview(syncScroll = currentViewMode() !== ViewMode.preview || !previewPane.hasChildNodes()) {
+  const renderVersion = ++states.renderVersion;
   if (isEditorOnlyMode()) {
     return;
   }
 
   const html = replaceImageURLs(await getRenderedHtml());
+  if (renderVersion !== states.renderVersion) {
+    return;
+  }
+
+  const offset = { top: previewPane.scrollTop, left: previewPane.scrollLeft };
   previewPane.innerHTML = html;
 
-  handlePostRender(() => {
-    syncScrollProgress(
-      getEditPane(),
-      getPreviewPane(),
-      false,
-    );
+  const pageZoom = localStorage.getItem(CacheKeys.previewPageZoomKey);
+  if (pageZoom !== null) {
+    setPageZoom(pageZoom);
+  }
 
-    const pageZoom = localStorage.getItem(CacheKeys.previewPageZoomKey);
-    if (pageZoom !== null) {
-      setPageZoom(pageZoom);
+  const alignPosition = () => {
+    if (syncScroll && renderVersion === states.renderVersion) {
+      syncScrollProgress(getEditPane(), previewPane, false);
     }
-  });
+  };
+
+  if (syncScroll) {
+    alignPosition();
+  } else {
+    previewPane.scrollTo(offset);
+  }
+
+  handlePostRender(alignPosition);
 }
 
 export function handlePageZoom(event: KeyboardEvent) {
@@ -446,7 +460,9 @@ function handleTaskItemToggle(event: MouseEvent) {
 const states: {
   viewMode: ViewMode;
   splitter: Splitter | undefined;
+  renderVersion: number;
 } = {
   viewMode: ViewMode.edit,
   splitter: undefined,
+  renderVersion: 0,
 };
