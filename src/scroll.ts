@@ -7,15 +7,28 @@ export function startObserving(sourcePane: HTMLElement, targetPane: HTMLElement)
     return;
   }
 
+  if (states.scrollUpdater !== undefined) {
+    clearTimeout(states.scrollUpdater);
+  }
+
   // Skip phantom scroll events where the editor didn't actually move
+  let lastDocument = MarkEdit.editorView.state.doc;
+  let lastSelection = MarkEdit.editorView.state.selection;
   states.lastSourceScrollTop = sourcePane.scrollTop;
+
   const didScroll = () => {
-    if (Math.abs(sourcePane.scrollTop - states.lastSourceScrollTop) < 0.5) {
+    const { doc, selection } = MarkEdit.editorView.state;
+    const selectionChanged = doc === lastDocument && !selection.eq(lastSelection);
+    lastDocument = doc;
+    lastSelection = selection;
+    if (!selectionChanged && Math.abs(sourcePane.scrollTop - states.lastSourceScrollTop) < 0.5) {
       return;
     }
 
     states.lastSourceScrollTop = sourcePane.scrollTop;
-    syncScrollProgress(sourcePane, targetPane);
+    if (selectionChanged || !targetPane.classList.contains('overlay')) {
+      syncScrollProgress(sourcePane, targetPane);
+    }
   };
 
   if ('onscrollend' in window) {

@@ -1,7 +1,12 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, test, vi } from 'vitest';
+import type * as Render from '../src/render';
+import type * as Scroll from '../src/scroll';
 
 const mocks = vi.hoisted(() => ({
+  handlePostRender: vi.fn<typeof Render.handlePostRender>(),
+  renderMarkdown: vi.fn<typeof Render.renderMarkdown>(),
+  syncScrollProgress: vi.fn<typeof Scroll.syncScrollProgress>(),
   editorView: undefined as unknown as {
     contentDOM: HTMLElement;
     scrollDOM: HTMLElement;
@@ -12,6 +17,12 @@ const mocks = vi.hoisted(() => ({
   destroySplitter: vi.fn(),
   viewModes: ['edit', 'side-by-side', 'preview', 'syntax-hidden'],
 }));
+
+const {
+  handlePostRender,
+  renderMarkdown,
+  syncScrollProgress,
+} = mocks;
 
 vi.mock('markedit-api', () => ({
   MarkEdit: {
@@ -44,15 +55,15 @@ vi.mock('../src/shared/utils', () => ({
 
 vi.mock('../src/render', () => ({
   applyStyles: vi.fn(),
-  handlePostRender: vi.fn(),
+  handlePostRender: mocks.handlePostRender,
   renderKatex: vi.fn(),
-  renderMarkdown: vi.fn(),
+  renderMarkdown: mocks.renderMarkdown,
   renderMermaid: vi.fn(),
 }));
 
-vi.mock('../src/features/image', () => ({ replaceImageURLs: vi.fn() }));
+vi.mock('../src/features/image', () => ({ replaceImageURLs: vi.fn(html => html) }));
 vi.mock('../src/features/task', () => ({ resolveTaskToggle: vi.fn() }));
-vi.mock('../src/scroll', () => ({ syncScrollProgress: vi.fn() }));
+vi.mock('../src/scroll', () => ({ syncScrollProgress: mocks.syncScrollProgress }));
 vi.mock('../src/shared/strings', () => ({ localized: vi.fn() }));
 vi.mock('../src/styling', () => ({
   codeCopyCss: vi.fn(),
@@ -61,6 +72,9 @@ vi.mock('../src/styling', () => ({
 }));
 
 beforeEach(() => {
+  vi.mocked(handlePostRender).mockClear();
+  vi.mocked(syncScrollProgress).mockClear();
+  vi.mocked(renderMarkdown).mockReset();
   localStorage.clear();
   document.body.innerHTML = '';
   mocks.setHiddenSyntaxMode.mockClear();
@@ -72,6 +86,112 @@ beforeEach(() => {
     focus: vi.fn(),
     hasFocus: false,
   };
+});
+
+describe('Preview refresh positioning', () => {
+  async function setUpPreview() {
+    vi.resetModules();
+    const view = await import('../src/view');
+    view.setViewMode(view.ViewMode.preview, false);
+    vi.mocked(renderMarkdown).mockResolvedValue('<p>Updated content</p>');
+
+    const pane = view.getPreviewPane();
+    pane.innerHTML = '<p>Existing preview</p>';
+    pane.scrollTop = 400;
+    pane.scrollLeft = 20;
+    return { view, pane };
+  }
+
+  test('preserves its own offsets without syncing to the editor', async () => {
+    const { view, pane } = await setUpPreview();
+    await view.renderHtmlPreview();
+
+    expect(pane.innerHTML).toBe('<p>Updated content</p>');
+    expect(pane.scrollTop).toBe(400);
+    expect(pane.scrollLeft).toBe(20);
+    expect(syncScrollProgress).not.toHaveBeenCalled();
+  });
+
+  test('aligns with the editor when requested', async () => {
+    const { view, pane } = await setUpPreview();
+    await view.renderHtmlPreview(true);
+    expect(syncScrollProgress).toHaveBeenCalledWith(mocks.editorView.scrollDOM, pane, false);
+  });
+
+  test('aligns the first preview render with the editor', async () => {
+    const { view, pane } = await setUpPreview();
+    pane.innerHTML = '';
+    await view.renderHtmlPreview();
+    expect(syncScrollProgress).toHaveBeenCalledWith(mocks.editorView.scrollDOM, pane, false);
+  });
+
+  test('keeps side-by-side refreshes aligned with the editor', async () => {
+    const { view, pane } = await setUpPreview();
+    view.setViewMode(view.ViewMode.sideBySide, false);
+    await view.renderHtmlPreview();
+    expect(syncScrollProgress).toHaveBeenCalledWith(mocks.editorView.scrollDOM, pane, false);
+  });
+
+  test('captures the position after asynchronous rendering', async () => {
+    const { view, pane } = await setUpPreview();
+    let finish!: (html: string) => void;
+    vi.mocked(renderMarkdown).mockReturnValueOnce(new Promise<string>(resolve => { finish = resolve; }));
+    const rendering = view.renderHtmlPreview();
+    pane.scrollTop = 600;
+    finish('<p>Later content</p>');
+    await rendering;
+    expect(pane.scrollTop).toBe(600);
+  });
+
+  test('ignores superseded renders and their post-render callbacks', async () => {
+    const { view, pane } = await setUpPreview();
+    await view.renderHtmlPreview(true);
+    const calls = vi.mocked(handlePostRender).mock.calls;
+    const staleCallback = calls[calls.length - 1][0];
+
+    let finish!: (html: string) => void;
+    vi.mocked(renderMarkdown).mockReturnValueOnce(new Promise<string>(resolve => { finish = resolve; }));
+
+    const staleRender = view.renderHtmlPreview(true);
+    await view.renderHtmlPreview();
+    vi.mocked(syncScrollProgress).mockClear();
+    staleCallback();
+    finish('<p>Stale content</p>');
+
+    await staleRender;
+    expect(pane.innerHTML).toBe('<p>Updated content</p>');
+    expect(syncScrollProgress).not.toHaveBeenCalled();
+  });
+
+  test.each(['edit', 'syntaxHidden', 'sideBySide'] as const)('invalidates pending renders when switching to %s without display', async mode => {
+    const { view, pane } = await setUpPreview();
+    await view.renderHtmlPreview(true);
+    const calls = mocks.handlePostRender.mock.calls;
+    const callback = calls[calls.length - 1][0];
+    let finish!: (html: string) => void;
+    mocks.renderMarkdown.mockReturnValueOnce(new Promise<string>(resolve => { finish = resolve; }));
+    const rendering = view.renderHtmlPreview(true);
+
+    view.setViewMode(view.ViewMode[mode], false);
+    mocks.syncScrollProgress.mockClear();
+    mocks.handlePostRender.mockClear();
+    callback();
+    finish('<p>Stale content</p>');
+    await rendering;
+
+    expect(pane.innerHTML).toBe('<p>Updated content</p>');
+    expect(mocks.syncScrollProgress).not.toHaveBeenCalled();
+    expect(mocks.handlePostRender).not.toHaveBeenCalled();
+  });
+
+  test('does not undo user scrolling when a diagram finishes', async () => {
+    const { view, pane } = await setUpPreview();
+    await view.renderHtmlPreview();
+    pane.scrollTop = 700;
+    const calls = vi.mocked(handlePostRender).mock.calls;
+    calls[calls.length - 1][0]();
+    expect(pane.scrollTop).toBe(700);
+  });
 });
 
 describe('Syntax-hidden mode', () => {
