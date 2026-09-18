@@ -20,6 +20,39 @@ export async function renderMarkdown(markdown: string, lineInfo = true) {
   return mdit.render(markdown, { lineInfo });
 }
 
+export async function renderTableBlocks(markdown: string) {
+  await pluginsReady;
+  const environment = { lineInfo: false };
+  const tokens = mdit.parse(markdown, environment);
+  const tables: { fromLine: number; toLine: number; html: string }[] = [];
+
+  for (let index = 0; index < tokens.length; index += 1) {
+    const opening = tokens[index];
+    if (opening.type !== 'table_open' || opening.level !== 0 || opening.map === null) {
+      continue;
+    }
+
+    let closing = index + 1;
+    while (closing < tokens.length && tokens[closing].type !== 'table_close') {
+      closing += 1;
+    }
+
+    if (closing === tokens.length) {
+      continue;
+    }
+
+    tables.push({
+      fromLine: opening.map[0] + 1,
+      toLine: opening.map[1],
+      html: mdit.renderer.render(tokens.slice(index, closing + 1), mdit.options, environment),
+    });
+
+    index = closing;
+  }
+
+  return tables;
+}
+
 export async function headingLineForAnchor(markdown: string, destination: string) {
   if (!destination.startsWith('#')) {
     return undefined;

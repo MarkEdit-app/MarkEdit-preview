@@ -1,6 +1,14 @@
 import { EditorView } from '@codemirror/view';
 
 export const hiddenSyntaxTheme = EditorView.baseTheme({
+  '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenTable': {
+    boxSizing: 'border-box',
+    width: '100%',
+    padding: '0.5em 6px',
+    overflow: 'hidden',
+    contain: 'content',
+    cursor: 'text',
+  },
   '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenCodeBlock': {
     '--code-border': 'color-mix(in srgb, currentColor 18%, transparent)',
     boxShadow: 'inset 1px 0 var(--code-border), inset -1px 0 var(--code-border)',

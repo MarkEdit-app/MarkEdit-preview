@@ -32,6 +32,7 @@
     "esbuild": "^0.28.1",
     "eslint": "^9.27.0",
     "happy-dom": "^20.8.9",
+    "jsdom": "^26.1.0",
     "markedit-api": "https://github.com/MarkEdit-app/MarkEdit-api#v0.35.0",
     "markedit-vite": "https://github.com/MarkEdit-app/MarkEdit-vite#v0.5.0",
     "typescript": "^5.0.0",
@@ -40,6 +41,7 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "dompurify": "^3.4.12",
     "js-yaml": "^5.2.1",
     "katex": "^0.18.4",
     "mark.js": "^8.11.1",

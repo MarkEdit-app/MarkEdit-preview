@@ -79,6 +79,12 @@ export function coreCss(colorScheme: ColorScheme = 'auto') {
   return styles.join('\n');
 }
 
+export function editorThemeCss(name: string, isDark: boolean) {
+  const variants = previewThemes[name.replace(/-(light|dark|dawn)$/, '')] ?? previewThemes['github'];
+  const colors = isDark ? variants.dark ?? variants.light : variants.light ?? variants.dark;
+  return `${githubBase}\n${colors}`;
+}
+
 export function previewThemeCss(colorScheme: ColorScheme = 'auto') {
   if (showRawHtml) {
     // System colors that follow color-scheme; needed because the WebView root is transparent.

@@ -1667,7 +1667,7 @@ delaunator@5:
   dependencies:
     robust-predicates "^3.0.2"
 
-dompurify@^3.3.3:
+dompurify@^3.3.3, dompurify@^3.4.12:
   version "3.4.12"
   resolved "https://ms-feed-12.pkgs.visualstudio.com/1es-public/_packaging/npm-public/npm/registry/dompurify/-/dompurify-3.4.12.tgz#6fa2265e9bbdce882c4ace4107626051b448ffa8"
   integrity sha1-b6ImXpu9zogsSs5BB2JgUbRI/6g=

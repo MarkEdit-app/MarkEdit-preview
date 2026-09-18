@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { renderMarkdown, renderMermaid, renderKatex } from '../src/render';
+import { renderMarkdown, renderMermaid, renderKatex, renderTableBlocks } from '../src/render';
 
 vi.mock('markedit-api', () => {
   const markEdit: Record<string, unknown> = {};
@@ -66,6 +66,25 @@ describe('renderMarkdown', () => {
       const html = await renderMarkdown(md);
       expect(html).not.toMatch(/class="[^"]*hljs/);
     });
+  });
+});
+
+describe('renderTableBlocks', () => {
+  it('renders top-level tables with document references and preview formatting', async () => {
+    const table = '| Name | Value |\n| :--- | ---: |\n| **bold** | [link][target] |';
+    const source = `Before\n\n${table}\n\n[target]: https://example.com`;
+    const tables = await renderTableBlocks(source);
+    expect(tables).toHaveLength(1);
+    expect(tables[0]).toMatchObject({ fromLine: 3, toLine: 5 });
+    expect(tables[0].html).toContain('<strong>bold</strong>');
+    expect(tables[0].html).toContain('href="https://example.com"');
+    expect(tables[0].html).toContain('text-align:right');
+    expect(tables[0].html).not.toContain('data-line-from');
+  });
+
+  it('excludes nested tables and malformed syntax', async () => {
+    expect(await renderTableBlocks('> | Name |\n> | --- |\n> | Value |')).toEqual([]);
+    expect(await renderTableBlocks('| Name |\n| Value |')).toEqual([]);
   });
 });
 
