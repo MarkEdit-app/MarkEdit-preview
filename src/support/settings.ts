@@ -3,6 +3,8 @@ import type { JSONObject, JSONValue } from 'markedit-api';
 import type { PresetName } from 'markdown-it';
 import type { ColorScheme } from '../shared/types';
 
+export type InlineRenderingType = 'image' | 'table' | 'math' | 'mermaid';
+
 const Constants = {
   rootValueKey: 'extension.markeditPreview',
   defaultModes: ['edit', 'side-by-side', 'preview', 'syntax-hidden'],
@@ -19,7 +21,16 @@ export const syncScroll = toBoolean(rootValue.syncScroll);
 export const hidePreviewButtons = toBoolean(rootValue.hidePreviewButtons);
 export const syntaxAutoDetect = toBoolean(rootValue.syntaxAutoDetect, false);
 export const imageHoverPreview = toBoolean(rootValue.imageHoverPreview, false);
+
+/**
+ * @deprecated Use inlineRendering instead.
+ */
 export const inlineImages = toBoolean(rootValue.inlineImages, false);
+export const inlineRendering: readonly InlineRenderingType[] = Array.isArray(rootValue.inlineRendering)
+  ? rootValue.inlineRendering.filter((value): value is InlineRenderingType =>
+    value === 'image' || value === 'table' || value === 'math' || value === 'mermaid')
+  : inlineImages ? ['image', 'table', 'math', 'mermaid'] : ['table', 'math', 'mermaid'];
+
 export const themeName = (rootValue.themeName ?? 'github') as string;
 export const showRawHtml = themeName === 'none';
 export const styledHtmlColorScheme = (rootValue.styledHtmlColorScheme ?? rootValue.styledHtmlTheme ?? 'auto') as ColorScheme; // styledHtmlTheme for backward compatibility
