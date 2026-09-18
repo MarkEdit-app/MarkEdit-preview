@@ -1,5 +1,5 @@
 import { syntaxTree } from '@codemirror/language';
-import { Facet, type Range } from '@codemirror/state';
+import { type Range } from '@codemirror/state';
 import { Decoration, type DecorationSet, EditorView, ViewPlugin, type ViewUpdate } from '@codemirror/view';
 import { blockquoteAlert, blockquoteSyntaxRange } from './blockquote';
 import { BlockquoteAlertWidget } from './components/alert';
@@ -10,6 +10,7 @@ import { LinkIconWidget } from './components/icon';
 import { FootnoteDefinitionSuffix } from './components/footnote';
 import { InlineImageWidget } from './components/image';
 import { renderedBlockDecorations } from './block';
+import { inlineRenderingConfig } from './config';
 import { fencedCodeDecorations } from './fencedCode';
 import { atxHeadingSyntaxRange, setextHeadingSyntaxLine } from './heading';
 import { horizontalRuleDecoration } from './horizontalRule';
@@ -18,7 +19,7 @@ import { footnoteReferences, footnoteDefinitionSyntax, linkSyntax, referenceDest
 import { hiddenSyntaxTheme } from './theme';
 import { unorderedListSyntax } from './unorderedList';
 import { correctedLineUp, selectionReveals, stablePointerSelection } from './selection';
-import { inlineImages } from '../support/settings';
+import { inlineRendering } from '../support/settings';
 
 const hiddenSyntax = Decoration.mark({ class: 'cm-md-syntaxHiddenSource' });
 const hiddenQuoteSyntax = Decoration.mark({ class: 'cm-md-syntaxHiddenSource cm-md-syntaxHiddenQuoteMark' });
@@ -27,7 +28,6 @@ const hiddenTaskListSyntax = Decoration.mark({ class: 'cm-md-syntaxHiddenSource 
 const hiddenLine = Decoration.line({ class: 'cm-md-syntaxHiddenSetextUnderline' });
 const hiddenLinkLabel = Decoration.mark({ class: 'cm-md-syntaxHiddenLinkLabel' });
 const hiddenImageLabel = Decoration.mark({ class: 'cm-md-syntaxHiddenImageLabel' });
-const inlineImagesConfig = Facet.define<boolean, boolean>({ combine: values => values[values.length - 1] ?? inlineImages });
 
 const hiddenSyntaxBaseExtension = [
   EditorView.editorAttributes.of({
@@ -61,8 +61,8 @@ const hiddenSyntaxBaseExtension = [
   hiddenSyntaxTheme,
 ];
 
-export function createHiddenSyntaxExtension(renderInlineImages = inlineImages) {
-  return [inlineImagesConfig.of(renderInlineImages), hiddenSyntaxBaseExtension];
+export function createHiddenSyntaxExtension(rendering = inlineRendering) {
+  return [inlineRenderingConfig.of(rendering), hiddenSyntaxBaseExtension];
 }
 
 export const hiddenSyntaxExtension = createHiddenSyntaxExtension();
@@ -71,7 +71,7 @@ function hiddenSyntaxDecorations(view: EditorView) {
   const ranges: Range<Decoration>[] = [];
   const alertMarkers = new Set<number>();
   const codeBlocks = new Set<number>();
-  const renderInlineImages = view.state.facet(inlineImagesConfig);
+  const renderInlineImages = view.state.facet(inlineRenderingConfig).includes('image');
   const resolveReferenceDestination = referenceDestinationResolver(view.state);
 
   for (const { from, to } of view.visibleRanges) {

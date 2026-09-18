@@ -183,7 +183,7 @@ describe('Link syntax', () => {
 
   test('hides image syntax when inline images are disabled', () => {
     const source = 'Before ![alt](image.png) after';
-    editor.setUp(source, createHiddenSyntaxExtension(false));
+    editor.setUp(source, createHiddenSyntaxExtension([]));
     window.editor.dispatch({ selection: { anchor: source.length } });
 
     expect(editorText()).toBe('Before alt after');

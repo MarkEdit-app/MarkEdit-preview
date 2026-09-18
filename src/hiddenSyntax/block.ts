@@ -5,6 +5,7 @@ import type { SyntaxNodeRef } from '@lezer/common';
 import { BlockMathWidget } from './components/math';
 import { MermaidWidget } from './components/mermaid';
 import { TableWidget, tableRenderFailed } from './components/table';
+import { inlineRenderingConfig } from './config';
 import { selectionReveals } from './selection';
 import { renderTableBlocks } from '../render';
 
@@ -59,6 +60,7 @@ function createBlockDecorationState(state: EditorState, previous = Decoration.no
 function createBlockDecorations(state: EditorState, previous: DecorationSet) {
   const ranges: Range<Decoration>[] = [];
   const tree = syntaxTree(state);
+  const rendering = state.facet(inlineRenderingConfig);
 
   const context: string[] = [];
   tree.iterate({
@@ -86,7 +88,7 @@ function createBlockDecorations(state: EditorState, previous: DecorationSet) {
   tree.iterate({
     enter: node => {
       let decoration: Range<Decoration> | undefined;
-      if (node.name === 'Table') {
+      if (node.name === 'Table' && rendering.includes('table')) {
         for (let parent = node.node.parent; parent !== null; parent = parent.parent) {
           if (parent.name !== 'Document') {
             return false;
@@ -112,10 +114,10 @@ function createBlockDecorations(state: EditorState, previous: DecorationSet) {
           block: true,
           widget,
         }).range(from, to);
-      } else if (__FULL_BUILD__) {
-        decoration = node.name === 'BlockMath'
-          ? blockMathDecoration(node, state)
-          : mermaidDecoration(node, state);
+      } else if (__FULL_BUILD__ && node.name === 'BlockMath' && rendering.includes('math')) {
+        decoration = blockMathDecoration(node, state);
+      } else if (__FULL_BUILD__ && rendering.includes('mermaid')) {
+        decoration = mermaidDecoration(node, state);
       }
 
       if (decoration !== undefined) {

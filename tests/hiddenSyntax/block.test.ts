@@ -2,12 +2,68 @@
 import { mermaidMocks, hiddenTexts, editorText } from './support';
 import { describe, expect, test, vi } from 'vitest';
 import { codeFolding, foldable, foldEffect, unfoldEffect } from '@codemirror/language';
+import { Compartment } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
 import { createHiddenSyntaxExtension, hiddenSyntaxExtension } from '../../src/hiddenSyntax';
 import { BlockMathWidget } from '../../src/hiddenSyntax/components/math';
 import { MermaidWidget } from '../../src/hiddenSyntax/components/mermaid';
 import { renderMermaidSVG } from '../../src/render';
+import type { InlineRenderingType } from '../../src/support/settings';
 import * as editor from '../support/editor';
+
+describe('Inline rendering options', () => {
+  const source = '![Alt](image.png)\n\n| Name |\n| --- |\n| Value |\n\n$$x = 1$$\n\n```mermaid\ngraph TD\n```\n\nAfter';
+  const selectors = {
+    image: '.cm-md-syntaxHiddenImage',
+    table: '.cm-md-syntaxHiddenTable',
+    math: '.cm-md-syntaxHiddenBlockMath',
+    mermaid: '.cm-md-syntaxHiddenMermaid',
+  };
+
+  const options: (readonly InlineRenderingType[] | undefined)[] = [
+    undefined, [], ['image'], ['table'], ['math'], ['mermaid'], ['image', 'table', 'math', 'mermaid'],
+  ];
+
+  test.each(options.map(rendering => ({ rendering })))('renders only the configured types: $rendering', ({ rendering }) => {
+    editor.setUp(source, createHiddenSyntaxExtension(rendering));
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    const enabled = rendering ?? ['table', 'math', 'mermaid'];
+    for (const type of Object.keys(selectors) as InlineRenderingType[]) {
+      expect(window.editor.dom.querySelector(selectors[type]) !== null).toBe(enabled.includes(type));
+    }
+
+    expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test('updates every type when the option set is reconfigured', () => {
+    const configuration = new Compartment();
+    editor.setUp(source, configuration.of(createHiddenSyntaxExtension([])));
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    for (const rendering of [['image', 'table', 'math', 'mermaid'], []] as InlineRenderingType[][]) {
+      window.editor.dispatch({ effects: configuration.reconfigure(createHiddenSyntaxExtension(rendering)) });
+      for (const selector of Object.values(selectors)) {
+        expect(window.editor.dom.querySelector(selector) !== null).toBe(rendering.length > 0);
+      }
+    }
+
+    expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test('renders only images and tables in lite mode even when all types are enabled', () => {
+    vi.stubGlobal('__FULL_BUILD__', false);
+    try {
+      editor.setUp(source, createHiddenSyntaxExtension(['image', 'table', 'math', 'mermaid']));
+      window.editor.dispatch({ selection: { anchor: source.length } });
+      for (const type of Object.keys(selectors) as InlineRenderingType[]) {
+        expect(window.editor.dom.querySelector(selectors[type]) !== null).toBe(type === 'image' || type === 'table');
+      }
+      expect(window.editor.state.doc.toString()).toBe(source);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+});
 
 test('keeps HTML source visible', () => {
   const source = '<b>inline</b>\n\n<div>block</div>\n\nAfter';
@@ -113,7 +169,7 @@ describe('Fenced code', () => {
 describe('Inline images', () => {
   test('renders remote images in place of their Markdown source', () => {
     const source = 'Before ![Alt](https://example.com/image.png) after';
-    editor.setUp(source, createHiddenSyntaxExtension(true));
+    editor.setUp(source, createHiddenSyntaxExtension(['image']));
     window.editor.dispatch({ selection: { anchor: source.length } });
 
     const image = window.editor.dom.querySelector<HTMLImageElement>('.cm-md-syntaxHiddenImage');
@@ -126,7 +182,7 @@ describe('Inline images', () => {
 
   test('loads local images through the image loader', () => {
     const source = '![Local](images/photo.png) after';
-    editor.setUp(source, createHiddenSyntaxExtension(true));
+    editor.setUp(source, createHiddenSyntaxExtension(['image']));
     window.editor.dispatch({ selection: { anchor: source.length } });
 
     const image = window.editor.dom.querySelector<HTMLImageElement>('.cm-md-syntaxHiddenImage');
@@ -135,7 +191,7 @@ describe('Inline images', () => {
 
   test('renders reference images with their resolved destination', () => {
     const source = '![Photo][image]\n\n[image]: assets/photo.jpg';
-    editor.setUp(source, createHiddenSyntaxExtension(true));
+    editor.setUp(source, createHiddenSyntaxExtension(['image']));
     window.editor.dispatch({ selection: { anchor: source.length } });
 
     const image = window.editor.dom.querySelector<HTMLImageElement>('.cm-md-syntaxHiddenImage');
@@ -145,7 +201,7 @@ describe('Inline images', () => {
 
   test('reveals image source when selected', () => {
     const source = 'Before ![Alt](image.png) after';
-    editor.setUp(source, createHiddenSyntaxExtension(true));
+    editor.setUp(source, createHiddenSyntaxExtension(['image']));
     window.editor.dispatch({ selection: { anchor: source.length } });
     expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenImage')).not.toBeNull();
 
@@ -156,7 +212,7 @@ describe('Inline images', () => {
 
   test('keeps image source visible when inline images are disabled', () => {
     const source = '![Alt](image.png) after';
-    editor.setUp(source, createHiddenSyntaxExtension(false));
+    editor.setUp(source, createHiddenSyntaxExtension([]));
     window.editor.dispatch({ selection: { anchor: source.length } });
 
     expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenImage')).toBeNull();
