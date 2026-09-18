@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { EditorSelection, EditorState } from '@codemirror/state';
 import { EditorView, keymap, runScopeHandlers } from '@codemirror/view';
 import { standardKeymap } from '@codemirror/commands';
-import { codeFolding, foldEffect, unfoldEffect } from '@codemirror/language';
+import { codeFolding, foldedRanges, foldEffect, unfoldEffect } from '@codemirror/language';
 import { hiddenSyntaxExtension } from '../../src/hiddenSyntax';
 import { TableWidget } from '../../src/hiddenSyntax/components/table';
 import * as renderer from '../../src/render';
@@ -25,6 +25,49 @@ function setUp(text = source) {
 }
 
 describe('Hidden tables', () => {
+  test.each([
+    '| asdf | asdf |\n| ---- | ---- |\n',
+    '| asdf | asdf |\n| ---- | ---- |\n  ',
+    `${table}\n`,
+    `${table}\n\t`,
+  ])('keeps source while the caret is on the next blank line: %j', text => {
+    setUp(text);
+    expect(widget()).toBeNull();
+    expect(window.editor.state.doc.toString()).toBe(text);
+  });
+
+  test('keeps source while adding rows and renders after a blank separator', async () => {
+    const text = '| asdf | asdf |\n| ---- | ---- |';
+    setUp(text);
+    window.editor.dispatch(window.editor.state.replaceSelection('\n'), { userEvent: 'input.type' });
+    expect(widget()).toBeNull();
+
+    window.editor.dispatch(window.editor.state.replaceSelection('| one | two |'), { userEvent: 'input.type' });
+    expect(widget()).toBeNull();
+    window.editor.dispatch(window.editor.state.replaceSelection('\n'), { userEvent: 'input.type' });
+    expect(widget()).toBeNull();
+
+    window.editor.dispatch(window.editor.state.replaceSelection('\n'), { userEvent: 'input.type' });
+    await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+    expect([...renderedTable()!.querySelectorAll('td')].map(cell => cell.textContent)).toEqual(['one', 'two']);
+    expect(window.editor.state.doc.toString()).toBe(`${text}\n| one | two |\n\n`);
+  });
+
+  test('reveals source for a secondary caret on the next blank line and reuses the render on leaving', async () => {
+    const render = vi.spyOn(renderer, 'renderTableBlocks');
+    setUp();
+    await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+
+    window.editor.dispatch({selection: EditorSelection.create([EditorSelection.cursor(table.length + 1), EditorSelection.cursor(source.length)], 1)});
+    expect(widget()).toBeNull();
+
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+
+    expect(render).toHaveBeenCalledTimes(1);
+    expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
   test('does not leave an empty source line before a rendered table', async () => {
     setUp();
     await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
@@ -143,7 +186,7 @@ describe('Hidden tables', () => {
 
   test.each(['ArrowRight', 'ArrowLeft'])('%s reveals source at the table boundary', async key => {
     const prefix = 'Before\n\n';
-    const text = `${prefix}${source}`;
+    const text = `${prefix}${table}\n# After\n\n[target]: https://example.com`;
     editor.setUp(text, [hiddenSyntaxExtension, keymap.of(standardKeymap)]);
 
     const boundary = key === 'ArrowRight' ? prefix.length : prefix.length + table.length;
@@ -170,7 +213,7 @@ describe('Hidden tables', () => {
     const forward = key === 'ArrowDown';
     const start = forward ? before : after;
     const target = forward ? after : before;
-    window.editor.dispatch({ selection: { anchor: start } });
+    window.editor.dispatch({ selection: EditorSelection.create([EditorSelection.cursor(start, 0, undefined, 24)]) });
     await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
 
     const rendered = renderedTable();
@@ -208,6 +251,23 @@ describe('Hidden tables', () => {
 
     expect(render).toHaveBeenCalledTimes(1);
     expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test.each(['ArrowLeft', 'ArrowRight', 'typing'])('reveals source on %s after vertical arrival at the next blank line', async action => {
+    const text = `${table}\n  \nAfter\n\n[target]: https://example.com`;
+    editor.setUp(text, [hiddenSyntaxExtension, keymap.of(standardKeymap)]);
+    const start = table.length + 2;
+    window.editor.dispatch({ selection: EditorSelection.create([EditorSelection.cursor(start, 0, undefined, 24)]) });
+    await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+
+    if (action === 'typing') {
+      window.editor.dispatch(window.editor.state.replaceSelection(' '), { userEvent: 'input.type' });
+    } else {
+      expect(runScopeHandlers(window.editor, new KeyboardEvent('keydown', { key: action }), 'editor')).toBe(true);
+    }
+
+    expect(window.editor.state.selection.main.goalColumn).toBeUndefined();
+    expect(widget()).toBeNull();
   });
 
   test('reuses a pending render when source is revealed and restored', async () => {
@@ -322,6 +382,29 @@ describe('Hidden tables', () => {
     setUp();
     const range = { from: window.editor.state.doc.line(1).to, to: table.length };
     window.editor.dispatch({ effects: foldEffect.of(range) });
+    expect(widget()).toBeNull();
+    window.editor.dispatch({ effects: unfoldEffect.of(range) });
+    await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+  });
+
+  test.each([undefined, 24])('preserves an explicit fold beside a blank-line caret with goal column %s', async goal => {
+    setUp();
+    const range = { from: window.editor.state.doc.line(1).to, to: table.length };
+    window.editor.dispatch({ effects: foldEffect.of(range) });
+    window.editor.dispatch({ selection: EditorSelection.create([
+      EditorSelection.cursor(table.length + 1, 0, undefined, goal),
+    ]) });
+
+    expect(widget()).toBeNull();
+    expect(window.editor.dom.querySelector('.cm-foldPlaceholder')).not.toBeNull();
+    expect(foldedRanges(window.editor.state).size).toBe(1);
+
+    window.editor.dispatch(window.editor.state.replaceSelection(' '), { userEvent: 'input.type' });
+    expect(widget()).toBeNull();
+    expect(window.editor.dom.querySelector('.cm-foldPlaceholder')).not.toBeNull();
+    expect(foldedRanges(window.editor.state).size).toBe(1);
+
+    window.editor.dispatch({ selection: { anchor: window.editor.state.doc.length } });
     expect(widget()).toBeNull();
     window.editor.dispatch({ effects: unfoldEffect.of(range) });
     await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
