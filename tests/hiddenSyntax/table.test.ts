@@ -2,7 +2,8 @@
 import './support';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { EditorSelection, EditorState } from '@codemirror/state';
-import { EditorView } from '@codemirror/view';
+import { EditorView, keymap, runScopeHandlers } from '@codemirror/view';
+import { standardKeymap } from '@codemirror/commands';
 import { codeFolding, foldEffect, unfoldEffect } from '@codemirror/language';
 import { hiddenSyntaxExtension } from '../../src/hiddenSyntax';
 import { TableWidget } from '../../src/hiddenSyntax/components/table';
@@ -138,6 +139,115 @@ describe('Hidden tables', () => {
     window.editor.dispatch({ selection: { anchor: source.length } });
     await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
     expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test.each(['ArrowRight', 'ArrowLeft'])('%s reveals source at the table boundary', async key => {
+    const prefix = 'Before\n\n';
+    const text = `${prefix}${source}`;
+    editor.setUp(text, [hiddenSyntaxExtension, keymap.of(standardKeymap)]);
+
+    const boundary = key === 'ArrowRight' ? prefix.length : prefix.length + table.length;
+    const start = boundary + (key === 'ArrowRight' ? -1 : 1);
+    window.editor.dispatch({ selection: { anchor: start } });
+    await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+
+    expect(runScopeHandlers(window.editor, new KeyboardEvent('keydown', { key }), 'editor')).toBe(true);
+    expect(window.editor.state.selection.main.head).toBe(boundary);
+    expect(widget()).toBeNull();
+    expect(window.editor.state.doc.toString()).toBe(text);
+  });
+
+  test.each([
+    ['ArrowUp', false], ['ArrowDown', false],
+    ['ArrowUp', true], ['ArrowDown', true],
+  ] as const)('preserves CodeMirror table-skipping movement for %s, shift: %s', async (key, shiftKey) => {
+    const prefix = 'Before\n\n';
+    const text = `${prefix}${source}`;
+    editor.setUp(text, [hiddenSyntaxExtension, keymap.of(standardKeymap)]);
+
+    const before = prefix.length - 1;
+    const after = prefix.length + table.length + 1;
+    const forward = key === 'ArrowDown';
+    const start = forward ? before : after;
+    const target = forward ? after : before;
+    window.editor.dispatch({ selection: { anchor: start } });
+    await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+
+    const rendered = renderedTable();
+    const range = window.editor.state.selection.main;
+    const moved = EditorSelection.cursor(target, forward ? 1 : -1, undefined, 24);
+    const move = vi.spyOn(window.editor, 'moveVertically').mockReturnValue(moved);
+
+    expect(runScopeHandlers(window.editor, new KeyboardEvent('keydown', { key, shiftKey }), 'editor')).toBe(true);
+    expect(move).toHaveBeenCalledExactlyOnceWith(range, forward);
+    expect(window.editor.state.selection.main).toEqual(shiftKey
+      ? EditorSelection.range(start, target, moved.goalColumn, undefined, moved.assoc)
+      : moved);
+
+    if (shiftKey) {
+      expect(widget()).toBeNull();
+    } else {
+      expect(renderedTable()).toBe(rendered);
+    }
+
+    expect(window.editor.state.doc.toString()).toBe(text);
+  });
+
+  test('reuses rendered content across repeated source reveal and restore cycles', async () => {
+    const render = vi.spyOn(renderer, 'renderTableBlocks');
+    setUp();
+    await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+    const html = renderedTable()?.outerHTML;
+
+    for (const anchor of [0, source.indexOf('bold'), table.length]) {
+      window.editor.dispatch({ selection: { anchor } });
+      expect(widget()).toBeNull();
+      window.editor.dispatch({ selection: { anchor: source.length } });
+      await vi.waitFor(() => expect(renderedTable()?.outerHTML).toBe(html));
+    }
+
+    expect(render).toHaveBeenCalledTimes(1);
+    expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test('reuses a pending render when source is revealed and restored', async () => {
+    let finish: (tables: Awaited<ReturnType<typeof renderer.renderTableBlocks>>) => void = () => {};
+    const pending = new Promise<Awaited<ReturnType<typeof renderer.renderTableBlocks>>>(resolve => { finish = resolve; });
+    const render = vi.spyOn(renderer, 'renderTableBlocks').mockReturnValue(pending);
+    setUp();
+
+    const original = widget();
+    expect(original).not.toBeNull();
+
+    window.editor.dispatch({ selection: { anchor: 0 } });
+    expect(widget()).toBeNull();
+    window.editor.dispatch({ selection: { anchor: source.length } });
+    expect(widget()).not.toBeNull();
+    expect(widget()).not.toBe(original);
+    finish([{ fromLine: 1, toLine: 3, html: '<table><tr><td>Ready</td></tr></table>' }]);
+
+    await vi.waitFor(() => expect(renderedTable()?.textContent).toBe('Ready'));
+    expect(original?.shadowRoot?.querySelector('table')).toBeNull();
+    expect(render).toHaveBeenCalledTimes(1);
+    expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test('invalidates cached references changed while table source is revealed', async () => {
+    const render = vi.spyOn(renderer, 'renderTableBlocks');
+    setUp();
+    await vi.waitFor(() => expect(renderedTable()?.querySelector('a')?.getAttribute('href')).toBe('https://example.com'));
+    window.editor.dispatch({ selection: { anchor: 0 } });
+    expect(widget()).toBeNull();
+
+    const from = source.indexOf('https://example.com');
+    window.editor.dispatch({ changes: { from, to: source.length, insert: 'https://markedit.app' } });
+    expect(widget()).toBeNull();
+    expect(render).toHaveBeenCalledTimes(1);
+
+    window.editor.dispatch({ selection: { anchor: window.editor.state.doc.length } });
+    await vi.waitFor(() => expect(renderedTable()?.querySelector('a')?.getAttribute('href')).toBe('https://markedit.app'));
+    expect(render).toHaveBeenCalledTimes(2);
+    expect(window.editor.state.doc.toString()).toBe(source.slice(0, from) + 'https://markedit.app');
   });
 
   test('clicking a cell reveals the original source without following links', async () => {
