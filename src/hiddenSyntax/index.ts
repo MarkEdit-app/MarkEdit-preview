@@ -57,7 +57,7 @@ const hiddenSyntaxBaseExtension = [
   blockquoteBars,
   unorderedListBullets,
   taskCheckboxes,
-  ...(__FULL_BUILD__ ? [renderedBlockDecorations] : []),
+  renderedBlockDecorations,
   hiddenSyntaxTheme,
 ];
 
