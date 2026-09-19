@@ -174,16 +174,32 @@ function hideSelectedBlocks(decorations: DecorationSet, state: EditorState) {
 
   return decorations.update({
     filter: (from, to, decoration) => {
+      const isTable = decoration.spec.widget instanceof TableWidget;
+      let folded = false;
+      if (isTable) {
+        foldedRanges(state).between(from, to, () => { folded = true; });
+      }
+
+      if (folded) {
+        return false;
+      }
+
       if (selectionReveals(state, from, to)) {
         return false;
       }
 
-      let folded = false;
-      if (decoration.spec.widget instanceof TableWidget) {
-        foldedRanges(state).between(from, to, () => { folded = true; });
+      if (isTable) {
+        if (to < state.doc.length) {
+          // Keep source for typing on the next blank line, not vertical navigation.
+          const nextLine = state.doc.lineAt(to + 1);
+          if (nextLine.text.trim() === '' && state.selection.ranges.some(range =>
+            range.empty && range.goalColumn === undefined && range.head >= nextLine.from && range.head <= nextLine.to)) {
+            return false;
+          }
+        }
       }
 
-      return !folded;
+      return true;
     },
   });
 }
