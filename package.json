@@ -53,7 +53,7 @@
     "markdown-it-highlightjs": "^4.3.0",
     "markdown-it-link-attributes": "^4.0.1",
     "markdown-it-task-lists": "^2.1.1",
-    "markedit-katex": "https://github.com/MarkEdit-app/MarkEdit-katex#v1.1.6",
+    "markedit-katex": "https://github.com/MarkEdit-app/MarkEdit-katex#v1.1.7",
     "mermaid": "^11.16.0",
     "split-grid": "^1.0.11"
   }

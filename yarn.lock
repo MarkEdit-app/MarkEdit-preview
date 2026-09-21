@@ -2328,9 +2328,9 @@ marked@^16.3.0:
   version "0.35.0"
   resolved "https://github.com/MarkEdit-app/MarkEdit-api#324896e752deed9eb4dfdf6cca740c134ae8c4af"
 
-"markedit-katex@https://github.com/MarkEdit-app/MarkEdit-katex#v1.1.6":
-  version "1.1.6"
-  resolved "https://github.com/MarkEdit-app/MarkEdit-katex#dacc32f114ca7469749f423538ab6453d8233eba"
+"markedit-katex@https://github.com/MarkEdit-app/MarkEdit-katex#v1.1.7":
+  version "1.1.7"
+  resolved "https://github.com/MarkEdit-app/MarkEdit-katex#41136cae3b5e5c2d04795f351cba50a8f6f8da43"
   dependencies:
     katex "^0.18.4"
 
