@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     css: true,
+    setupFiles: ['./tests/setup.ts'],
   },
   define: {
     __PKG_VERSION__: JSON.stringify('test'),
