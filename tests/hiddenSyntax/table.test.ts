@@ -151,6 +151,21 @@ describe('Hidden tables', () => {
     expect(window.editor.state.selection.main.head).toBe('Before\n\n'.length);
   });
 
+  test.each(['[', '#', 'a', 'b'])('keeps rendered content in place while typing %j after a table', async character => {
+    setUp(`${source}\n\n`);
+    await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+    const container = widget();
+    const rendered = renderedTable();
+
+    window.editor.dispatch(window.editor.state.replaceSelection(character), { userEvent: 'input.type' });
+    expect(widget()).toBe(container);
+    expect(renderedTable()).toBe(rendered);
+
+    await vi.dynamicImportSettled();
+    expect(widget()).toBe(container);
+    expect(renderedTable()).toBe(rendered);
+  });
+
   test('refreshes changed table content', async () => {
     setUp();
     await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
@@ -350,9 +365,42 @@ describe('Hidden tables', () => {
   test('refreshes references when their definitions change', async () => {
     setUp();
     await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+    const container = widget();
+    const rendered = renderedTable();
     const from = source.indexOf('https://example.com');
     window.editor.dispatch({ changes: { from, to: source.length, insert: 'https://markedit.app' } });
+    expect(widget()).toBe(container);
+    expect(renderedTable()).toBe(rendered);
     await vi.waitFor(() => expect(renderedTable()?.querySelector('a')?.getAttribute('href')).toBe('https://markedit.app'));
+    expect(widget()).toBe(container);
+  });
+
+  test.each(['success', 'missing', 'rejection'])('ignores stale refresh %s after a newer render', async outcome => {
+    setUp();
+    await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+    const container = widget();
+    let finish: () => void = () => {};
+    const pending = new Promise<Awaited<ReturnType<typeof renderer.renderTableBlocks>>>((resolve, reject) => {
+      finish = () => outcome === 'rejection' ? reject(new Error('Unavailable')) : resolve(outcome === 'missing' ? [] : [
+        { fromLine: 1, toLine: 3, html: '<table><tr><td>Stale</td></tr></table>' },
+      ]);
+    });
+
+    const render = vi.spyOn(renderer, 'renderTableBlocks').mockReturnValueOnce(pending);
+    const from = source.indexOf('https://example.com');
+    window.editor.dispatch({ changes: { from, to: source.length, insert: 'https://old.example' } });
+    window.editor.dispatch({ changes: { from, to: window.editor.state.doc.length, insert: 'https://markedit.app' } });
+
+    await vi.waitFor(() => expect(renderedTable()?.querySelector('a')?.getAttribute('href')).toBe('https://markedit.app'));
+    expect(render).toHaveBeenCalledTimes(2);
+
+    const rendered = renderedTable();
+    finish();
+
+    await pending.catch(() => {});
+    await vi.dynamicImportSettled();
+    expect(widget()).toBe(container);
+    expect(renderedTable()).toBe(rendered);
   });
 
   test('sanitizes HTML and removes interactive controls', async () => {
