@@ -39,7 +39,6 @@ export class TableWidget extends WidgetType {
 
     updateTheme();
     window.addEventListener('editor-colors-changed', updateTheme);
-    disposables.set(container, () => window.removeEventListener('editor-colors-changed', updateTheme));
 
     const style = document.createElement('style');
     style.textContent = `
@@ -52,7 +51,14 @@ export class TableWidget extends WidgetType {
     const body = document.createElement('div');
     body.className = 'markdown-body source';
     body.textContent = this.source;
-    root.append(theme, style, body);
+
+    const mathStyle = document.createElement('style');
+    root.append(theme, style, mathStyle, body);
+    tableViews.set(container, {
+      body,
+      mathStyle,
+      dispose: () => window.removeEventListener('editor-colors-changed', updateTheme),
+    });
 
     const reveal = (event: MouseEvent) => {
       if (event.button !== 0 || event.shiftKey || event.altKey || event.metaKey || event.ctrlKey) {
@@ -70,8 +76,26 @@ export class TableWidget extends WidgetType {
     root.addEventListener('load', () => view.requestMeasure(), true);
     root.addEventListener('error', () => view.requestMeasure(), true);
 
+    this.renderInto(container, view);
+    return container;
+  }
+
+  updateDOM(container: HTMLElement, view: EditorView) {
+    this.renderInto(container, view);
+    return true;
+  }
+
+  private renderInto(container: HTMLElement, view: EditorView) {
+    const state = tableViews.get(container)!;
+    const request = {};
+    state.request = request;
+
+    const isCurrent = () => {
+      return container.isConnected && tableViews.get(container)?.request === request;
+    };
+
     const fail = () => {
-      if (container.isConnected) {
+      if (isCurrent()) {
         const from = view.posAtDOM(container);
         view.dispatch({ effects: tableRenderFailed.of({ doc: view.state.doc, from, to: from + this.source.length }) });
       }
@@ -81,7 +105,7 @@ export class TableWidget extends WidgetType {
       this.render(),
       __FULL_BUILD__ ? import('../../../styles/katex.css?raw').then(module => module.default) : '',
     ]).then(([tables, mathCss]) => {
-      if (!container.isConnected) {
+      if (!isCurrent()) {
         return;
       }
 
@@ -113,18 +137,21 @@ export class TableWidget extends WidgetType {
         }
       });
 
-      style.textContent += mathCss;
-      body.classList.remove('source');
-      body.replaceChildren(rendered);
-      view.requestMeasure();
-    }).catch(fail);
+      if (state.mathStyle.textContent !== mathCss) {
+        state.mathStyle.textContent = mathCss;
+      }
 
-    return container;
+      if (!state.body.firstElementChild?.isEqualNode(rendered)) {
+        state.body.classList.remove('source');
+        state.body.replaceChildren(rendered);
+        view.requestMeasure();
+      }
+    }).catch(fail);
   }
 
   destroy(dom: HTMLElement) {
-    disposables.get(dom)?.();
-    disposables.delete(dom);
+    tableViews.get(dom)?.dispose();
+    tableViews.delete(dom);
   }
 
   eq(other: TableWidget) {
@@ -136,4 +163,9 @@ export class TableWidget extends WidgetType {
   }
 }
 
-const disposables = new WeakMap<HTMLElement, () => void>();
+const tableViews = new WeakMap<HTMLElement, {
+  body: HTMLElement;
+  mathStyle: HTMLStyleElement;
+  dispose: () => void;
+  request?: object;
+}>();
