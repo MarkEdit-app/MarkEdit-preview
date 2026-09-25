@@ -270,7 +270,7 @@ ${n.map(([o,u])=>`<tr><th scope="row">${t(o)}</th><td>${oo(u,t)}</td></tr>`).joi
   border-collapse: collapse;
   display: block;
   width: fit-content;
-  max-width: min(100%, 960px);
+  max-width: 100%;
   overflow: auto;
   font-variant: tabular-nums;
 }

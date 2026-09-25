@@ -270,7 +270,7 @@ ${r.map(([i,a])=>`<tr><th scope="row">${e(i)}</th><td>${J9(a,e)}</td></tr>`).joi
   border-collapse: collapse;
   display: block;
   width: fit-content;
-  max-width: min(100%, 960px);
+  max-width: 100%;
   overflow: auto;
   font-variant: tabular-nums;
 }
