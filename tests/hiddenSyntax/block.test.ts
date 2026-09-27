@@ -33,7 +33,7 @@ describe('Inline rendering options', () => {
   test.each(options.map(rendering => ({ rendering })))('renders only the configured types: $rendering', ({ rendering }) => {
     editor.setUp(source, createHiddenSyntaxExtension(rendering));
     window.editor.dispatch({ selection: { anchor: source.length } });
-    const enabled = rendering ?? ['table', 'math', 'mermaid'];
+    const enabled = rendering ?? ['math', 'mermaid'];
     for (const type of Object.keys(selectors) as InlineRenderingType[]) {
       expect(window.editor.dom.querySelector(selectors[type]) !== null).toBe(enabled.includes(type));
     }

@@ -44,7 +44,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
     "hidePreviewButtons": true,
     "syntaxAutoDetect": false,
     "imageHoverPreview": false,
-    "inlineRendering": ["table", "math", "mermaid"],
+    "inlineRendering": ["math", "mermaid"],
     "themeName": "github",
     "styledHtmlColorScheme": "auto",
     "mathDelimiters": [],
@@ -68,7 +68,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `syntaxAutoDetect`: Whether to enable automatic language detection for syntax highlighting in code blocks (not applicable for lite build).
 - `imageHoverPreview`: Whether to enable image preview on hover.
 - `inlineImages` (deprecated): Whether Mixed mode renders images inline, defaults to `false`. Use `inlineRendering` instead; an explicit `inlineRendering` array takes precedence.
-- `inlineRendering`: Types rendered inline in Mixed mode: `"table"`, `"math"`, `"mermaid"`, `"image"`, and `"html"`. Defaults to `["table", "math", "mermaid"]`; use `[]` to disable all rendering. Math and Mermaid rendering require the full build.
+- `inlineRendering`: Types rendered inline in Mixed mode: `"table"`, `"math"`, `"mermaid"`, `"image"`, and `"html"`. Defaults to `["math", "mermaid"]`; use `[]` to disable all rendering. Math and Mermaid rendering require the full build.
 - `themeName`: Set the preview color theme, available themes can be found in the [`styles/themes`](styles/themes) folder. Use `"none"` to disable preview styling and render the raw HTML.
 - `styledHtmlColorScheme`: Determine the color scheme of saving styled html files, valid values are `light`, `dark`, and `auto`.
 - `mathDelimiters`: Customize math delimiters for KaTeX rendering (not applicable for lite build), each delimiter object has `left`, `right`, and `display` properties, defaults to `$...$`, `$$...$$`, `\(...\)`, and `\[...\]`.

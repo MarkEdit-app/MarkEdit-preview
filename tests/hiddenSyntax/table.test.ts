@@ -5,7 +5,7 @@ import { EditorSelection, EditorState } from '@codemirror/state';
 import { EditorView, keymap, runScopeHandlers } from '@codemirror/view';
 import { standardKeymap } from '@codemirror/commands';
 import { codeFolding, foldedRanges, foldEffect, unfoldEffect } from '@codemirror/language';
-import { hiddenSyntaxExtension } from '../../src/hiddenSyntax';
+import { createHiddenSyntaxExtension } from '../../src/hiddenSyntax';
 import { TableWidget } from '../../src/hiddenSyntax/components/table';
 import * as renderer from '../../src/render';
 import * as editor from '../support/editor';
@@ -14,13 +14,14 @@ const editorConfig = vi.hoisted(() => ({ theme: 'github-light' }));
 vi.mock('markedit-api', () => ({ MarkEdit: { editorConfig } }));
 beforeEach(() => { editorConfig.theme = 'github-light'; });
 
+const tableSyntaxExtension = createHiddenSyntaxExtension(['table']);
 const table = '| Name | Value |\n| :--- | ---: |\n| **bold** | [link][target] |';
 const source = `${table}\n\nAfter\n\n[target]: https://example.com`;
 const widget = () => window.editor.dom.querySelector('.cm-md-syntaxHiddenTable');
 const renderedTable = () => widget()?.shadowRoot?.querySelector('table');
 
 function setUp(text = source) {
-  editor.setUp(text, [hiddenSyntaxExtension, codeFolding(), EditorState.allowMultipleSelections.of(true)]);
+  editor.setUp(text, [tableSyntaxExtension, codeFolding(), EditorState.allowMultipleSelections.of(true)]);
   window.editor.dispatch({ selection: { anchor: text.length } });
 }
 
@@ -81,7 +82,7 @@ describe('Hidden tables', () => {
     ['github-light', false, '#ffffff', '#1f2328'],
   ] as const)('uses the %s editor palette', (name, isDark, background, foreground) => {
     editorConfig.theme = name;
-    editor.setUp(source, [hiddenSyntaxExtension, EditorView.darkTheme.of(isDark)]);
+    editor.setUp(source, [tableSyntaxExtension, EditorView.darkTheme.of(isDark)]);
     window.editor.dispatch({ selection: { anchor: source.length } });
 
     const css = widget()?.shadowRoot?.querySelector('style')?.textContent;
@@ -91,7 +92,7 @@ describe('Hidden tables', () => {
 
   test('updates the palette in place and stops observing after destruction', () => {
     editorConfig.theme = 'cobalt';
-    editor.setUp(source, [hiddenSyntaxExtension, EditorView.darkTheme.of(true)]);
+    editor.setUp(source, [tableSyntaxExtension, EditorView.darkTheme.of(true)]);
     window.editor.dispatch({ selection: { anchor: source.length } });
     const container = widget();
     const theme = container?.shadowRoot?.querySelector('style');
@@ -202,7 +203,7 @@ describe('Hidden tables', () => {
   test.each(['ArrowRight', 'ArrowLeft'])('%s reveals source at the table boundary', async key => {
     const prefix = 'Before\n\n';
     const text = `${prefix}${table}\n# After\n\n[target]: https://example.com`;
-    editor.setUp(text, [hiddenSyntaxExtension, keymap.of(standardKeymap)]);
+    editor.setUp(text, [tableSyntaxExtension, keymap.of(standardKeymap)]);
 
     const boundary = key === 'ArrowRight' ? prefix.length : prefix.length + table.length;
     const start = boundary + (key === 'ArrowRight' ? -1 : 1);
@@ -221,7 +222,7 @@ describe('Hidden tables', () => {
   ] as const)('preserves CodeMirror table-skipping movement for %s, shift: %s', async (key, shiftKey) => {
     const prefix = 'Before\n\n';
     const text = `${prefix}${source}`;
-    editor.setUp(text, [hiddenSyntaxExtension, keymap.of(standardKeymap)]);
+    editor.setUp(text, [tableSyntaxExtension, keymap.of(standardKeymap)]);
 
     const before = prefix.length - 1;
     const after = prefix.length + table.length + 1;
@@ -270,7 +271,7 @@ describe('Hidden tables', () => {
 
   test.each(['ArrowLeft', 'ArrowRight', 'typing'])('reveals source on %s after vertical arrival at the next blank line', async action => {
     const text = `${table}\n  \nAfter\n\n[target]: https://example.com`;
-    editor.setUp(text, [hiddenSyntaxExtension, keymap.of(standardKeymap)]);
+    editor.setUp(text, [tableSyntaxExtension, keymap.of(standardKeymap)]);
     const start = table.length + 2;
     window.editor.dispatch({ selection: EditorSelection.create([EditorSelection.cursor(start, 0, undefined, 24)]) });
     await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
