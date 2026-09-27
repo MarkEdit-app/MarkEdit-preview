@@ -9,6 +9,7 @@ import { taskCheckboxes } from './components/task';
 import { LinkIconWidget } from './components/icon';
 import { FootnoteDefinitionSuffix } from './components/footnote';
 import { InlineImageWidget } from './components/image';
+import { HtmlWidget } from './components/html';
 import { renderedBlockDecorations } from './block';
 import { inlineRenderingConfig } from './config';
 import { fencedCodeDecorations } from './fencedCode';
@@ -72,6 +73,7 @@ function hiddenSyntaxDecorations(view: EditorView) {
   const alertMarkers = new Set<number>();
   const codeBlocks = new Set<number>();
   const renderInlineImages = view.state.facet(inlineRenderingConfig).includes('image');
+  const renderHtml = view.state.facet(inlineRenderingConfig).includes('html');
   const resolveReferenceDestination = referenceDestinationResolver(view.state);
 
   for (const { from, to } of view.visibleRanges) {
@@ -79,6 +81,19 @@ function hiddenSyntaxDecorations(view: EditorView) {
       from,
       to,
       enter: node => {
+        if (renderHtml) {
+          let insideHtml = false;
+          view.state.field(renderedBlockDecorations).visible.between(node.from, node.to, (start, end, decoration) => {
+            if (decoration.spec.widget instanceof HtmlWidget && start < node.to && end > node.from) {
+              insideHtml ||= start <= node.from && end >= node.to;
+            }
+          });
+
+          if (insideHtml) {
+            return false;
+          }
+        }
+
         if (node.name === 'FencedCode' && !codeBlocks.has(node.from)) {
           codeBlocks.add(node.from);
           ranges.push(...fencedCodeDecorations(node, view));
