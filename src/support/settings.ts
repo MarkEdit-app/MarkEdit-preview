@@ -29,7 +29,7 @@ export const inlineImages = toBoolean(rootValue.inlineImages, false);
 export const inlineRendering: readonly InlineRenderingType[] = Array.isArray(rootValue.inlineRendering)
   ? rootValue.inlineRendering.filter((value): value is InlineRenderingType =>
     value === 'image' || value === 'table' || value === 'math' || value === 'mermaid' || value === 'html')
-  : inlineImages ? ['image', 'table', 'math', 'mermaid'] : ['table', 'math', 'mermaid'];
+  : inlineImages ? ['image', 'math', 'mermaid'] : ['math', 'mermaid'];
 
 export const themeName = (rootValue.themeName ?? 'github') as string;
 export const showRawHtml = themeName === 'none';

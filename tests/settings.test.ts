@@ -12,7 +12,7 @@ describe('Inline rendering settings', () => {
   test.each([true, false])('preserves deprecated inlineImages: %s', async enabled => {
     settings.inlineImages = enabled;
     const { inlineRendering } = await import('../src/support/settings');
-    expect(inlineRendering).toEqual(enabled ? ['image', 'table', 'math', 'mermaid'] : ['table', 'math', 'mermaid']);
+    expect(inlineRendering).toEqual(enabled ? ['image', 'math', 'mermaid'] : ['math', 'mermaid']);
   });
 
   test.each([
@@ -29,7 +29,7 @@ describe('Inline rendering settings', () => {
   test.each([undefined, null, false, 'image', {}])('uses defaults for a non-array value: %j', async value => {
     settings.inlineRendering = value;
     const { inlineRendering } = await import('../src/support/settings');
-    expect(inlineRendering).toEqual(['table', 'math', 'mermaid']);
+    expect(inlineRendering).toEqual(['math', 'mermaid']);
   });
 
   test.each([
