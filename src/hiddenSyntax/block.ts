@@ -5,6 +5,7 @@ import type { SyntaxNodeRef } from '@lezer/common';
 import { BlockMathWidget } from './components/math';
 import { MermaidWidget } from './components/mermaid';
 import { TableWidget, tableRenderFailed } from './components/table';
+import { HtmlWidget, htmlFragments } from './components/html';
 import { inlineRenderingConfig } from './config';
 import { selectionReveals } from './selection';
 import { renderTableBlocks } from '../render';
@@ -21,7 +22,7 @@ export const renderedBlockDecorations = StateField.define<BlockDecorationState>(
       || syntaxTree(transaction.startState) !== syntaxTree(transaction.state)) {
       const previous: Range<Decoration>[] = [];
       for (const cursor = value.all.iter(); cursor.value !== null; cursor.next()) {
-        if (cursor.value.spec.widget instanceof TableWidget) {
+        if (cursor.value.spec.widget instanceof TableWidget || cursor.value.spec.widget instanceof HtmlWidget) {
           const from = transaction.changes.mapPos(cursor.from, 1);
           const to = transaction.changes.mapPos(cursor.to, -1);
           if (from < to) {
@@ -85,8 +86,41 @@ function createBlockDecorations(state: EditorState, previous: DecorationSet) {
   const renderTables = () => tables ??= renderTableBlocks(state.doc.toString());
   const referenceContext = JSON.stringify(context);
 
+  if (rendering.includes('html')) {
+    for (const { from, to, source } of htmlFragments(state, rendering.includes('table'))) {
+      if (tree.length < state.doc.length && to >= tree.length) {
+        continue;
+      }
+
+      let widget: HtmlWidget | undefined;
+      previous.between(from, to, (start, end, previousDecoration) => {
+        const candidate = previousDecoration.spec.widget;
+        if (start === from && end === to && candidate instanceof HtmlWidget && candidate.source === source) {
+          widget = candidate;
+        }
+      });
+
+      widget ??= HtmlWidget.create(source);
+      if (widget !== undefined) {
+        ranges.push(Decoration.replace({ block: widget.block, widget }).range(from, to));
+      }
+    }
+  }
+
+  const htmlRanges = ranges.slice();
+  let htmlIndex = 0;
   tree.iterate({
     enter: node => {
+      while (htmlIndex < htmlRanges.length && htmlRanges[htmlIndex].to <= node.from) {
+        htmlIndex++;
+      }
+
+      const htmlRange = htmlRanges[htmlIndex];
+      if (node.name !== 'Document' && htmlRange !== undefined
+        && htmlRange.from <= node.from && htmlRange.to >= node.to) {
+        return false;
+      }
+
       let decoration: Range<Decoration> | undefined;
       if (node.name === 'Table' && rendering.includes('table')) {
         for (let parent = node.node.parent; parent !== null; parent = parent.parent) {
@@ -176,7 +210,7 @@ function hideSelectedBlocks(decorations: DecorationSet, state: EditorState) {
     filter: (from, to, decoration) => {
       const isTable = decoration.spec.widget instanceof TableWidget;
       let folded = false;
-      if (isTable) {
+      if (isTable || decoration.spec.widget instanceof HtmlWidget) {
         foldedRanges(state).between(from, to, () => { folded = true; });
       }
 

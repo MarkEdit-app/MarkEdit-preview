@@ -3,7 +3,7 @@ import type { JSONObject, JSONValue } from 'markedit-api';
 import type { PresetName } from 'markdown-it';
 import type { ColorScheme } from '../shared/types';
 
-export type InlineRenderingType = 'image' | 'table' | 'math' | 'mermaid';
+export type InlineRenderingType = 'image' | 'table' | 'math' | 'mermaid' | 'html';
 
 const Constants = {
   rootValueKey: 'extension.markeditPreview',
@@ -28,7 +28,7 @@ export const imageHoverPreview = toBoolean(rootValue.imageHoverPreview, false);
 export const inlineImages = toBoolean(rootValue.inlineImages, false);
 export const inlineRendering: readonly InlineRenderingType[] = Array.isArray(rootValue.inlineRendering)
   ? rootValue.inlineRendering.filter((value): value is InlineRenderingType =>
-    value === 'image' || value === 'table' || value === 'math' || value === 'mermaid')
+    value === 'image' || value === 'table' || value === 'math' || value === 'mermaid' || value === 'html')
   : inlineImages ? ['image', 'table', 'math', 'mermaid'] : ['table', 'math', 'mermaid'];
 
 export const themeName = (rootValue.themeName ?? 'github') as string;

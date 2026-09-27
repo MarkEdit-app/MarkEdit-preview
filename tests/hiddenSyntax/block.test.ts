@@ -1,4 +1,4 @@
-// @vitest-environment happy-dom
+// @vitest-environment jsdom
 import { mermaidMocks, hiddenTexts, editorText } from './support';
 import { describe, expect, test, vi } from 'vitest';
 import { codeFolding, foldable, foldEffect, unfoldEffect } from '@codemirror/language';
@@ -11,17 +11,23 @@ import { renderMermaidSVG } from '../../src/render';
 import type { InlineRenderingType } from '../../src/support/settings';
 import * as editor from '../support/editor';
 
+window.matchMedia = query => Object.assign(new EventTarget(), {
+  matches: false,
+  media: query,
+}) as MediaQueryList;
+
 describe('Inline rendering options', () => {
-  const source = '![Alt](image.png)\n\n| Name |\n| --- |\n| Value |\n\n$$x = 1$$\n\n```mermaid\ngraph TD\n```\n\nAfter';
+  const source = '![Alt](image.png)\n\n| Name |\n| --- |\n| Value |\n\n$$x = 1$$\n\n```mermaid\ngraph TD\n```\n\n<div>HTML</div>\n\nAfter';
   const selectors = {
     image: '.cm-md-syntaxHiddenImage',
     table: '.cm-md-syntaxHiddenTable',
     math: '.cm-md-syntaxHiddenBlockMath',
     mermaid: '.cm-md-syntaxHiddenMermaid',
+    html: '.cm-md-syntaxHiddenHtml',
   };
 
   const options: (readonly InlineRenderingType[] | undefined)[] = [
-    undefined, [], ['image'], ['table'], ['math'], ['mermaid'], ['image', 'table', 'math', 'mermaid'],
+    undefined, [], ['image'], ['table'], ['math'], ['mermaid'], ['html'], ['image', 'table', 'math', 'mermaid', 'html'],
   ];
 
   test.each(options.map(rendering => ({ rendering })))('renders only the configured types: $rendering', ({ rendering }) => {
@@ -40,7 +46,7 @@ describe('Inline rendering options', () => {
     editor.setUp(source, configuration.of(createHiddenSyntaxExtension([])));
     window.editor.dispatch({ selection: { anchor: source.length } });
 
-    for (const rendering of [['image', 'table', 'math', 'mermaid'], []] as InlineRenderingType[][]) {
+    for (const rendering of [['image', 'table', 'math', 'mermaid', 'html'], []] as InlineRenderingType[][]) {
       window.editor.dispatch({ effects: configuration.reconfigure(createHiddenSyntaxExtension(rendering)) });
       for (const selector of Object.values(selectors)) {
         expect(window.editor.dom.querySelector(selector) !== null).toBe(rendering.length > 0);
@@ -50,13 +56,13 @@ describe('Inline rendering options', () => {
     expect(window.editor.state.doc.toString()).toBe(source);
   });
 
-  test('renders only images and tables in lite mode even when all types are enabled', () => {
+  test('renders only images, tables, and HTML in lite mode even when all types are enabled', () => {
     vi.stubGlobal('__FULL_BUILD__', false);
     try {
-      editor.setUp(source, createHiddenSyntaxExtension(['image', 'table', 'math', 'mermaid']));
+      editor.setUp(source, createHiddenSyntaxExtension(['image', 'table', 'math', 'mermaid', 'html']));
       window.editor.dispatch({ selection: { anchor: source.length } });
       for (const type of Object.keys(selectors) as InlineRenderingType[]) {
-        expect(window.editor.dom.querySelector(selectors[type]) !== null).toBe(type === 'image' || type === 'table');
+        expect(window.editor.dom.querySelector(selectors[type]) !== null).toBe(type === 'image' || type === 'table' || type === 'html');
       }
       expect(window.editor.state.doc.toString()).toBe(source);
     } finally {

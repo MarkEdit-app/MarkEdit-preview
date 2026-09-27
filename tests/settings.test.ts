@@ -35,6 +35,7 @@ describe('Inline rendering settings', () => {
   test.each([
     { value: [], expected: [] },
     { value: ['image'], expected: ['image'] },
+    { value: ['html'], expected: ['html'] },
     { value: ['image', 'table', 'math', 'mermaid'], expected: ['image', 'table', 'math', 'mermaid'] },
     { value: ['unknown', null, 1, true, {}, 'table'], expected: ['table'] },
     { value: ['unknown'], expected: [] },
