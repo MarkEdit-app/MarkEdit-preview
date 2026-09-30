@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 import mainPackage from './package.json' with { type: 'json' };
 import katexPackage from 'katex/package.json' with { type: 'json' };
+import mermaidPackage from 'mermaid/package.json' with { type: 'json' };
 
 const liteBuild = process.env.LITE_BUILD === 'true';
 const outDir = liteBuild ? 'dist/lite' : 'dist';
@@ -28,6 +29,7 @@ export default defineConfig(mergeConfig(defaultViteConfig({ outDir }), {
   define: {
     __PKG_VERSION__: JSON.stringify(mainPackage.version),
     __FULL_BUILD__: JSON.stringify(!liteBuild),
+    __MERMAID_VERSION__: JSON.stringify(mermaidPackage.version),
   },
   build: {
     rollupOptions: {
