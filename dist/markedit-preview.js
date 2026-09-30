@@ -1982,22 +1982,22 @@ ${n}`}function Whe(t="auto"){if(Yhe)return[`:root { color-scheme: ${t==="auto"?"
 ${n}
 </style>`,r=['<!doctype html><html lang="en"><head><meta charset="UTF-8" /></head><body>',`<div class="markdown-body">
 ${t}
-</div>`,e(M$e(zg)),e(Whe(zg)),e(P$e(zg)),e(Xhe()),"</body></html>"];{r.push(e(Khe(zg)));const{default:n}=await Promise.resolve().then(()=>OG);r.push(e(n));const i=`
-    <script type="module">
-      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      if (${zg==="auto"?"true":"false"}) {
-        const darkMode = matchMedia("(prefers-color-scheme: dark)");
-        mermaid.initialize({ theme: darkMode.matches ? "dark" : undefined });
-        darkMode.addEventListener("change", () => {
-          if (document.querySelector(".mermaid") !== null) {
-            location.reload();
-          }
-        });
-      } else {
-        const isDark = ${zg==="dark"?"true":"false"};
-        mermaid.initialize({ theme: isDark ? "dark" : undefined });
-      }
-    <\/script>`;r.push(i)}return r.join(`
+</div>`,e(M$e(zg)),e(Whe(zg)),e(P$e(zg)),e(Xhe()),"</body></html>"];{r.push(e(Khe(zg)));const{default:n}=await Promise.resolve().then(()=>OG);r.push(e(n));const i=document.createElement("template");if(i.innerHTML=t,i.content.querySelector(".mermaid")!==null){const a=`
+      <script type="module">
+        import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.16.0/dist/mermaid.esm.min.mjs";
+        if (${zg==="auto"?"true":"false"}) {
+          const darkMode = matchMedia("(prefers-color-scheme: dark)");
+          mermaid.initialize({ theme: darkMode.matches ? "dark" : undefined });
+          darkMode.addEventListener("change", () => {
+            if (document.querySelector(".mermaid") !== null) {
+              location.reload();
+            }
+          });
+        } else {
+          const isDark = ${zg==="dark"?"true":"false"};
+          mermaid.initialize({ theme: isDark ? "dark" : undefined });
+        }
+      <\/script>`;r.push(a)}}return r.join(`
 `)}const Jhe=async(t,e,r)=>{await Y5;const i=r?` data-line-from="0" data-line-to="${wr.MarkEdit.editorView.state.doc.lines-1}"`:"";return`<div class="${t}"${i}>${e}</div>`},V$e=()=>Promise.resolve().then(()=>oqe).then(t=>t.default),H$e=()=>Promise.resolve().then(()=>xat).then(t=>t.default);let W$e,Ij,K$e=0;async function efe(){const t=await(W$e??=H$e()),e=matchMedia("(prefers-color-scheme: dark)").matches;return e!==Ij&&(t.initialize({theme:e?"dark":void 0}),Ij=e),t}const xi=Dl(d$e,{html:!0,breaks:!0,linkify:!0,...h$e}),lP=[];xi.use(e$e());xi.use(Um);xi.use(GPe,{matcher:t=>!t.startsWith("#"),attrs:{target:"_blank",rel:"noopener"}});xi.use(QPe);xi.use(eBe,{enabled:xG(),label:!0});xi.use(rBe);lP.push(Promise.resolve().then(()=>oct).then(t=>{xi.use(t.default,{auto:o$e})})),lP.push(Promise.resolve().then(()=>vct).then(t=>{const e=Oj?{delimiters:Oj}:{};xi.use(t.default,e)}));const X$e=new Set(["paragraph_open","heading_open","blockquote_open","list_item_open","bullet_list_open","ordered_list_open","fence","code_block","table_open","html_block","front_matter"]),Y5=Promise.all(lP).then(()=>{for(const t of X$e){const e=xi.renderer.rules[t];xi.renderer.rules[t]=(r,n,i,a,s)=>{const o=r[n];return a.lineInfo&&o.map?.length===2&&(o.attrSet("data-line-from",String(o.map[0])),o.attrSet("data-line-to",String(o.map[1]-1))),e?e(r,n,i,a,s):s.renderToken(r,n,i)}}{const t=xi.renderer.rules.fence;xi.renderer.rules.fence=(e,r,n,i,a)=>{const s=e[r],o=s.content.trim(),l=s.info.trim();s.attrSet("data-code",o+`
 `);const u=a.renderAttrs(s),d=xi.utils.escapeHtml(o);return l==="mermaid"?`<div class="mermaid"${u}>${d}</div>`:t!==void 0?t(e,r,n,i,a):`<pre><code class="language-${l}">${xi.utils.escapeHtml(o)}</code></pre>`}}for(const t of["fence","code_block"]){const e=xi.renderer.rules[t];xi.renderer.rules[t]=(r,n,i,a,s)=>`
       <div class="code-copy-wrapper" onmouseenter="this.querySelector('.code-copy-button').style.opacity='1'" onmouseleave="this.querySelector('.code-copy-button').style.opacity='0'">

@@ -129,23 +129,28 @@ export async function applyStyles(html: string) {
     const { default: katexCss } = await import('../styles/katex.css?raw');
     components.push(stylify(katexCss));
 
-    const mermaid = `
-    <script type="module">
-      import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-      if (${styledHtmlColorScheme === 'auto' ? 'true' : 'false'}) {
-        const darkMode = matchMedia("(prefers-color-scheme: dark)");
-        mermaid.initialize({ theme: darkMode.matches ? "dark" : undefined });
-        darkMode.addEventListener("change", () => {
-          if (document.querySelector(".mermaid") !== null) {
-            location.reload();
-          }
-        });
-      } else {
-        const isDark = ${styledHtmlColorScheme === 'dark' ? 'true' : 'false'};
-        mermaid.initialize({ theme: isDark ? "dark" : undefined });
-      }
-    </script>`;
-    components.push(mermaid);
+    const template = document.createElement('template');
+    template.innerHTML = html;
+
+    if (template.content.querySelector('.mermaid') !== null) {
+      const mermaid = `
+      <script type="module">
+        import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@${__MERMAID_VERSION__}/dist/mermaid.esm.min.mjs";
+        if (${styledHtmlColorScheme === 'auto' ? 'true' : 'false'}) {
+          const darkMode = matchMedia("(prefers-color-scheme: dark)");
+          mermaid.initialize({ theme: darkMode.matches ? "dark" : undefined });
+          darkMode.addEventListener("change", () => {
+            if (document.querySelector(".mermaid") !== null) {
+              location.reload();
+            }
+          });
+        } else {
+          const isDark = ${styledHtmlColorScheme === 'dark' ? 'true' : 'false'};
+          mermaid.initialize({ theme: isDark ? "dark" : undefined });
+        }
+      </script>`;
+      components.push(mermaid);
+    }
   }
 
   return components.join('\n');

@@ -9,6 +9,7 @@ describe('build variants', () => {
       loader: 'ts',
       define: { __FULL_BUILD__: String(fullBuild) },
       treeShaking: true,
+      minifySyntax: true,
     });
 
     const lite = await transformRenderer(false);
@@ -24,6 +25,8 @@ describe('build variants', () => {
       expect(lite.code).not.toMatch(moduleImport);
       expect(full.code).toMatch(moduleImport);
     });
+    expect(lite.code).not.toContain('https://cdn.jsdelivr.net/npm/mermaid@');
+    expect(full.code).toContain('https://cdn.jsdelivr.net/npm/mermaid@');
     expect(lite.code).toMatch(/renderToString:\s*\(\.\.\._args\) => ""/);
     expect(lite.code).toMatch(/render:\s*async \(\) => \(\{\s*svg: ""\s*\}\)/);
   });
