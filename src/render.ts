@@ -98,17 +98,105 @@ export async function renderKatexHTML(content: string) {
   return katex.renderToString(content.trim(), { displayMode: true, throwOnError: false });
 }
 
-export function handlePostRender(process: () => void) {
-  if (__FULL_BUILD__) {
-    loadMermaid().then(mermaid => {
-      mermaid.run({
-        querySelector: '.mermaid',
-        postRenderCallback: process,
-      });
-    });
-  } else {
-    process();
+const cssZoomGeneration = new WeakMap<HTMLElement, number>();
+
+function cssZoomScale(zoom: string): number | undefined {
+  if (zoom === '') {
+    return undefined;
   }
+
+  const scale = Number(zoom);
+  if (!Number.isFinite(scale) || scale <= 0 || scale === 1) {
+    return undefined;
+  }
+
+  return scale;
+}
+
+function bumpCssZoomGeneration(element: HTMLElement): number {
+  const next = (cssZoomGeneration.get(element) ?? 0) + 1;
+  cssZoomGeneration.set(element, next);
+  return next;
+}
+
+/**
+ * Cancel a zoom restore started by `suspendCssZoom`.
+ * Call this before a user zoom write so an in-flight Mermaid render cannot put the old zoom back.
+ */
+export function invalidateCssZoomSuspend(element: HTMLElement): void {
+  bumpCssZoomGeneration(element);
+}
+
+/**
+ * Measure layout as if `element.style.zoom` were 1.
+ *
+ * `getBoundingClientRect()` includes CSS zoom. Mermaid copies that rect onto
+ * `<foreignObject>` width and height, then draws glyphs in SVG user units, so a
+ * pane zoom of 0.8 stores a label box 0.8× the text and clips the last glyph.
+ * The returned function restores the previous zoom unless a later suspend or
+ * `invalidateCssZoomSuspend` took ownership.
+ */
+export function suspendCssZoom(element: HTMLElement): () => void {
+  const zoom = element.style.zoom;
+  if (cssZoomScale(zoom) === undefined) {
+    return () => {};
+  }
+
+  const token = bumpCssZoomGeneration(element);
+  element.style.zoom = '1';
+  void element.getBoundingClientRect();
+
+  return () => {
+    if (cssZoomGeneration.get(element) !== token) {
+      return;
+    }
+
+    element.style.zoom = zoom;
+  };
+}
+
+function suspendZoomAroundMermaid(): Array<() => void> {
+  const panes = new Set<HTMLElement>();
+  for (const node of document.querySelectorAll('.mermaid')) {
+    let element = node.parentElement;
+    while (element !== null) {
+      if (cssZoomScale(element.style.zoom) !== undefined) {
+        panes.add(element);
+      }
+      element = element.parentElement;
+    }
+  }
+
+  return [...panes].map(pane => suspendCssZoom(pane));
+}
+
+export function handlePostRender(process: () => void) {
+  if (!__FULL_BUILD__) {
+    process();
+    return;
+  }
+
+  // Drop ancestor zoom before mermaid.run() reads label boxes, then put it back
+  // before the callback so scroll sync sees the zoom the user left in place.
+  const restoreZoom = suspendZoomAroundMermaid();
+  void (async () => {
+    let rendered = false;
+    try {
+      const mermaid = await loadMermaid();
+      await mermaid.run({ querySelector: '.mermaid' });
+      rendered = true;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      for (const restore of restoreZoom) {
+        restore();
+      }
+    }
+
+    if (rendered) {
+      process();
+    }
+  })();
 }
 
 export async function applyStyles(html: string) {

@@ -1,7 +1,7 @@
 import { Annotation } from '@codemirror/state';
 import { MarkEdit } from 'markedit-api';
 import { appendStyle, getBlockRange, getFileExtension, getFileName, joinPaths, selectFullRange, writeClipboard, htmlToPlainText } from './shared/utils';
-import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles } from './render';
+import { renderMarkdown, renderMermaid, renderKatex, handlePostRender, applyStyles, invalidateCssZoomSuspend } from './render';
 import { replaceImageURLs } from './features/image';
 import { hidePreviewButtons, viewModes } from './support/settings';
 import { localized } from './shared/strings';
@@ -349,6 +349,8 @@ function updateGutterStyle() {
 }
 
 function setPageZoom(value: string) {
+  // A zoom key during an in-flight diagram render must win over the restore.
+  invalidateCssZoomSuspend(previewPane);
   previewPane.style.zoom = value;
 
   // Zooming in narrows the layout width,
