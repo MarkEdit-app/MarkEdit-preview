@@ -1,6 +1,6 @@
 /**
  * Stub `require` for hosts that don't provide one (Quick Look, `@light`).
- * Compiled to an IIFE and injected as the Rollup banner so it runs before the
+ * Compiled to an IIFE and injected as the build banner so it runs before the
  * bundle's top-level `require(...)` calls.
  */
 

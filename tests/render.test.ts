@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { renderMarkdown, renderMermaid, renderKatex, renderTableBlocks } from '../src/render';
+import { renderMarkdown, renderMermaid, renderKatex, renderKatexHTML, renderTableBlocks } from '../src/render';
 
 vi.mock('markedit-api', () => {
   const markEdit: Record<string, unknown> = {};
@@ -145,6 +145,18 @@ describe('renderMermaid', () => {
 });
 
 describe('renderKatex', () => {
+  it('uses KaTeX 0.19 features in both Markdown and standalone math', async () => {
+    const content = '\\reflectbox{R}';
+    for (const html of [
+      await renderMarkdown(`$${content}$`),
+      await renderMarkdown(`$$${content}$$`),
+      await renderKatexHTML(content),
+    ]) {
+      expect(html).toMatch(/class="[^"]*\breflectbox\b/);
+      expect(html).not.toContain('katex-error');
+    }
+  });
+
   it('should wrap content in a katex div', async () => {
     await mockDocLines(1);
     const content = 'E = mc^2';
