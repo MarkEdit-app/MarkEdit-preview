@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "typeRoots": ["./node_modules/@types"],
+    "types": ["node"],
     "module": "esnext",
     "target": "esnext",
     "lib": ["es2019", "dom", "dom.iterable"],
@@ -13,6 +14,6 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "types/**/*.d.ts", "main.ts"],
+  "include": ["src/**/*.ts", "tests/**/*.ts", "types/**/*.d.ts", "*.ts", "*.mts"],
   "exclude": ["dist", "node_modules"]
 }

@@ -227,9 +227,9 @@ if (__FULL_BUILD__) {
   );
 
   pluginInits.push(
-    import('markedit-katex').then(mod => {
+    import('markedit-katex').then(async mod => {
       const options = mathDelimiters ? { delimiters: mathDelimiters } : {};
-      mdit.use(mod.default, options);
+      mdit.use(mod.default, { ...options, katex: await importKatex() });
     }),
   );
 }

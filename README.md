@@ -16,6 +16,7 @@ To build the lite version, run `yarn build:lite` instead.
 
 - `yarn test` — run tests
 - `yarn lint` — run linting (also runs automatically before build)
+- `yarn typecheck` — run TypeScript checks (also runs automatically before the full build)
 
 ## How to Use
 
