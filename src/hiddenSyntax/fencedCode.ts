@@ -40,7 +40,7 @@ export function fencedCodeDecorations(node: SyntaxNodeRef, view: EditorView) {
     return ranges;
   }
 
-  const revealed = selectionReveals(state, node.from, node.to);
+  const hideSyntax = __FULL_BUILD__ && !selectionReveals(state, node.from, node.to);
   for (const { from, to } of view.visibleRanges) {
     const first = Math.max(firstLine.number, state.doc.lineAt(from).number);
     const last = Math.min(lastLine.number, state.doc.lineAt(to).number);
@@ -55,14 +55,14 @@ export function fencedCodeDecorations(node: SyntaxNodeRef, view: EditorView) {
         classes.push('cm-md-syntaxHiddenCodeEnd');
       }
 
-      const attributes = number === firstLine.number && !revealed && info !== null
+      const attributes = number === firstLine.number && hideSyntax && info !== null
         ? { 'data-code-language': state.sliceDoc(info.from, info.to).trim().split(/\s+/)[0] }
         : undefined;
       ranges.push(Decoration.line({ class: classes.join(' '), attributes }).range(line.from));
     }
   }
 
-  if (!revealed) {
+  if (hideSyntax) {
     ranges.push(hiddenFence.range(opening.from, firstLine.to));
     ranges.push(hiddenFence.range(closing.from, lastLine.to));
   }

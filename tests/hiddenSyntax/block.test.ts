@@ -82,6 +82,35 @@ test('keeps HTML source visible', () => {
 });
 
 describe('Fenced code', () => {
+  test.each([
+    '```\ncode\n```',
+    '```ts\nconst value = 1;\n```',
+    '```typescript title="example"\ncode\n```',
+    '```mermaid\ngraph TD\n```',
+    '```ts\n```',
+  ])('only adds a border in lite mode: %s', block => {
+    vi.stubGlobal('__FULL_BUILD__', false);
+    try {
+      const source = `${block}\n\nAfter`;
+      editor.setUp(source, hiddenSyntaxExtension);
+      const view = window.editor;
+
+      for (const anchor of [source.length, source.indexOf('\n') + 1, 0]) {
+        view.dispatch({ selection: { anchor } });
+        expect(view.dom.querySelectorAll('.cm-md-syntaxHiddenCodeBlock')).toHaveLength(block.split('\n').length);
+        expect(view.dom.querySelectorAll('.cm-md-syntaxHiddenCodeStart')).toHaveLength(1);
+        expect(view.dom.querySelectorAll('.cm-md-syntaxHiddenCodeEnd')).toHaveLength(1);
+        expect(view.dom.querySelector('.cm-md-syntaxHiddenFence')).toBeNull();
+        expect(view.dom.querySelector('[data-code-language]')).toBeNull();
+        expect(hiddenTexts()).toEqual([]);
+        expect(editorText()).toBe(source);
+        expect(view.state.doc.toString()).toBe(source);
+      }
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   test.each(['```ts\nconst value = 1;\n```', '```ts\n```', '> ```ts\n> code\n> ```'])('reveals source without a border when folded: %s', block => {
     const source = `${block}\n\nAfter`;
     editor.setUp(source, [hiddenSyntaxExtension, codeFolding()]);
