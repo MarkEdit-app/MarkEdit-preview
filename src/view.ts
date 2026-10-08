@@ -230,7 +230,7 @@ export async function renderHtmlPreview(syncScroll = currentViewMode() !== ViewM
     previewPane.scrollTo(offset);
   }
 
-  handlePostRender(alignPosition);
+  handlePostRender(alignPosition, previewPane);
 }
 
 export function handlePageZoom(event: KeyboardEvent) {

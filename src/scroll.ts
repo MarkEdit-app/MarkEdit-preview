@@ -73,7 +73,7 @@ function scrollToProgress(container: HTMLElement, line: number, progress: number
     return scrollToPosition(container, 0, animated);
   }
 
-  const allBlocks = Array.from(document.querySelectorAll<HTMLElement>('[data-line-from]'));
+  const allBlocks = Array.from(container.querySelectorAll<HTMLElement>('[data-line-from]'));
   const bestBlock = proposeTargetBlock(allBlocks, line);
 
   // The best result, we can scroll to a block with relative progress

@@ -1,19 +1,21 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { ChangeSet, EditorSelection, Text } from '@codemirror/state';
-import { startObserving } from '../src/scroll';
+import { startObserving, syncScrollProgress } from '../src/scroll';
 
 const mocks = vi.hoisted(() => ({
   doc: undefined as unknown as Text,
   selection: undefined as unknown as EditorSelection,
   syncScroll: true,
+  blockFrom: 0,
+  scrollToElement: vi.fn(),
   scrollToPosition: vi.fn(),
 }));
 
 vi.mock('markedit-api', () => ({
   MarkEdit: {
     editorView: {
-      lineBlockAtHeight: () => ({ from: 0 }),
+      lineBlockAtHeight: () => ({ from: mocks.blockFrom }),
       state: {
         get selection() { return mocks.selection; },
         get doc() { return mocks.doc; },
@@ -26,9 +28,12 @@ vi.mock('markedit-api', () => ({
 vi.mock('../src/support/settings', () => ({ get syncScroll() { return mocks.syncScroll; } }));
 vi.mock('../src/shared/utils', () => ({
   getClosestLine: () => null,
-  getBlockRange: vi.fn(),
-  getElementTop: vi.fn(),
-  scrollToElement: vi.fn(),
+  getBlockRange: (element: HTMLElement) => ({
+    from: Number(element.dataset.lineFrom),
+    to: Number(element.dataset.lineTo),
+  }),
+  getElementTop: (_container: HTMLElement, element: HTMLElement) => element.offsetTop,
+  scrollToElement: mocks.scrollToElement,
   scrollToPosition: mocks.scrollToPosition,
 }));
 
@@ -37,7 +42,10 @@ beforeEach(() => {
   mocks.doc = Text.of(['Example document']);
   mocks.selection = EditorSelection.single(0);
   mocks.syncScroll = true;
+  mocks.blockFrom = 0;
+  mocks.scrollToElement.mockClear();
   mocks.scrollToPosition.mockClear();
+  document.body.innerHTML = '';
 });
 
 afterEach(() => {
@@ -51,6 +59,52 @@ function scroll(source: HTMLElement, top: number) {
 }
 
 describe('Editor scroll synchronization', () => {
+  function previewWithStaging() {
+    mocks.doc = Text.of(Array.from({ length: 12 }, () => 'line'));
+    const target = document.createElement('div');
+    target.innerHTML = '<div class="mermaid" data-line-from="3" data-line-to="7">Diagram</div><p data-line-from="9" data-line-to="9">Last paragraph</p>';
+
+    const staging = document.createElement('div');
+    staging.style.visibility = 'hidden';
+    staging.appendChild(target.firstElementChild!.cloneNode(true));
+
+    document.body.append(target, staging);
+    return { target, staging, source: document.createElement('div') };
+  }
+
+  test('ignores hidden diagram copies when scrolling to trailing blank lines', () => {
+    const { target, source } = previewWithStaging();
+    mocks.blockFrom = mocks.doc.line(12).from;
+
+    syncScrollProgress(source, target, false);
+    expect(mocks.scrollToElement).toHaveBeenCalledExactlyOnceWith(target, target.lastElementChild, 1, false);
+    expect(mocks.scrollToPosition).not.toHaveBeenCalled();
+  });
+
+  test('interpolates within the preview when a removed diagram is still staged', () => {
+    const { target, source } = previewWithStaging();
+    target.innerHTML = '<p data-line-from="0" data-line-to="0">Start</p><p data-line-from="10" data-line-to="10">End</p>';
+    Object.defineProperty(target.firstElementChild, 'offsetTop', { value: 100 });
+    Object.defineProperty(target.firstElementChild, 'offsetHeight', { value: 20 });
+    Object.defineProperty(target.lastElementChild, 'offsetTop', { value: 320 });
+
+    mocks.blockFrom = mocks.doc.line(6).from;
+    syncScrollProgress(source, target, false);
+    expect(mocks.scrollToPosition).toHaveBeenCalledExactlyOnceWith(target, 220, false);
+    expect(mocks.scrollToElement).not.toHaveBeenCalled();
+  });
+
+  test('selects the visible diagram even when a hidden copy precedes the preview', () => {
+    const { target, staging, source } = previewWithStaging();
+    document.body.prepend(staging);
+    mocks.blockFrom = mocks.doc.line(6).from;
+
+    syncScrollProgress(source, target, false);
+    expect(mocks.scrollToElement).toHaveBeenCalledExactlyOnceWith(target, target.firstElementChild, 0.5, false);
+    expect(mocks.scrollToElement.mock.calls[0][1]).toBe(target.firstElementChild);
+    expect(mocks.scrollToPosition).not.toHaveBeenCalled();
+  });
+
   test('ignores hidden-editor scrolling in preview mode', () => {
     const source = document.createElement('div');
     const target = document.createElement('div');
