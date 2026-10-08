@@ -120,7 +120,7 @@ function createRenderer(previewPane: HTMLElement): {
           anchor.removeAttribute('target');
         });
 
-        handlePostRender(() => {});
+        handlePostRender(() => {}, previewPane);
         rendered = true;
       } catch (error) {
         prerender = undefined;

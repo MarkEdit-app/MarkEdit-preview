@@ -16,13 +16,18 @@ describe('build variants', () => {
   });
 
   test('uses no-op renderers in lite builds', async () => {
-    const source = readFileSync(new URL('../src/render.ts', import.meta.url), 'utf8');
-    const transformRenderer = (fullBuild: boolean) => transform(source, {
-      loader: 'ts',
-      define: { __FULL_BUILD__: String(fullBuild) },
-      treeShaking: true,
-      minifySyntax: true,
-    });
+    const sources = ['../src/render.ts', '../src/features/mermaid.ts']
+      .map(path => readFileSync(new URL(path, import.meta.url), 'utf8'));
+    const transformRenderer = async (fullBuild: boolean) => {
+      const results = await Promise.all(sources.map(source => transform(source, {
+        loader: 'ts',
+        define: { __FULL_BUILD__: String(fullBuild) },
+        treeShaking: true,
+        minifySyntax: true,
+      })));
+
+      return { code: results.map(result => result.code).join('\n') };
+    };
 
     const lite = await transformRenderer(false);
     const full = await transformRenderer(true);

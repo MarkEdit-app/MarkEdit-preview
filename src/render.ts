@@ -7,6 +7,7 @@ import githubAlerts from 'markdown-it-github-alerts';
 
 import { MarkEdit } from 'markedit-api';
 import { createFrontMatterPlugin } from './features/frontMatter';
+import { loadMermaid, renderMermaidDiagrams } from './features/mermaid';
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './shared/strings';
 import { hasFullHost } from './support/host';
@@ -98,14 +99,9 @@ export async function renderKatexHTML(content: string) {
   return katex.renderToString(content.trim(), { displayMode: true, throwOnError: false });
 }
 
-export function handlePostRender(process: () => void) {
+export function handlePostRender(process: () => void, container: HTMLElement) {
   if (__FULL_BUILD__) {
-    loadMermaid().then(mermaid => {
-      mermaid.run({
-        querySelector: '.mermaid',
-        postRenderCallback: process,
-      });
-    });
+    renderMermaidDiagrams(container, process);
   } else {
     process();
   }
@@ -168,28 +164,7 @@ const importKatex = __FULL_BUILD__
   ? () => import('katex').then(mod => mod.default)
   : async () => ({ renderToString: (..._args: unknown[]) => '' });
 
-const importMermaid = __FULL_BUILD__
-  ? () => import('mermaid').then(mod => mod.default)
-  : async () => ({
-    initialize: () => {},
-    render: async () => ({ svg: '' }),
-    run: async ({ postRenderCallback }: { postRenderCallback?: () => void }) => postRenderCallback?.(),
-  });
-
-let mermaidAPI: ReturnType<typeof importMermaid> | undefined;
-let mermaidDarkMode: boolean | undefined;
 let mermaidRenderID = 0;
-
-async function loadMermaid() {
-  const mermaid = await (mermaidAPI ??= importMermaid());
-  const isDarkMode = matchMedia('(prefers-color-scheme: dark)').matches;
-  if (isDarkMode !== mermaidDarkMode) {
-    mermaid.initialize({ theme: isDarkMode ? 'dark' : undefined });
-    mermaidDarkMode = isDarkMode;
-  }
-
-  return mermaid;
-}
 
 // Create the markdown-it instance
 const mdit = markdownit(markdownItPreset, {
