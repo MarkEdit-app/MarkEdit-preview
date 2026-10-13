@@ -75,8 +75,8 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `mathDelimiters`: Customize math delimiters for KaTeX rendering (not applicable for lite build), each delimiter object has `left`, `right`, and `display` properties, defaults to `$...$`, `$$...$$`, `\(...\)`, and `\[...\]`.
 - `changeMode.modes`: Order modes by ID: `edit` (Markdown Source), `side-by-side` (Side-by-Side), `preview` (Overlay), and `syntax-hidden` (Mixed). If neither editor mode is included, `edit` is added automatically.
 - `changeMode.hotKey`: Assign keyboard shortcuts for mode switching. See the specification [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#generalmainwindowhotkey).
-- `markdownIt.preset`: Override the default [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) preset.
-- `markdownIt.options`: Customize [markdown-it](https://markdown-it.github.io/markdown-it/#MarkdownIt.new) options.
+- `markdownIt.preset`: Override the default [markdown-it preset](https://markdown-it.github.io/markdown-it/#MarkdownIt.new).
+- `markdownIt.options`: Customize [markdown-it options](https://markdown-it.github.io/markdown-it/interfaces/MarkdownItOptions.html).
 
 > [!TIP]
 >
