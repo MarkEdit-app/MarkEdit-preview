@@ -58,7 +58,11 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
     },
     "markdownIt": {
       "preset": "default",
-      "options": {}
+      "options": {
+        "html": true,
+        "breaks": true,
+        "linkify": true
+      }
     }
   }
 }
