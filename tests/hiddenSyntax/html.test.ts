@@ -3,6 +3,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import { EditorSelection, EditorState } from '@codemirror/state';
 import { codeFolding, foldEffect, unfoldEffect } from '@codemirror/language';
 import { createHiddenSyntaxExtension } from '../../src/hiddenSyntax';
+import { cursorLineEnd, revealedSyntax } from '../../src/hiddenSyntax/selection';
 import { HtmlWidget, isCompleteHtml } from '../../src/hiddenSyntax/components/html';
 import * as editor from '../support/editor';
 
@@ -68,6 +69,25 @@ describe('Hidden HTML', () => {
     expect(body()?.querySelector('strong')?.textContent).toBe('Hello');
     expect((body() as HTMLElement).inert).toBe(true);
     expect(window.editor.state.doc.toString()).toBe(source);
+  });
+
+  test.each([
+    ['Before **a <b>b</b> c** tail', true],
+    ['Before <span>**a**</span> tail', false],
+  ] as const)('isolates line-end correction from HTML widgets: %s', (block, handled) => {
+    const source = setUp(block);
+    const view = window.editor;
+    view.dispatch({ selection: { anchor: 1 } });
+    vi.spyOn(view, 'coordsAtPos').mockReturnValue(null);
+    vi.spyOn(view, 'moveToLineBoundary')
+      .mockReturnValueOnce(EditorSelection.cursor(source.indexOf('**a') + 3))
+      .mockReturnValue(EditorSelection.cursor(block.length));
+
+    expect(cursorLineEnd(view)).toBe(handled);
+    expect(view.state.field(revealedSyntax)).toHaveLength(handled ? 1 : 0);
+    expect(widget()).not.toBeNull();
+    view.dispatch({ selection: { anchor: source.indexOf('<') + 1 } });
+    expect(widget()).toBeNull();
   });
 
   test.each([
