@@ -61,7 +61,29 @@ export async function headingLineForAnchor(markdown: string, destination: string
 
   await pluginsReady;
   const anchorID = mdit.normalizeLink(destination).substring(1);
-  const heading = mdit.parse(markdown, {}).find(token => {
+  const appAnchorID = mdit.normalizeLink(destination.toLowerCase()).substring(1).toLowerCase();
+  const tokens = mdit.parse(markdown, {});
+  const lines = markdown.split(/\r\n?|\n/);
+  const heading = tokens.find((token, index) => {
+    const inline = tokens[index + 1];
+    if (token.type !== 'heading_open' || inline?.type !== 'inline' || token.map === null) {
+      return false;
+    }
+
+    const sourceLine = lines[token.map[0]];
+    const title = token.markup.startsWith('#')
+      ? sourceLine.slice(sourceLine.indexOf(token.markup)).replace(/ {0,3}#+ +/, '')
+      : inline.content.split('\n')[0].trim();
+
+    const appAnchor = (title.length > 64 ? title.substring(0, 64) + '...' : title)
+      .normalize('NFKD')
+      .trim()
+      .toLowerCase()
+      .replace(/[^\p{Letter}\p{Number}\s\-_]/gu, '')
+      .replace(/\s+/g, '-');
+
+    return mdit.normalizeLink(`#${appAnchor}`).substring(1).toLowerCase() === appAnchorID;
+  }) ?? tokens.find(token => {
     return token.type === 'heading_open' && token.attrGet('id') === anchorID;
   });
 

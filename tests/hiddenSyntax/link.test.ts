@@ -64,12 +64,32 @@ describe('Link syntax', () => {
     expect(open).not.toHaveBeenCalled();
   });
 
-  test('matches the renderer IDs for duplicate and formatted headings', async () => {
+  test.each([
+    ['## 1. Test Link', '#1-test-link'],
+    ['Test (Link)\n-----------', '#test-link'],
+    ['## Héllo, World!', '#hello-world'],
+    ['# λ', '#Λ'],
+    ['# Closing #', '#closing-'],
+    [`## ${'a'.repeat(65)}`, `#${'a'.repeat(64)}`],
+  ])('follows app-compatible anchors for %s', async (heading, destination) => {
+    const source = `[test](${destination})\n\n${heading}\n\nAfter`;
+    editor.setUp(source, hiddenSyntaxExtension);
+    window.editor.dispatch({ selection: { anchor: source.length } });
+
+    const icon = window.editor.dom.querySelector<HTMLButtonElement>('.cm-md-syntaxHiddenLinkButton');
+    expect(icon).not.toBeNull();
+    icon?.click();
+    await vi.waitFor(() => expect(window.editor.state.selection.main.head).toBe(source.indexOf(heading)));
+  });
+
+  test('prefers app anchors and falls back to renderer IDs', async () => {
     const source = '# Heading\n# Heading\n# Heading-1\n# Héllo, World! _One_\n# Closing #';
     editor.setUp(source, hiddenSyntaxExtension);
 
+    expect(await followLinkAnchor(window.editor, '#heading')).toBe(true);
+    expect(window.editor.state.selection.main.head).toBe(0);
     expect(await followLinkAnchor(window.editor, '#heading-1')).toBe(true);
-    expect(window.editor.state.selection.main.head).toBe(source.indexOf('# Heading', 1));
+    expect(window.editor.state.selection.main.head).toBe(source.indexOf('# Heading-1'));
     expect(await followLinkAnchor(window.editor, '#heading-1-1')).toBe(true);
     expect(window.editor.state.selection.main.head).toBe(source.indexOf('# Heading-1'));
     expect(await followLinkAnchor(window.editor, '#h%C3%A9llo%2C-world!-one')).toBe(true);
