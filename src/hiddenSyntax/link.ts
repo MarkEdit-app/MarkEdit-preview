@@ -16,7 +16,7 @@ export function linkSyntax(
   state: EditorState,
   resolveReferenceDestination: ReferenceDestinationResolver,
 ) {
-  if (!['Link', 'Image', 'Autolink'].includes(node.name) || selectionReveals(state, node.from, node.to)) {
+  if (!['Link', 'Image', 'Autolink'].includes(node.name)) {
     return;
   }
 

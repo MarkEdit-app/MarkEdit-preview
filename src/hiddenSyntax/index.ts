@@ -19,7 +19,7 @@ import { inlineSyntaxDecorations } from './inline';
 import { footnoteReferences, footnoteDefinitionSyntax, linkSyntax, referenceDestinationResolver } from './link';
 import { hiddenSyntaxTheme } from './theme';
 import { unorderedListSyntax } from './unorderedList';
-import { correctedLineUp, selectionReveals, stablePointerSelection } from './selection';
+import { correctedLineUp, correctedLineEnd, revealedSyntax, selectionReveals, inlineSyntaxRevealed, stablePointerSelection } from './selection';
 import { inlineRendering } from '../support/settings';
 
 const hiddenSyntax = Decoration.mark({ class: 'cm-md-syntaxHiddenSource' });
@@ -35,6 +35,8 @@ const hiddenSyntaxBaseExtension = [
     class: 'cm-md-syntaxHiddenMode',
   }),
   correctedLineUp,
+  revealedSyntax,
+  correctedLineEnd,
   stablePointerSelection,
   ViewPlugin.fromClass(
     class {
@@ -48,6 +50,7 @@ const hiddenSyntaxBaseExtension = [
           || update.selectionSet
           || update.viewportChanged
           || update.geometryChanged
+          || update.startState.field(revealedSyntax) !== update.state.field(revealedSyntax)
           || update.transactions.some(transaction => transaction.reconfigured)) {
           this.decorations = hiddenSyntaxDecorations(update.view);
         }
@@ -122,7 +125,8 @@ function hiddenSyntaxDecorations(view: EditorView) {
 
         // [Link](url) or ![Image](url)
         const link = linkSyntax(node, view.state, resolveReferenceDestination);
-        if (link !== undefined) {
+        const linkRevealed = link?.image ? selectionReveals : inlineSyntaxRevealed;
+        if (link !== undefined && !linkRevealed(view.state, node.from, node.to)) {
           const labelText = view.state.sliceDoc(link.label.from, link.label.to);
           if (renderInlineImages && link.image && link.destination !== '') {
             ranges.push(Decoration.replace({
