@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { renderMarkdown, renderMermaid, renderKatex, renderKatexHTML, renderTableBlocks } from '../src/render';
+import { renderMarkdown, renderMermaid, renderKatex, renderKatexHTML, renderTableBlocks, headingLineForAnchor } from '../src/render';
 
 vi.mock('markedit-api', () => {
   const markEdit: Record<string, unknown> = {};
@@ -13,6 +13,54 @@ async function mockDocLines(lines: number) {
 }
 
 describe('renderMarkdown', () => {
+  describe('markdown-it plugin compatibility', () => {
+    it('keeps duplicate heading anchors unique and navigable', async () => {
+      const markdown = '# Hello world\n\n# Hello world';
+      const html = await renderMarkdown(markdown);
+      expect(html).toContain('id="hello-world"');
+      expect(html).toContain('id="hello-world-1"');
+      expect(await headingLineForAnchor(markdown, '#hello-world')).toBe(0);
+      expect(await headingLineForAnchor(markdown, '#hello-world-1')).toBe(2);
+      expect(await renderMarkdown('# Hello world')).not.toContain('id="hello-world-1"');
+    });
+
+    it('preserves automatic links and external link attributes', async () => {
+      const html = await renderMarkdown('example.com user@example.com https://user:pass@example.com/path');
+      for (const href of ['http://example.com', 'mailto:user@example.com', 'https://user:pass@example.com/path']) {
+        expect(html).toContain(`href="${href}" target="_blank" rel="noopener"`);
+      }
+
+      expect(await renderMarkdown('[internal](#hello-world)')).toContain('<a href="#hello-world">internal</a>');
+    });
+
+    it('renders footnotes with references and backlinks', async () => {
+      const html = await renderMarkdown('Text[^note]\n\n[^note]: Footnote content');
+      expect(html).toContain('href="#fn1"');
+      expect(html).toContain('id="fnref1"');
+      expect(html).toContain('id="fn1"');
+      expect(html).toContain('href="#fnref1"');
+      expect(html).toContain('Footnote content');
+    });
+
+    it('renders GitHub alerts', async () => {
+      const html = await renderMarkdown('> [!NOTE]\n> Alert content');
+      expect(html).toContain('markdown-alert-note');
+      expect(html).toContain('Alert content');
+      expect(html).not.toContain('[!NOTE]');
+    });
+
+    it('preserves block line mappings and allows disabling them', async () => {
+      const markdown = '# Heading\n\nParagraph\ncontinued';
+      const html = await renderMarkdown(markdown);
+      expect(html).toContain('data-line-from="0" data-line-to="0"');
+      expect(html).toContain('data-line-from="2" data-line-to="3"');
+
+      const withoutLines = await renderMarkdown(markdown, false);
+      expect(withoutLines).not.toContain('data-line-from');
+      expect(withoutLines).not.toContain('data-line-to');
+    });
+  });
+
   describe('code blocks without language specifier', () => {
     it('should NOT apply syntax highlighting classes', async () => {
       const md = '```\nNATURAL ENGLAND\n```';

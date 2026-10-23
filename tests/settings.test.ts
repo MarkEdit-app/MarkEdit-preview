@@ -1,11 +1,48 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-const settings = vi.hoisted<{ inlineRendering: unknown; inlineImages?: boolean }>(() => ({ inlineRendering: undefined }));
+const settings = vi.hoisted<{ inlineRendering: unknown; inlineImages?: boolean; mathDelimiters?: unknown; markdownIt?: unknown }>(() => ({ inlineRendering: undefined }));
 vi.mock('markedit-api', () => ({ MarkEdit: { userSettings: { 'extension.markeditPreview': settings } } }));
 beforeEach(() => {
   vi.resetModules();
   settings.inlineRendering = undefined;
   settings.inlineImages = undefined;
+  settings.mathDelimiters = undefined;
+  settings.markdownIt = undefined;
+});
+
+describe('Markdown settings', () => {
+  test.each([undefined, null, false, ''])('uses default math delimiters for %j', async value => {
+    settings.mathDelimiters = value;
+    const { mathDelimiters } = await import('../src/support/settings');
+    expect(mathDelimiters).toBeUndefined();
+  });
+
+  test.each([
+    { value: [] },
+    { value: [{ left: '\\(', right: '\\)', display: false }] },
+  ])('preserves configured math delimiters: $value', async ({ value }) => {
+    settings.mathDelimiters = value;
+    const { mathDelimiters } = await import('../src/support/settings');
+    expect(mathDelimiters).toEqual(value);
+  });
+
+  test.each([
+    { value: 'invalid' },
+    { value: {} },
+    { value: [null] },
+    { value: [{ left: '$', right: '$' }] },
+    { value: [{ left: '$', right: '$', display: 'false' }] },
+  ])('rejects invalid math delimiters: $value', async ({ value }) => {
+    settings.mathDelimiters = value;
+    await expect(import('../src/support/settings')).rejects.toThrow('Invalid mathDelimiters setting');
+  });
+
+  test('allows disabling automatic links', async () => {
+    settings.markdownIt = { options: { linkify: false } };
+    const { renderMarkdown } = await import('../src/render');
+    const html = await renderMarkdown('example.com https://example.com');
+    expect(html).not.toContain('<a ');
+  });
 });
 
 describe('Inline rendering settings', () => {
