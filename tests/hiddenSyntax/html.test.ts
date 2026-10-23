@@ -276,4 +276,27 @@ describe('Hidden HTML', () => {
     expect(body()?.querySelector('a')?.tabIndex).toBe(-1);
     expect(body()?.querySelector('strong')?.textContent).toBe('Safe');
   });
+
+  test('preserves safe HTML attributes while isolating named properties', () => {
+    setUp('<div id="note" class="notice" data-kind="note" aria-label="Note"><a name="target" href="https://example.com" title="Visit">Link</a><code>&lt;script&gt;literal&lt;/script&gt;</code></div>');
+    const note = body()?.querySelector('div');
+    expect(note?.id).toBe('user-content-note');
+    expect(note?.className).toBe('notice');
+    expect(note?.getAttribute('data-kind')).toBe('note');
+    expect(note?.getAttribute('aria-label')).toBe('Note');
+
+    const link = note?.querySelector('a');
+    expect(link?.getAttribute('name')).toBe('user-content-target');
+    expect(link?.getAttribute('href')).toBe('https://example.com');
+    expect(link?.title).toBe('Visit');
+    expect(link?.tabIndex).toBe(-1);
+    expect(note?.querySelector('code')?.textContent).toBe('<script>literal</script>');
+    expect(note?.querySelector('script')).toBeNull();
+  });
+
+  test('keeps the HTML-only profile when foreign namespaces are present', () => {
+    setUp('<div><svg><circle cx="5" cy="5" r="4"></circle></svg><math><mi>x</mi></math><strong>HTML</strong></div>');
+    expect(body()?.querySelector('svg, circle, math, mi')).toBeNull();
+    expect(body()?.querySelector('strong')?.textContent).toBe('HTML');
+  });
 });

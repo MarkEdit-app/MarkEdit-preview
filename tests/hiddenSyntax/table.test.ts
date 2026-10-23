@@ -412,6 +412,37 @@ describe('Hidden tables', () => {
     expect(renderedTable()?.querySelector('a')?.tabIndex).toBe(-1);
   });
 
+  test('preserves KaTeX MathML and SVG through fragment sanitization', async () => {
+    setUp('| Math |\n| --- |\n| $\\sqrt{x} + \\frac{1}{2}$ |\n\nAfter');
+    await vi.waitFor(() => expect(renderedTable()?.querySelector('.katex')).toBeTruthy());
+
+    const cell = renderedTable()!.querySelector('td')!;
+    expect(cell.querySelector('math')?.namespaceURI).toBe('http://www.w3.org/1998/Math/MathML');
+    expect(cell.querySelector('msqrt mi')?.textContent).toBe('x');
+    expect([...cell.querySelectorAll('mfrac mn')].map(node => node.textContent)).toEqual(['1', '2']);
+    expect(cell.querySelector('annotation')).toBeNull();
+    expect(cell.querySelector('svg')?.namespaceURI).toBe('http://www.w3.org/2000/svg');
+    expect(cell.querySelector('svg path')?.getAttribute('d')).toBeTruthy();
+    expect(cell.querySelector('.katex-html')?.getAttribute('aria-hidden')).toBe('true');
+    expect(cell.querySelector('.katex-error')).toBeNull();
+  });
+
+  test('preserves safe table content while isolating named properties', async () => {
+    setUp('| Content |\n| --- |\n| <span id="note" class="notice" data-kind="note" aria-label="Note">Text</span><a name="target" href="https://example.com">Link</a> |\n\nAfter');
+    await vi.waitFor(() => expect(renderedTable()).toBeTruthy());
+
+    const note = renderedTable()?.querySelector('span');
+    expect(note?.id).toBe('user-content-note');
+    expect(note?.className).toBe('notice');
+    expect(note?.getAttribute('data-kind')).toBe('note');
+    expect(note?.getAttribute('aria-label')).toBe('Note');
+
+    const link = renderedTable()?.querySelector('a');
+    expect(link?.getAttribute('name')).toBe('user-content-target');
+    expect(link?.getAttribute('href')).toBe('https://example.com');
+    expect(link?.tabIndex).toBe(-1);
+  });
+
   test.each([
     '> | Name |\n> | --- |\n> | Value |',
     '- | Name |\n  | --- |\n  | Value |',

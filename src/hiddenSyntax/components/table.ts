@@ -1,6 +1,6 @@
 import { EditorSelection, StateEffect, type Text } from '@codemirror/state';
 import { WidgetType, EditorView } from '@codemirror/view';
-import DOMPurify from 'dompurify';
+import createDOMPurify from 'dompurify';
 import { MarkEdit } from 'markedit-api';
 import { editorThemeCss } from '../../styling';
 import { resolveImageURL } from '../../features/image';
@@ -163,6 +163,8 @@ export class TableWidget extends WidgetType {
   }
 }
 
+// Mermaid installs hooks on the default instance; keep widget sanitization independent
+const DOMPurify = createDOMPurify();
 const tableViews = new WeakMap<HTMLElement, {
   body: HTMLElement;
   mathStyle: HTMLStyleElement;

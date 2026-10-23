@@ -21,6 +21,19 @@ describe('parseFrontMatter (validation)', () => {
   it('returns undefined for malformed YAML', () => {
     expect(parseFrontMatter(': : :\nnot valid')).toBeUndefined();
   });
+
+  it.each([',value', ']value', '}value'])('requires quoting a leading flow indicator: %s', value => {
+    expect(parseFrontMatter(`title: ${value}`)).toBeUndefined();
+    expect(parseFrontMatter(`title: "${value}"`)).toEqual({ title: value });
+    expect(parseFrontMatter(`title: prefix${value}`)).toEqual({ title: `prefix${value}` });
+  });
+
+  it.each(['title: one\ntitle: two', 'title: !custom value', 'title: "bad\u0001value"'])(
+    'continues to reject invalid or unsupported YAML: %j',
+    source => {
+      expect(parseFrontMatter(source)).toBeUndefined();
+    },
+  );
 });
 
 describe('parseFrontMatter — type fidelity', () => {
@@ -88,5 +101,20 @@ describe('parseFrontMatter — CORE_SCHEMA (YAML 1.2) semantics', () => {
     expect(fm.date).toBe('2024-01-15');
     expect(typeof fm.date).toBe('string');
     expect(typeof fm.created).toBe('string');
+  });
+
+  it.each(['!!str', '!!%73tr', '!<tag:yaml.org,2002:str>', '!<tag:yaml.org,2002:%73tr>'])(
+    'resolves explicit string tags: %s',
+    tag => {
+      expect(parseFrontMatter(`value: ${tag} 123`)).toEqual({ value: '123' });
+    },
+  );
+
+  it('preserves aliases and treats merge keys as ordinary CORE_SCHEMA keys', () => {
+    expect(parseFrontMatter('author: &author { name: Jane }\ncopy: *author\nmeta: { <<: *author }')).toEqual({
+      author: { name: 'Jane' },
+      copy: { name: 'Jane' },
+      meta: { '<<': { name: 'Jane' } },
+    });
   });
 });

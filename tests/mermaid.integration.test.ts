@@ -3,7 +3,10 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi 
 import mermaid from 'mermaid';
 import type * as Settings from '../src/support/settings';
 import { loadMermaid } from '../src/features/mermaid';
-import { renderMermaidSVG } from '../src/render';
+import { renderMermaidSVG, renderTableBlocks } from '../src/render';
+import { HtmlWidget } from '../src/hiddenSyntax/components/html';
+import { TableWidget } from '../src/hiddenSyntax/components/table';
+import * as editor from './support/editor';
 
 const themes = vi.hoisted<{ light: typeof Settings.mermaidLightTheme; dark: typeof Settings.mermaidDarkTheme }>(() => ({
   light: 'default',
@@ -52,6 +55,46 @@ function diagramStyles(svg: string) {
 }
 
 describe('Mermaid 12 renderer', () => {
+  test('does not change HTML or table widget sanitization after rendering a diagram', async () => {
+    vi.stubGlobal('matchMedia', () => ({ matches: false, addListener: vi.fn(), removeListener: vi.fn() }));
+    const html = '<a href="https://example.com" target="_blank">Link</a>';
+    const source = `| Link |\n| --- |\n| ${html} |`;
+    editor.setUp(source, []);
+
+    const renderWidgets = async () => {
+      const view = window.editor;
+      const widgets = [
+        HtmlWidget.create(html)!,
+        new TableWidget(view.state.doc, 0, source.length, () => renderTableBlocks(source)),
+      ];
+
+      const containers = widgets.map(widget => widget.toDOM(view));
+      document.body.append(...containers);
+
+      try {
+        await vi.waitFor(() => expect(containers[1].shadowRoot!.querySelector('table')).not.toBeNull());
+        return containers.map(container => {
+          const body = container.shadowRoot!.querySelector('.markdown-body')!;
+          expect(body.querySelector('a')?.hasAttribute('target')).toBe(false);
+          return body.innerHTML;
+        });
+      } finally {
+        widgets.forEach((widget, index) => {
+          widget.destroy(containers[index]);
+          containers[index].remove();
+        });
+      }
+    };
+
+    try {
+      const before = await renderWidgets();
+      await renderMermaidSVG('flowchart TD\nA[Start] --> B[End]');
+      expect(await renderWidgets()).toEqual(before);
+    } finally {
+      window.editor.destroy();
+    }
+  });
+
   test.each([
     ['flowchart', 'flowchart TD\nA[Start] --> B[End]'],
     ['class', 'classDiagram\nAnimal <|-- Duck'],
