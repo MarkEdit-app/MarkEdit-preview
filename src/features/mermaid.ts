@@ -1,8 +1,10 @@
+import { mermaidLightTheme, mermaidDarkTheme } from '../support/settings';
+
 export async function loadMermaid() {
   const mermaid = await (mermaidAPI ??= importMermaid());
   const isDarkMode = matchMedia('(prefers-color-scheme: dark)').matches;
   if (isDarkMode !== mermaidDarkMode) {
-    mermaid.initialize({ theme: isDarkMode ? 'dark' : undefined });
+    mermaid.initialize({ theme: isDarkMode ? mermaidDarkTheme : mermaidLightTheme });
     mermaidDarkMode = isDarkMode;
   }
 

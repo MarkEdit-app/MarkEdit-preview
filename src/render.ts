@@ -11,7 +11,7 @@ import { loadMermaid, renderMermaidDiagrams } from './features/mermaid';
 import { coreCss, previewThemeCss, alertsCss, hljsCss, codeCopyCss } from './styling';
 import { localized } from './shared/strings';
 import { hasFullHost } from './support/host';
-import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPreset, markdownItOptions } from './support/settings';
+import { syntaxAutoDetect, styledHtmlColorScheme, mathDelimiters, markdownItPreset, markdownItOptions, mermaidLightTheme, mermaidDarkTheme } from './support/settings';
 
 /**
  * @param lineInfo Whether to include line info like `data-line-from` and `data-line-to`.
@@ -156,7 +156,7 @@ export async function applyStyles(html: string) {
         import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@${__MERMAID_VERSION__}/dist/mermaid.esm.min.mjs";
         if (${styledHtmlColorScheme === 'auto' ? 'true' : 'false'}) {
           const darkMode = matchMedia("(prefers-color-scheme: dark)");
-          mermaid.initialize({ theme: darkMode.matches ? "dark" : undefined });
+          mermaid.initialize({ theme: darkMode.matches ? ${JSON.stringify(mermaidDarkTheme)} : ${JSON.stringify(mermaidLightTheme)} });
           darkMode.addEventListener("change", () => {
             if (document.querySelector(".mermaid") !== null) {
               location.reload();
@@ -164,7 +164,7 @@ export async function applyStyles(html: string) {
           });
         } else {
           const isDark = ${styledHtmlColorScheme === 'dark' ? 'true' : 'false'};
-          mermaid.initialize({ theme: isDark ? "dark" : undefined });
+          mermaid.initialize({ theme: isDark ? ${JSON.stringify(mermaidDarkTheme)} : ${JSON.stringify(mermaidLightTheme)} });
         }
       </script>`;
       components.push(mermaid);

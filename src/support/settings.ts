@@ -2,6 +2,7 @@ import { MarkEdit } from 'markedit-api';
 import type { JSONObject, JSONValue } from 'markedit-api';
 import type { MarkdownIt } from 'markdown-it';
 import type { MathDelimiter } from 'markedit-katex';
+import type { MermaidConfig } from 'mermaid';
 import type { ColorScheme } from '../shared/types';
 
 export type InlineRenderingType = 'image' | 'table' | 'math' | 'mermaid' | 'html';
@@ -17,6 +18,7 @@ const userSettings = toObject(MarkEdit.userSettings);
 const rootValue = toObject(userSettings[Constants.rootValueKey]);
 const changeMode = toObject(rootValue.changeMode);
 const markdownIt = toObject(rootValue.markdownIt);
+const mermaid = toObject(rootValue.mermaid);
 
 export const syncScroll = toBoolean(rootValue.syncScroll);
 export const hidePreviewButtons = toBoolean(rootValue.hidePreviewButtons);
@@ -40,6 +42,8 @@ export const viewModes = (changeMode.modes ?? Constants.defaultModes) as string[
 export const keyboardShortcut = toObject(changeMode.hotKey);
 export const markdownItPreset = (markdownIt.preset ?? Constants.defaultPreset) as Extract<Parameters<MarkdownIt['configure']>[0], string>;
 export const markdownItOptions = toObject(markdownIt.options);
+export const mermaidLightTheme = toMermaidTheme(mermaid.lightTheme, 'lightTheme', 'default');
+export const mermaidDarkTheme = toMermaidTheme(mermaid.darkTheme, 'darkTheme', 'dark');
 
 function toObject(jsonValue: JSONValue, defaultValue = {}): JSONObject {
   return jsonValue ?? defaultValue;
@@ -65,4 +69,22 @@ function toMathDelimiters(value: unknown): MathDelimiter[] | undefined {
   }
 
   return value;
+}
+
+function toMermaidTheme(value: unknown, key: string, defaultValue: NonNullable<MermaidConfig['theme']>): NonNullable<MermaidConfig['theme']> {
+  if (value === undefined || value === null) {
+    return defaultValue;
+  }
+
+  const themes: readonly NonNullable<MermaidConfig['theme']>[] = [
+    'default', 'base', 'dark', 'forest', 'neutral', 'neo', 'neo-dark',
+    'redux', 'redux-dark', 'redux-color', 'redux-dark-color', 'null',
+  ];
+
+  const theme = themes.find(name => name === value);
+  if (theme === undefined) {
+    throw new TypeError(`Invalid mermaid.${key} setting: expected a supported Mermaid theme name`);
+  }
+
+  return theme;
 }

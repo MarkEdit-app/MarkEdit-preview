@@ -339,7 +339,7 @@ describe('Mermaid blocks', () => {
 
     darkMode = false;
     await renderMermaidSVG('graph TD');
-    expect(mermaidMocks.initialize).toHaveBeenLastCalledWith({ theme: undefined });
+    expect(mermaidMocks.initialize).toHaveBeenLastCalledWith({ theme: 'default' });
   });
 
   test('rerenders mounted diagrams when the color scheme changes', async () => {

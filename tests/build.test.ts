@@ -109,6 +109,7 @@ describe('build variants', () => {
 
       const modules = Object.keys(chunk.modules);
       expect(modules.some(id => id.includes('/node_modules/mermaid/'))).toBe(!lite);
+      expect(modules.some(id => id.includes('/node_modules/elkjs/'))).toBe(!lite);
 
       const katexRoot = dirname(require.resolve('katex/package.json'));
       expect(modules.some(id => id.startsWith(`${katexRoot}/`))).toBe(!lite);
