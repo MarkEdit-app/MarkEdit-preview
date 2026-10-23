@@ -43,26 +43,30 @@ export const taskCheckboxes = [
     '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenTaskCheckboxFrame': {
       display: 'inline-block',
       position: 'relative',
-      height: '1lh',
       margin: '0',
       textIndent: '0',
-      verticalAlign: 'top',
+      verticalAlign: 'baseline',
     },
     '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenTaskCheckboxMarker': {
       visibility: 'hidden',
     },
     '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenTaskCheckboxControl': {
-      position: 'absolute',
-      insetBlockStart: '0',
+      position: 'relative',
       insetInlineStart: '-0.15em',
-      display: 'grid',
-      placeItems: 'center',
+      display: 'inline-block',
+      verticalAlign: 'baseline',
       width: '1em',
-      height: '1lh',
+      height: '0',
+      marginInlineEnd: '-1em',
     },
     '&.cm-md-syntaxHiddenMode .cm-md-syntaxHiddenTaskCheckbox': {
+      position: 'absolute',
+      font: 'inherit',
+      top: '-0.35em',
+      top_cap: '-0.5cap', // Style-mod strips the suffix, making this "top" too
+      left: '50%',
       margin: '0',
-      transform: 'translateY(-0.09em) scale(var(--cm-md-task-checkbox-scale, 1))',
+      transform: 'translate(-50%, -50%) scale(var(--cm-md-task-checkbox-scale, 1))',
     },
   }),
 ];
@@ -149,7 +153,7 @@ class TaskCheckboxWidget extends WidgetType {
     marker.className = 'cm-md-syntaxHiddenTaskCheckboxMarker';
     marker.textContent = this.listPrefix;
 
-    const control = frame.appendChild(document.createElement('span'));
+    const control = frame.insertBefore(document.createElement('span'), marker);
     control.className = 'cm-md-syntaxHiddenTaskCheckboxControl';
 
     const input = control.appendChild(document.createElement('input'));

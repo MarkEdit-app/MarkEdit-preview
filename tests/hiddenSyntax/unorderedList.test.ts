@@ -304,7 +304,7 @@ describe('Unordered list syntax', () => {
     expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenListBulletLayer')?.getAttribute('aria-hidden')).toBe('true');
   });
 
-  test('centers task checkboxes in a fixed control slot', () => {
+  test('centers task checkboxes against the text cap height with an em fallback', () => {
     const hangingIndent = EditorView.decorations.of(Decoration.set([
       Decoration.line({ attributes: { style: 'text-indent: -2em; margin-inline-start: 2em' } }).range(0),
     ]));
@@ -315,11 +315,23 @@ describe('Unordered list syntax', () => {
     const cssRules = [...document.styleSheets].flatMap(sheet => [...sheet.cssRules]);
     const frameRule = cssRules.find(rule => rule.cssText.includes('.cm-md-syntaxHiddenTaskCheckboxFrame')) as CSSStyleRule;
     const controlRule = cssRules.find(rule => rule.cssText.includes('.cm-md-syntaxHiddenTaskCheckboxControl')) as CSSStyleRule;
+    const inputRule = cssRules.find(rule => (rule as CSSStyleRule).selectorText?.endsWith(' .cm-md-syntaxHiddenTaskCheckbox')) as CSSStyleRule;
     expect(frameRule.style.getPropertyValue('text-indent')).toBe('0px');
-    expect(controlRule.style.getPropertyValue('display')).toBe('grid');
-    expect(controlRule.style.getPropertyValue('place-items')).toBe('center');
+    expect(frameRule.style.getPropertyValue('vertical-align')).toBe('baseline');
+    expect(controlRule.style.getPropertyValue('display')).toBe('inline-block');
+    expect(controlRule.style.getPropertyValue('height')).toBe('0px');
+    expect(controlRule.style.getPropertyValue('vertical-align')).toBe('baseline');
     expect(controlRule.style.getPropertyValue('width')).toBe('1em');
     expect(controlRule.style.getPropertyValue('inset-inline-start')).toBe('-0.15em');
+    expect(controlRule.style.getPropertyValue('margin-inline-end')).toBe('-1em');
+    expect(inputRule.style.getPropertyValue('font')).toBe('inherit');
+    expect(inputRule.style.getPropertyValue('top')).toBe('-0.35em');
+
+    const stylesheet = window.editor.state.facet(EditorView.styleModule).map(module => module.getRules()).join('\n');
+    expect(stylesheet).toMatch(/\.cm-md-syntaxHiddenTaskCheckbox\s*\{[^}]*top:\s*-0\.35em;\s*top:\s*-0\.5cap[;}]/);
+    expect(inputRule.style.getPropertyValue('transform')).toBe('translate(-50%, -50%) scale(var(--cm-md-task-checkbox-scale, 1))');
+    expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenTaskCheckboxFrame')?.firstElementChild?.className)
+      .toBe('cm-md-syntaxHiddenTaskCheckboxControl');
   });
 
   test('plans bullets and tasks only for visible ranges', () => {

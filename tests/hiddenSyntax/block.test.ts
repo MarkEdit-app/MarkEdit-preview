@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { mermaidMocks, hiddenTexts, editorText } from './support';
 import { describe, expect, test, vi } from 'vitest';
-import { codeFolding, foldable, foldEffect, unfoldEffect } from '@codemirror/language';
+import { codeFolding, foldable, foldEffect, forceParsing, syntaxTreeAvailable, unfoldEffect } from '@codemirror/language';
 import { Compartment } from '@codemirror/state';
 import type { EditorView } from '@codemirror/view';
 import { createHiddenSyntaxExtension, hiddenSyntaxExtension } from '../../src/hiddenSyntax';
@@ -245,9 +245,20 @@ describe('Inline images', () => {
     expect(window.editor.dom.textContent).toContain('![Alt](image.png)');
   });
 
-  test('keeps image source visible when inline images are disabled', () => {
+  test.each([false, true])('keeps image source visible when inline images are disabled (deferred parsing: %s)', deferredParsing => {
     const source = '![Alt](image.png) after';
+    let now = Date.now();
+
+    // Simulate exhausting CodeMirror's initial parse budget on a busy runner
+    const clock = deferredParsing ? vi.spyOn(Date, 'now').mockImplementation(() => now += 1000) : undefined;
     editor.setUp(source, createHiddenSyntaxExtension([]));
+    clock?.mockRestore();
+
+    if (deferredParsing) {
+      expect(syntaxTreeAvailable(window.editor.state)).toBe(false);
+    }
+
+    expect(forceParsing(window.editor, source.length, 5000)).toBe(true);
     window.editor.dispatch({ selection: { anchor: source.length } });
 
     expect(window.editor.dom.querySelector('.cm-md-syntaxHiddenImage')).toBeNull();
