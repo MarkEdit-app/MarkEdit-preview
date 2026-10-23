@@ -1,12 +1,12 @@
 import { load as parseYaml, CORE_SCHEMA as schema } from 'js-yaml';
 import extractFrontMatter from 'markdown-it-front-matter';
-import type { PluginSimple } from 'markdown-it';
+import type { MarkdownIt } from 'markdown-it';
 
 /**
  * Markdown-it plugin that extracts YAML frontMatter and renders it as an HTML table.
  */
-export function createFrontMatterPlugin(): PluginSimple {
-  return (mdit) => {
+export function createFrontMatterPlugin() {
+  return (mdit: MarkdownIt) => {
     // Closure state is safe: the extract callback and the renderer rule fire in the same synchronous pass.
     let renderedHtml = '';
     mdit.use(extractFrontMatter, (raw: string) => {

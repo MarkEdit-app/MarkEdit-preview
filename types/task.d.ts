@@ -1,4 +1,6 @@
 declare module 'markdown-it-task-lists' {
-  const plugin: (md: MarkdownIt) => void;
+  import type { MarkdownIt } from 'markdown-it';
+
+  const plugin: (md: MarkdownIt, options?: { enabled?: boolean; label?: boolean }) => void;
   export default plugin;
 }

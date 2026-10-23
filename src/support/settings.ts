@@ -1,6 +1,7 @@
 import { MarkEdit } from 'markedit-api';
 import type { JSONObject, JSONValue } from 'markedit-api';
-import type { PresetName } from 'markdown-it';
+import type { MarkdownIt } from 'markdown-it';
+import type { MathDelimiter } from 'markedit-katex';
 import type { ColorScheme } from '../shared/types';
 
 export type InlineRenderingType = 'image' | 'table' | 'math' | 'mermaid' | 'html';
@@ -34,10 +35,10 @@ export const inlineRendering: readonly InlineRenderingType[] = Array.isArray(roo
 export const themeName = (rootValue.themeName ?? 'github') as string;
 export const showRawHtml = themeName === 'none';
 export const styledHtmlColorScheme = (rootValue.styledHtmlColorScheme ?? rootValue.styledHtmlTheme ?? 'auto') as ColorScheme; // styledHtmlTheme for backward compatibility
-export const mathDelimiters = rootValue.mathDelimiters;
+export const mathDelimiters = toMathDelimiters(rootValue.mathDelimiters);
 export const viewModes = (changeMode.modes ?? Constants.defaultModes) as string[];
 export const keyboardShortcut = toObject(changeMode.hotKey);
-export const markdownItPreset = (markdownIt.preset ?? Constants.defaultPreset) as PresetName;
+export const markdownItPreset = (markdownIt.preset ?? Constants.defaultPreset) as Extract<Parameters<MarkdownIt['configure']>[0], string>;
 export const markdownItOptions = toObject(markdownIt.options);
 
 function toObject(jsonValue: JSONValue, defaultValue = {}): JSONObject {
@@ -46,4 +47,22 @@ function toObject(jsonValue: JSONValue, defaultValue = {}): JSONObject {
 
 function toBoolean(jsonValue: JSONValue, defaultValue = true) {
   return (jsonValue ?? defaultValue) as boolean;
+}
+
+function toMathDelimiters(value: unknown): MathDelimiter[] | undefined {
+  if (!value) {
+    return undefined;
+  }
+
+  const isDelimiter = (delimiter: unknown): delimiter is MathDelimiter =>
+    delimiter !== null && typeof delimiter === 'object'
+    && 'left' in delimiter && typeof delimiter.left === 'string'
+    && 'right' in delimiter && typeof delimiter.right === 'string'
+    && 'display' in delimiter && typeof delimiter.display === 'boolean';
+
+  if (!Array.isArray(value) || !value.every(isDelimiter)) {
+    throw new TypeError('Invalid mathDelimiters setting: expected an array of { left: string, right: string, display: boolean }');
+  }
+
+  return value;
 }
