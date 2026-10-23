@@ -74,6 +74,13 @@ describe('frontMatter rendering', () => {
   });
 
   describe('strings', () => {
+    it.each([',value', ']value', '}value'])('renders quoted flow indicators and preserves the body after invalid metadata: %s', async value => {
+      expect(await renderFm(`title: "${value}"`)).toContain(row('title', value));
+      const html = await renderMarkdown(`---\ntitle: ${value}\n---\n\n# Body`, false);
+      expect(html).not.toContain('markdown-frontMatter');
+      expect(html).toContain('<h1 id="body" tabindex="-1">Body</h1>');
+    });
+
     it('strips single and double quotes', async () => {
       const html = await renderFm('a: "double"\nb: \'single\'');
       expect(html).toContain(row('a', 'double'));

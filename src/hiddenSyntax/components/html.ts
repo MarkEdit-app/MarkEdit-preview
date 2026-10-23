@@ -5,7 +5,7 @@ import { parser } from '@lezer/html';
 import { MarkEdit } from 'markedit-api';
 import { editorThemeCss } from '../../styling';
 import { resolveImageURL } from '../../features/image';
-import DOMPurify from 'dompurify';
+import createDOMPurify from 'dompurify';
 
 export function htmlFragments(state: EditorState, renderTables: boolean) {
   const source = state.doc.toString();
@@ -226,6 +226,8 @@ export class HtmlWidget extends WidgetType {
   }
 }
 
+// Mermaid installs hooks on the default instance; keep widget sanitization independent
+const DOMPurify = createDOMPurify();
 const disposables = new WeakMap<HTMLElement, () => void>();
 
 const allowedInlineStyles = [
