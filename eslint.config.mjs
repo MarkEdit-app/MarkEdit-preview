@@ -3,7 +3,7 @@ import parserTs from '@typescript-eslint/parser';
 
 export default [
   {
-    ignores: ['vitest.config.ts'],
+    ignores: ['dist/**', 'vitest.config.ts'],
   },
   {
     files: ['**/*.ts'],

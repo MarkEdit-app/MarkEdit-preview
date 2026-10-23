@@ -32,7 +32,7 @@ export default defineConfig(mergeConfig(defaultViteConfig({ outDir }), {
     __MERMAID_VERSION__: JSON.stringify(mermaidPackage.version),
   },
   build: {
-    target: 'safari16',
+    target: 'safari17.4',
     rolldownOptions: {
       output: {
         banner: requireShim,

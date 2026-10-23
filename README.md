@@ -63,6 +63,10 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
         "breaks": true,
         "linkify": true
       }
+    },
+    "mermaid": {
+      "lightTheme": "default",
+      "darkTheme": "dark"
     }
   }
 }
@@ -81,6 +85,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `changeMode.hotKey`: Assign keyboard shortcuts for mode switching. See the specification [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#generalmainwindowhotkey).
 - `markdownIt.preset`: Override the default [markdown-it preset](https://markdown-it.github.io/markdown-it/#MarkdownIt.new).
 - `markdownIt.options`: Customize [markdown-it options](https://markdown-it.github.io/markdown-it/interfaces/MarkdownItOptions.html).
+- `mermaid.lightTheme` / `mermaid.darkTheme`: Set Mermaid themes for previews and exports (full build only). Keeps the legacy colors by default: `"default"` in light mode and `"dark"` in dark mode. To opt into Mermaid 12's colorful palettes, use `"redux-color"` and `"redux-dark-color"` respectively.
 
 > [!TIP]
 >

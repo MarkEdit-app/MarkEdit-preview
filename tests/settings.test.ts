@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 
-const settings = vi.hoisted<{ inlineRendering: unknown; inlineImages?: boolean; mathDelimiters?: unknown; markdownIt?: unknown }>(() => ({ inlineRendering: undefined }));
+const settings = vi.hoisted<{ inlineRendering: unknown; inlineImages?: boolean; mathDelimiters?: unknown; markdownIt?: unknown; mermaid?: unknown }>(() => ({ inlineRendering: undefined }));
 vi.mock('markedit-api', () => ({ MarkEdit: { userSettings: { 'extension.markeditPreview': settings } } }));
 beforeEach(() => {
   vi.resetModules();
@@ -8,6 +8,41 @@ beforeEach(() => {
   settings.inlineImages = undefined;
   settings.mathDelimiters = undefined;
   settings.markdownIt = undefined;
+  settings.mermaid = undefined;
+});
+
+describe('Mermaid theme settings', () => {
+  test.each([undefined, {}, { lightTheme: null, darkTheme: null }])('uses the legacy theme pair for %j', async value => {
+    settings.mermaid = value;
+    const { mermaidLightTheme, mermaidDarkTheme } = await import('../src/support/settings');
+    expect(mermaidLightTheme).toBe('default');
+    expect(mermaidDarkTheme).toBe('dark');
+  });
+
+  test.each([
+    'default', 'base', 'dark', 'forest', 'neutral', 'neo', 'neo-dark',
+    'redux', 'redux-dark', 'redux-color', 'redux-dark-color', 'null',
+  ])('accepts the %s theme for either color scheme', async theme => {
+    settings.mermaid = { lightTheme: theme, darkTheme: theme };
+    const { mermaidLightTheme, mermaidDarkTheme } = await import('../src/support/settings');
+    expect(mermaidLightTheme).toBe(theme);
+    expect(mermaidDarkTheme).toBe(theme);
+  });
+
+  test.each(['lightTheme', 'darkTheme'])('allows configuring only %s', async key => {
+    settings.mermaid = { [key]: 'forest' };
+    const { mermaidLightTheme, mermaidDarkTheme } = await import('../src/support/settings');
+    expect(mermaidLightTheme).toBe(key === 'lightTheme' ? 'forest' : 'default');
+    expect(mermaidDarkTheme).toBe(key === 'darkTheme' ? 'forest' : 'dark');
+  });
+
+  test.each(['lightTheme', 'darkTheme'])('rejects invalid %s values', async key => {
+    for (const value of ['', 'unknown', '</script>', false, 1, {}, []]) {
+      vi.resetModules();
+      settings.mermaid = { [key]: value };
+      await expect(import('../src/support/settings')).rejects.toThrow(`Invalid mermaid.${key} setting`);
+    }
+  });
 });
 
 describe('Markdown settings', () => {

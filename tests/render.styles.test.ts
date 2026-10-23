@@ -5,12 +5,24 @@ import type * as Settings from '../src/support/settings';
 import { applyStyles, renderMarkdown } from '../src/render';
 import { generateStaticHtml, renderStaticHtml, saveStyledHtml } from '../src/view';
 
-const mocks = vi.hoisted(() => ({
-  getText: vi.fn(() => '# Hello'),
-  getFileInfo: vi.fn(async () => ({ filePath: '/example.md' })),
-  showSavePanel: vi.fn(),
-  settings: { styledHtmlColorScheme: 'auto' },
-}));
+const mocks = vi.hoisted(() => {
+  const settings: {
+    styledHtmlColorScheme: string;
+    mermaidLightTheme: typeof Settings.mermaidLightTheme;
+    mermaidDarkTheme: typeof Settings.mermaidDarkTheme;
+  } = {
+    styledHtmlColorScheme: 'auto',
+    mermaidLightTheme: 'default',
+    mermaidDarkTheme: 'dark',
+  };
+
+  return {
+    getText: vi.fn(() => '# Hello'),
+    getFileInfo: vi.fn(async () => ({ filePath: '/example.md' })),
+    showSavePanel: vi.fn(),
+    settings,
+  };
+});
 
 vi.mock('markedit-api', () => ({
   MarkEdit: {
@@ -23,6 +35,8 @@ vi.mock('markedit-api', () => ({
 vi.mock('../src/support/settings', async importOriginal => ({
   ...await importOriginal<typeof Settings>(),
   get styledHtmlColorScheme() { return mocks.settings.styledHtmlColorScheme; },
+  get mermaidLightTheme() { return mocks.settings.mermaidLightTheme; },
+  get mermaidDarkTheme() { return mocks.settings.mermaidDarkTheme; },
 }));
 
 const mermaidMarkdown = '```mermaid\ngraph TD\n  A --> B\n```';
@@ -39,6 +53,8 @@ beforeEach(() => {
   mocks.getFileInfo.mockResolvedValue({ filePath: '/example.md' });
   mocks.showSavePanel.mockClear();
   mocks.settings.styledHtmlColorScheme = 'auto';
+  mocks.settings.mermaidLightTheme = 'default';
+  mocks.settings.mermaidDarkTheme = 'dark';
 });
 
 describe('styled HTML remote scripts', () => {
@@ -69,14 +85,46 @@ describe('styled HTML remote scripts', () => {
     expect(html).not.toContain('mermaid@11/');
   });
 
-  it.each(['auto', 'light', 'dark'])('preserves %s color scheme initialization', async scheme => {
+  it.each([
+    ['auto', false, 'default'],
+    ['auto', true, 'dark'],
+    ['light', true, 'default'],
+    ['dark', false, 'dark'],
+  ])('initializes %s exports with system dark mode %s', async (scheme, systemDark, theme) => {
     mocks.settings.styledHtmlColorScheme = scheme;
     const html = await applyStyles(await renderMarkdown(mermaidMarkdown));
     const script = scripts(html)[0].textContent;
-    expect(script).toContain(`if (${scheme === 'auto'})`);
-    expect(script).toContain(`const isDark = ${scheme === 'dark'}`);
-    expect(script).toContain('darkMode.addEventListener("change"');
-    expect(script).toContain('mermaid.initialize');
+    const initialize = vi.fn();
+    const addEventListener = vi.fn();
+    const matchMedia = vi.fn(() => ({ matches: systemDark, addEventListener }));
+    const execute = new Function('mermaid', 'matchMedia', script.replace(`import mermaid from "${mermaidURL}";`, ''));
+    execute({ initialize }, matchMedia);
+
+    expect(initialize).toHaveBeenCalledExactlyOnceWith({ theme });
+    expect(addEventListener).toHaveBeenCalledTimes(scheme === 'auto' ? 1 : 0);
+    if (scheme === 'auto') {
+      expect(addEventListener).toHaveBeenCalledWith('change', expect.any(Function));
+    }
+  });
+
+  it.each([
+    ['auto', false, 'forest'],
+    ['auto', true, 'neo-dark'],
+    ['light', true, 'forest'],
+    ['dark', false, 'neo-dark'],
+  ])('uses configured themes in %s exports with system dark mode %s', async (scheme, systemDark, theme) => {
+    mocks.settings.styledHtmlColorScheme = scheme;
+    mocks.settings.mermaidLightTheme = 'forest';
+    mocks.settings.mermaidDarkTheme = 'neo-dark';
+
+    const html = await applyStyles(await renderMarkdown(mermaidMarkdown));
+    const script = scripts(html)[0].textContent;
+    const initialize = vi.fn();
+    const matchMedia = () => ({ matches: systemDark, addEventListener: vi.fn() });
+    const execute = new Function('mermaid', 'matchMedia', script.replace(`import mermaid from "${mermaidURL}";`, ''));
+
+    execute({ initialize }, matchMedia);
+    expect(initialize).toHaveBeenCalledExactlyOnceWith({ theme });
   });
 });
 
