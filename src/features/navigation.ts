@@ -1,4 +1,5 @@
 import { scrollToElement } from '../shared/utils';
+import { findAnchorTarget } from './anchors';
 
 export function handlePreviewLinkClick(container: HTMLElement, event: MouseEvent) {
   const anchor = event.target instanceof Element ? event.target.closest('a') : null;
@@ -20,20 +21,12 @@ export function followPreviewLinkAnchor(container: HTMLElement, destination: str
     return false;
   }
 
-  const id = decodeAnchor(destination.substring(1));
-  const target = [...container.querySelectorAll<HTMLElement>('[id]')].find(element => element.id === id);
+  const targets = [...container.querySelectorAll<HTMLElement>('[id]')];
+  const target = findAnchorTarget(targets, destination, (element, name) => element.getAttribute(name));
   if (target === undefined) {
     return false;
   }
 
   scrollToElement(container, target, 0, false);
   return true;
-}
-
-function decodeAnchor(anchor: string) {
-  try {
-    return decodeURIComponent(anchor);
-  } catch {
-    return anchor;
-  }
 }
