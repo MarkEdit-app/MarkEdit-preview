@@ -78,7 +78,7 @@ describe('frontMatter rendering', () => {
       expect(await renderFm(`title: "${value}"`)).toContain(row('title', value));
       const html = await renderMarkdown(`---\ntitle: ${value}\n---\n\n# Body`, false);
       expect(html).not.toContain('markdown-frontMatter');
-      expect(html).toContain('<h1 id="body" tabindex="-1">Body</h1>');
+      expect(html).toContain('<h1 id="body" tabindex="-1" data-markedit-anchor="body">Body</h1>');
     });
 
     it('strips single and double quotes', async () => {
