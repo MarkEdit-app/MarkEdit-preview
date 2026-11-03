@@ -8,6 +8,7 @@ const marks = new Map([
   ['StrongEmphasis', 'EmphasisMark'],
   ['Strikethrough', 'StrikethroughMark'],
   ['InlineCode', 'CodeMark'],
+  ['TextHighlight', 'TextHighlightMark'],
 ]);
 
 const hiddenSyntax = Decoration.mark({ class: 'cm-md-syntaxHiddenSource' });
