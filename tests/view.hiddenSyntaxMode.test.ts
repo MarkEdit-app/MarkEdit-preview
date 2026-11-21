@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
   setHiddenSyntaxMode: vi.fn(),
   destroySplitter: vi.fn(),
   viewModes: ['edit', 'side-by-side', 'preview', 'syntax-hidden'],
+  invalidateToolbarItem: vi.fn(),
 }));
 
 const {
@@ -28,6 +29,7 @@ vi.mock('markedit-api', () => ({
   MarkEdit: {
     get editorView() { return mocks.editorView; },
     editorAPI: { getText: vi.fn(() => '') },
+    invalidateToolbarItem: mocks.invalidateToolbarItem,
   },
 }));
 
@@ -79,6 +81,7 @@ beforeEach(() => {
   document.body.innerHTML = '';
   mocks.setHiddenSyntaxMode.mockClear();
   mocks.destroySplitter.mockClear();
+  mocks.invalidateToolbarItem.mockClear();
   mocks.viewModes.splice(0, mocks.viewModes.length, 'edit', 'side-by-side', 'preview', 'syntax-hidden');
   mocks.editorView = {
     contentDOM: document.createElement('div'),
@@ -195,6 +198,23 @@ describe('Preview refresh positioning', () => {
 });
 
 describe('Syntax-hidden mode', () => {
+  test('invalidates toolbar state for mode changes, shortcuts, and restoration', async () => {
+    vi.resetModules();
+    const view = await import('../src/view');
+    view.setViewMode(view.ViewMode.syntaxHidden, false);
+    expect(mocks.invalidateToolbarItem).toHaveBeenLastCalledWith('markedit-preview.view-mode');
+    mocks.invalidateToolbarItem.mockClear();
+
+    view.changeViewMode();
+    expect(mocks.invalidateToolbarItem).toHaveBeenCalledOnce();
+    localStorage.setItem('ui.view-mode', String(view.ViewMode.syntaxHidden));
+    mocks.invalidateToolbarItem.mockClear();
+
+    view.restoreViewMode();
+    expect(mocks.invalidateToolbarItem).toHaveBeenCalledOnce();
+    expect(view.currentViewMode()).toBe(view.ViewMode.syntaxHidden);
+  });
+
   test('preserves mode values and remains editor-only', async () => {
     const { ViewMode, setViewMode } = await import('../src/view');
 

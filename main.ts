@@ -8,6 +8,7 @@ import {
   ViewMode,
   setViewMode,
   changeViewMode,
+  getViewModeRotation,
   restoreViewMode,
   currentViewMode,
   renderHtmlPreview,
@@ -25,11 +26,12 @@ import {
 import { enableHoverPreview } from './src/features/image';
 import { startObserving } from './src/scroll';
 import { imageHoverPreview, keyboardShortcut } from './src/support/settings';
-import { hasFullHost } from './src/support/host';
+import { hasFullHost, invalidateViewModeToolbar } from './src/support/host';
 import { copyToSharedContainer, setUpQuickLook } from './src/quicklook';
 import { localized } from './src/shared/strings';
 import { macOSTahoe } from './src/shared/utils';
 import { hiddenSyntaxModeExtension } from './src/hiddenSyntax/mode';
+import { Icons, viewModeToolbarItemID } from './src/shared/const';
 
 import {
   performSearch,
@@ -37,6 +39,14 @@ import {
   clearSearch,
   searchCounterInfo,
 } from './src/features/search';
+
+const states: {
+  renderUpdater: ReturnType<typeof setTimeout> | undefined;
+  keyDownListener: ((event: KeyboardEvent) => void) | undefined;
+} = {
+  renderUpdater: undefined,
+  keyDownListener: undefined,
+};
 
 if (window.__markeditPreviewInitialized__) {
   console.error('MarkEdit Preview has already been initialized. Multiple initializations may cause unexpected behavior.');
@@ -70,9 +80,38 @@ window.__markeditPreviewSPI__ = {
 };
 
 if (hasFullHost()) {
+  let editorReady = false;
+  const modeItems = {
+    [ViewMode.edit]: { item: createModeItem(localized('editMode'), ViewMode.edit), icon: Icons.markdownSource },
+    [ViewMode.sideBySide]: { item: createModeItem(localized('sideBySideMode'), ViewMode.sideBySide), icon: Icons.sideBySide },
+    [ViewMode.preview]: { item: createModeItem(localized('previewMode'), ViewMode.preview), icon: Icons.preview },
+    [ViewMode.syntaxHidden]: { item: createModeItem(localized('syntaxHiddenMode'), ViewMode.syntaxHidden), icon: Icons.syntaxHidden },
+  };
+
+  if (typeof MarkEdit.addToolbarItem === 'function') {
+    MarkEdit.addToolbarItem({
+      id: viewModeToolbarItemID,
+      type: 'segmented',
+      initialPlacement: 'toolbar',
+      title: localized('viewMode'),
+      icon: Icons.preview,
+      segments: getViewModeRotation().map(mode => {
+        const { item, icon } = modeItems[mode];
+        return {
+          ...item,
+          icon,
+          state: () => ({
+            isSelected: editorReady && item.state().isSelected,
+            isEnabled: editorReady,
+          }),
+        };
+      }),
+    });
+  }
+
   MarkEdit.addMainMenuItem({
     title: localized('viewMode'),
-    icon: macOSTahoe() ? 'eye' : undefined,
+    icon: macOSTahoe() ? Icons.preview : undefined,
     children: [
       {
         title: localized('changeMode'),
@@ -81,10 +120,7 @@ if (hasFullHost()) {
         modifiers: (keyboardShortcut['modifiers'] ?? ['Command']) as MenuItem['modifiers'],
       },
       { separator: true },
-      createModeItem(localized('editMode'), ViewMode.edit),
-      createModeItem(localized('sideBySideMode'), ViewMode.sideBySide),
-      createModeItem(localized('previewMode'), ViewMode.preview),
-      createModeItem(localized('syntaxHiddenMode'), ViewMode.syntaxHidden),
+      ...Object.values(modeItems).map(({ item }) => item),
       { separator: true },
       ...createHtmlItems(),
       { separator: true },
@@ -141,6 +177,9 @@ if (hasFullHost()) {
 
     states.keyDownListener = event => handlePageZoom(event);
     document.addEventListener('keydown', states.keyDownListener);
+
+    editorReady = true;
+    invalidateViewModeToolbar();
   });
 
   // Handle lineHeight change, which doesn't trigger a CodeMirror update
@@ -153,7 +192,7 @@ if (hasFullHost()) {
   }
 }
 
-function createModeItem(title: string, mode: ViewMode): MenuItem {
+function createModeItem(title: string, mode: ViewMode) {
   return {
     title,
     action: () => setViewMode(mode),
@@ -191,11 +230,3 @@ function createHtmlItems(): MenuItem[] {
     ...copyItems,
   ];
 }
-
-const states: {
-  renderUpdater: ReturnType<typeof setTimeout> | undefined;
-  keyDownListener: ((event: KeyboardEvent) => void) | undefined;
-} = {
-  renderUpdater: undefined,
-  keyDownListener: undefined,
-};

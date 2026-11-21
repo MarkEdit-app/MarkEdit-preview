@@ -2534,9 +2534,10 @@ marked@^16.3.0:
   resolved "https://registry.yarnpkg.com/marked/-/marked-16.4.2.tgz#4959a64be6c486f0db7467ead7ce288de54290a3"
   integrity sha512-TI3V8YYWvkVf3KJe1dRkpnjs68JUPyEa5vjKrp1XEEJUAOaQc+Qj+L1qWbPd0SJuAdQkFU0h73sXXqwDYxsiDA==
 
-"markedit-api@https://github.com/MarkEdit-app/MarkEdit-api#v0.36.0":
-  version "0.36.0"
-  resolved "https://github.com/MarkEdit-app/MarkEdit-api#5a129bbe5cc1551eaf63883f73680355a4b0711e"
+markedit-api@^0.42.0:
+  version "0.42.0"
+  resolved "https://registry.yarnpkg.com/markedit-api/-/markedit-api-0.42.0.tgz#faa2b230882c8890eb4700679dfe4eb0ec516b1c"
+  integrity sha512-A8l1ixF0b1t2KEhAMOVQNeTKgWQkQqWXZYsEJHibvLu1s9ZHUofAJZ1KpRg+Dfp6vu7vvnYfFRo2R2eF+zzvuA==
 
 "markedit-katex@https://github.com/MarkEdit-app/MarkEdit-katex#v1.1.8":
   version "1.1.8"
@@ -2544,9 +2545,10 @@ marked@^16.3.0:
   dependencies:
     katex "^0.19.0"
 
-"markedit-vite@https://github.com/MarkEdit-app/MarkEdit-vite#v0.6.0":
+markedit-vite@^0.6.0:
   version "0.6.0"
-  resolved "https://github.com/MarkEdit-app/MarkEdit-vite#c78db6f15691262076293522ba4283d260110fa2"
+  resolved "https://registry.npmmirror.com/markedit-vite/-/markedit-vite-0.6.0.tgz#99325a273a17aa1cb3fec292a08463df41f53f18"
+  integrity sha512-f46/et228anTtJOo63TzzgBYb5dsWNs7nJ6LQRmF1vxGqTcyk4sRbH4BvihagoSviQG07/GHJiPMO9zrEh7XHw==
 
 mdurl@^2.1.0:
   version "2.1.0"
