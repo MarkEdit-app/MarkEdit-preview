@@ -81,7 +81,7 @@ In [settings.json](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#a
 - `themeName`: Set the preview color theme, available themes can be found in the [`styles/themes`](styles/themes) folder. Use `"none"` to disable preview styling and render the raw HTML.
 - `styledHtmlColorScheme`: Determine the color scheme of saving styled html files, valid values are `light`, `dark`, and `auto`.
 - `mathDelimiters`: Customize math delimiters for KaTeX rendering (not applicable for lite build), each delimiter object has `left`, `right`, and `display` properties, defaults to `$...$`, `$$...$$`, `\(...\)`, and `\[...\]`.
-- `changeMode.modes`: Order modes by ID: `edit` (Markdown Source), `side-by-side` (Side-by-Side), `preview` (Overlay), and `syntax-hidden` (Mixed). If neither editor mode is included, `edit` is added automatically.
+- `changeMode.modes`: Choose and order modes in the shortcut rotation and segmented toolbar by ID: `edit` (Markdown Source), `side-by-side` (Side-by-Side), `preview` (Overlay), and `syntax-hidden` (Mixed). If neither editor mode is included, `edit` is added automatically.
 - `changeMode.hotKey`: Assign keyboard shortcuts for mode switching. See the specification [here](https://github.com/MarkEdit-app/MarkEdit/wiki/Customization#generalmainwindowhotkey).
 - `markdownIt.preset`: Override the default [markdown-it preset](https://markdown-it.github.io/markdown-it/#MarkdownIt.new).
 - `markdownIt.options`: Customize [markdown-it options](https://markdown-it.github.io/markdown-it/interfaces/MarkdownItOptions.html).

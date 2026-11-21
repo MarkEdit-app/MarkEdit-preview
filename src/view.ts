@@ -9,6 +9,7 @@ import { syncScrollProgress } from './scroll';
 import { resolveTaskToggle } from './features/task';
 import { handlePreviewLinkClick } from './features/navigation';
 import { ClassNames, CacheKeys } from './shared/const';
+import { invalidateViewModeToolbar } from './support/host';
 import { setHiddenSyntaxMode } from './hiddenSyntax/mode';
 
 import Split from 'split-grid';
@@ -106,6 +107,7 @@ export function setUp() {
 export function setViewMode(mode: ViewMode, needsDisplay = true) {
   const oldMode = currentViewMode();
   states.viewMode = mode;
+  invalidateViewModeToolbar();
 
   if (mode !== oldMode) {
     localStorage.setItem(
@@ -153,6 +155,17 @@ export function setViewMode(mode: ViewMode, needsDisplay = true) {
 }
 
 export function changeViewMode() {
+  const rotation = getViewModeRotation();
+  const currentIndex = rotation.indexOf(currentViewMode());
+  const nextIndex = currentIndex === -1 ? 0 : ((currentIndex + 1) % rotation.length);
+  setViewMode(rotation[nextIndex]);
+}
+
+export function getViewModeRotation() {
+  if (!Array.isArray(viewModes)) {
+    return [ViewMode.edit, ViewMode.sideBySide, ViewMode.preview, ViewMode.syntaxHidden];
+  }
+
   const configuredModes = viewModes.map(mode => {
     switch (mode) {
       case 'edit': return ViewMode.edit;
@@ -164,12 +177,7 @@ export function changeViewMode() {
   }).filter(mode => mode !== undefined);
 
   const canEdit = configuredModes.some(mode => mode === ViewMode.edit || mode === ViewMode.syntaxHidden);
-  const rotation = canEdit ? configuredModes : [ViewMode.edit, ...configuredModes];
-
-  // When current mode is not found, start at the beginning
-  const currentIndex = rotation.indexOf(currentViewMode());
-  const nextIndex = currentIndex === -1 ? 0 : ((currentIndex + 1) % rotation.length);
-  setViewMode(rotation[nextIndex]);
+  return canEdit ? configuredModes : [ViewMode.edit, ...configuredModes];
 }
 
 export function restoreViewMode() {
