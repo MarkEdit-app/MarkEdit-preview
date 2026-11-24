@@ -1863,17 +1863,24 @@ detect-libc@^2.0.3:
   resolved "https://registry.npmjs.org/detect-libc/-/detect-libc-2.1.2.tgz#689c5dcdc1900ef5583a4cb9f6d7b473742074ad"
   integrity sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==
 
-dompurify@^3.4.12, dompurify@^3.4.17:
+dompurify@^3.4.17:
   version "3.4.17"
   resolved "https://registry.npmmirror.com/dompurify/-/dompurify-3.4.17.tgz#074bbb24eaa419535ac19ffe7f663104b0e1543d"
   integrity sha512-B/pSlYVHQ58kqISD/yDjuJ1yfzI34m1gF4lAod2bwSRhiN4K5Cl3H8Af7hqB2PmTL911tdEudnnXn5FnhRoz0w==
   optionalDependencies:
     "@types/trusted-types" "^2.0.7"
 
-elkjs@^0.9.3:
-  version "0.9.3"
-  resolved "https://registry.npmmirror.com/elkjs/-/elkjs-0.9.3.tgz#16711f8ceb09f1b12b99e971b138a8384a529161"
-  integrity sha512-f/ZeWvW/BCXbhGEf1Ujp29EASo/lk1FDnETgNKwJrsVvGZhUWCZyg3xLJjAsxfOmt8KjswHmI5EwCQcPMpOYhQ==
+dompurify@^3.5.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-3.5.0.tgz#4df6b4440b60c8ce3de64d743a11aef9fd4a2891"
+  integrity sha512-LYC0ZkE8P1V42JsRYTwMdme/2ET8SpOc5AA2eOFjP/IadvRd2fwiT4TVz5vkfy0XUx12aS2UaRkTnfVPNOv9vw==
+  optionalDependencies:
+    "@types/trusted-types" "^2.0.7"
+
+elkjs@^0.12.0:
+  version "0.12.1"
+  resolved "https://registry.yarnpkg.com/elkjs/-/elkjs-0.12.1.tgz#beb9212ba59d83265ed58584368f6e3e02758077"
+  integrity sha512-IhMYKHE4S2vtx0QrhBP3lYOIKDeIiJXBrdq9MGYkuB8ZHqhrBnHNfSUndjXFewrX1CPK8chwq+2NA0K0hliYuw==
 
 entities@^6.0.0:
   version "6.0.1"
@@ -2149,6 +2156,11 @@ globals@^14.0.0:
   resolved "https://registry.yarnpkg.com/globals/-/globals-14.0.0.tgz#898d7413c29babcf6bafe56fcadded858ada724e"
   integrity sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==
 
+globals@^17.14.0:
+  version "17.14.0"
+  resolved "https://registry.yarnpkg.com/globals/-/globals-17.14.0.tgz#5bbbe515622ba24229bd94d4a7c441740e1b50dd"
+  integrity sha512-UtdkTVyAJePQv0J2M9Xe4L0ruNSDV314XiIJsADI2Zf40bcdAonE/D/OhAU8AT99oij9mhLByb+NvA3QWZYgCg==
+
 hachure-fill@^0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/hachure-fill/-/hachure-fill-0.5.2.tgz#d19bc4cc8750a5962b47fb1300557a85fcf934cc"
@@ -2328,10 +2340,10 @@ katex@^0.18.0:
   dependencies:
     commander "^15.0.0"
 
-katex@^0.19.0:
-  version "0.19.0"
-  resolved "https://registry.npmjs.org/katex/-/katex-0.19.0.tgz#b69c8cbcfc8c331be3f4f6e606b02b7146501ec7"
-  integrity sha512-v6Tznz3zJ7u3niRCoDTsumM2+HA2XXcCu+WAacCeHD2z3p9A9Ks987o5FzfTGBN0e8A0vjEgIDvLbICrXpdw/Q==
+katex@^0.19.0, katex@^0.19.1:
+  version "0.19.1"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.19.1.tgz#ba2685811cdbffc54dfb7d55bd440c6cc6bb8795"
+  integrity sha512-jG8uKntjSEcm2EpQOh0XturpPuuC9r3Sq5HLHdsFdWZT27E672SF19QEi+of0/YeOy15lDgRhKvr5614uRrEfA==
   dependencies:
     commander "^15.0.0"
 
@@ -2480,10 +2492,10 @@ mark.js@^8.11.1:
   resolved "https://registry.yarnpkg.com/mark.js/-/mark.js-8.11.1.tgz#180f1f9ebef8b0e638e4166ad52db879beb2ffc5"
   integrity sha512-1I+1qpDt4idfgLQG+BNWmrqku+7/2bi5nLf4YwF8y8zXvmfiTBY3PV3ZibfrjBueCByROpuBjLLFCajqkgYoLQ==
 
-markdown-it-anchor@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.npmmirror.com/markdown-it-anchor/-/markdown-it-anchor-10.0.0.tgz#53e199afb8a29e7e31ed9fb7c598a86ea200e681"
-  integrity sha512-Q8g7Z6OBdH3eXF0lujFqukIxUvgCDZcjzCrJxmD6QiEzU1HWR9fVN+Bf6gxmM+0yrPFs+jUw8gNjLmUQqt6Eew==
+markdown-it-anchor@^10.1.0:
+  version "10.1.0"
+  resolved "https://registry.yarnpkg.com/markdown-it-anchor/-/markdown-it-anchor-10.1.0.tgz#e16a44886fc22401e02c0cc4422057ed4da15cad"
+  integrity sha512-htMTOUnoGqoWguddWO+NBrOEdh3dt9k1RIhTlr2CQTJOPiLZglDDGADu+Ch+47roTO6nxl2aJfSYykmOhdJCew==
 
 markdown-it-footnote@^4.0.0:
   version "4.0.0"
@@ -2534,10 +2546,10 @@ marked@^16.3.0:
   resolved "https://registry.yarnpkg.com/marked/-/marked-16.4.2.tgz#4959a64be6c486f0db7467ead7ce288de54290a3"
   integrity sha512-TI3V8YYWvkVf3KJe1dRkpnjs68JUPyEa5vjKrp1XEEJUAOaQc+Qj+L1qWbPd0SJuAdQkFU0h73sXXqwDYxsiDA==
 
-markedit-api@^0.42.0:
-  version "0.42.0"
-  resolved "https://registry.yarnpkg.com/markedit-api/-/markedit-api-0.42.0.tgz#faa2b230882c8890eb4700679dfe4eb0ec516b1c"
-  integrity sha512-A8l1ixF0b1t2KEhAMOVQNeTKgWQkQqWXZYsEJHibvLu1s9ZHUofAJZ1KpRg+Dfp6vu7vvnYfFRo2R2eF+zzvuA==
+markedit-api@^0.44.0:
+  version "0.44.0"
+  resolved "https://registry.yarnpkg.com/markedit-api/-/markedit-api-0.44.0.tgz#326fc5fee58fa96a9d5ba79256f40a3493ec1a23"
+  integrity sha512-BX+XmlXEOv2JgZQkN/iNXTsmjl3pqydwOsyhGezkRlTJR/pSFdTYGxcWORl7RPqQ4jFjDe+Zi86TkwBs5JlTfg==
 
 "markedit-katex@https://github.com/MarkEdit-app/MarkEdit-katex#v1.1.8":
   version "1.1.8"
@@ -2545,20 +2557,22 @@ markedit-api@^0.42.0:
   dependencies:
     katex "^0.19.0"
 
-markedit-vite@^0.6.0:
-  version "0.6.0"
-  resolved "https://registry.npmmirror.com/markedit-vite/-/markedit-vite-0.6.0.tgz#99325a273a17aa1cb3fec292a08463df41f53f18"
-  integrity sha512-f46/et228anTtJOo63TzzgBYb5dsWNs7nJ6LQRmF1vxGqTcyk4sRbH4BvihagoSviQG07/GHJiPMO9zrEh7XHw==
+markedit-vite@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/markedit-vite/-/markedit-vite-0.7.0.tgz#015e76e302f362ddc608547a702f5df79e86d049"
+  integrity sha512-t5GRvJJxJhi7J3JDcffIVWDzNMnPGW3joWgJCR9Dw3oymDU2OqjTonOFdu0Jls7LXDLwGQUE+tEQieOPMkhnfA==
+  dependencies:
+    globals "^17.14.0"
 
 mdurl@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmmirror.com/mdurl/-/mdurl-2.1.0.tgz#d711d3f7bce7f22c487c91be78545f356fa96573"
   integrity sha512-1+HBaOx0zi/dQWht8rNv9MYf9qqpqL/kxI0hXImU6Y547zM6Sni8BQibt7ifgMcYtQg41ao3Ivd6cnSM86inpg==
 
-mermaid@^12.2.0:
-  version "12.2.0"
-  resolved "https://registry.npmmirror.com/mermaid/-/mermaid-12.2.0.tgz#8500d2500a57bd10f0c8ab03ec4deff87df36c39"
-  integrity sha512-w7nr/SFrLO7BaVTs3dQTvYSV6nYSBj0Yy9DjBhsIJtAcHqRzXSq4Pg32ujHZ/AdWsAMNEvvhbm5dt9E2tOiHzw==
+mermaid@^12.3.0:
+  version "12.3.0"
+  resolved "https://registry.yarnpkg.com/mermaid/-/mermaid-12.3.0.tgz#e860165e0a19778ebef98038c0436bbee6783ba9"
+  integrity sha512-4113TdXeLAsMruJ79OpFL5O8+LTFXhQqZ260rF3tgUmiNAtRm4Uume04I+65PRN6yZ69J4f8rVYWW8zRk65UYw==
   dependencies:
     "@braintree/sanitize-url" "^7.1.2"
     "@iconify/utils" "^3.0.2"
@@ -2573,8 +2587,8 @@ mermaid@^12.2.0:
     d3-sankey "^0.12.3"
     dagre-d3-es "7.0.14"
     dayjs "^1.11.21"
-    dompurify "^3.4.12"
-    elkjs "^0.9.3"
+    dompurify "^3.4.17"
+    elkjs "^0.12.0"
     es-toolkit "^1.45.1"
     katex "^0.18.0"
     khroma "^2.1.0"
@@ -2582,7 +2596,6 @@ mermaid@^12.2.0:
     roughjs "^4.6.6"
     stylis "^4.3.6"
     ts-dedent "^2.2.0"
-    uuid "^11.1.0 || ^12 || ^13 || ^14.0.0"
 
 micromatch@^4.0.8:
   version "4.0.8"
@@ -3072,11 +3085,6 @@ uri-js@^4.2.2:
   integrity sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==
   dependencies:
     punycode "^2.1.0"
-
-"uuid@^11.1.0 || ^12 || ^13 || ^14.0.0":
-  version "14.0.0"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-14.0.0.tgz#0af883220163d264ffe0c084f6b8a89b9666966d"
-  integrity sha512-Qo+uWgilfSmAhXCMav1uYFynlQO7fMFiMVZsQqZRMIXp0O7rR7qjkj+cPvBHLgBqi960QCoo/PH2/6ZtVqKvrg==
 
 vite-plugin-singlefile@^2.3.3:
   version "2.3.3"
